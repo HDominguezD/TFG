@@ -11,14 +11,18 @@
 
 ObjObject::ObjObject()
 {
-    vertexes = new QVector<vtkSmartPointer<vtkPoints>>();
-    faces = new QVector<vtkSmartPointer<vtkPolyData>>();
+    vertexes = vtkPoints::New();
+    faces = vtkCellArray::New();
+    object= vtkPolyData::New();
+
+
 }
 
 bool ObjObject::readObjectFromFile(std::string fileName)
 {
     std::string line;
     std::ifstream input(fileName.c_str(), std::ifstream::out);
+    int nPoints = 0;
     while (std::getline(input, line))
     {
         switch (line[0])
@@ -27,9 +31,9 @@ bool ObjObject::readObjectFromFile(std::string fileName)
             {
                 std::vector<std::string> results;
                 boost::split(results, line, [](char c){return c == ' ';});
-                vtkSmartPointer<vtkPoints> vertex = vtkSmartPointer<vtkPoints>::New();
-                vertex->InsertNextPoint(std::stof(results.at(1)), std::stof(results.at(2)), std::stof(results.at(3)));
-                this->vertexes->append(vertex);
+                vertexes->InsertPoint(nPoints, std::stod(results.at(1)), std::stod(results.at(2)), std::stod(results.at(3)));
+
+                nPoints++;
                 break;
             }
             case 'f':
@@ -37,50 +41,58 @@ bool ObjObject::readObjectFromFile(std::string fileName)
                 std::vector<std::string> results;
                 boost::split(results, line, [](char c){return c == ' ';});
 
-                // Create the polygon
-                vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
-                polygon->GetPointIds()->SetNumberOfIds(results.size() - 1); //make a quad
 
-                vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-                for(int i = 1; i < results.size(); i++)
+                vtkIdList *pts = vtkIdList::New();
+
+                for(ulong i = 1; i < results.size(); i++)
                 {
-                    points->InsertNextPoint(this->vertexes->at(std::stoi(results[i]) - 1)->GetPoint(0));
-                    polygon->GetPointIds()->SetId(i - 1, i - 1);
+                    pts->InsertId(static_cast<long long> (i-1), std::stoi(results.at(i)) -1);
+                    long long k = pts->GetId(static_cast<long long>(i-1));
+                    k++;
                 }
 
-                // Add the polygon to a list of polygons
-                vtkSmartPointer<vtkCellArray> polygons = vtkSmartPointer<vtkCellArray>::New();
-                polygons->InsertNextCell(polygon);
 
-                // Create a PolyData
-                vtkSmartPointer<vtkPolyData> polygonPolyData =
-                vtkSmartPointer<vtkPolyData>::New();
-                polygonPolyData->SetPoints(points);
-                polygonPolyData->SetPolys(polygons);
-                faces->append(polygonPolyData);
+                // Add the polygon to a list of polygons
+                faces->InsertNextCell(pts);
+
                 break;
             };
         }
     }
+
+    // Create a PolyData
+    object->SetPoints(vertexes);
+    object->SetPolys(faces);
+
     return true;
 }
 
-QVector<vtkSmartPointer<vtkPoints> > *ObjObject::getVertexes() const
+vtkPoints *ObjObject::getVertexes() const
 {
     return vertexes;
 }
 
-void ObjObject::setVertexes(QVector<vtkSmartPointer<vtkPoints> > *value)
+void ObjObject::setVertexes(vtkPoints *value)
 {
     vertexes = value;
 }
 
-QVector<vtkSmartPointer<vtkPolyData> > *ObjObject::getFaces() const
+vtkPolyData *ObjObject::getObject() const
+{
+    return object;
+}
+
+void ObjObject::setObject(vtkPolyData *value)
+{
+    object = value;
+}
+
+vtkCellArray *ObjObject::getFaces() const
 {
     return faces;
 }
 
-void ObjObject::setFaces(QVector<vtkSmartPointer<vtkPolyData> > *value)
+void ObjObject::setFaces(vtkCellArray *value)
 {
     faces = value;
 }

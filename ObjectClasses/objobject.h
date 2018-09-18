@@ -13,15 +13,19 @@ public:
     ObjObject();
     bool readObjectFromFile(std::string fileName);
 
-    QVector<vtkSmartPointer<vtkPoints> > *getVertexes() const;
-    void setVertexes(QVector<vtkSmartPointer<vtkPoints> > *value);
+    vtkPoints *getVertexes() const;
+    void setVertexes(vtkPoints *value);
 
-    QVector<vtkSmartPointer<vtkPolyData> > *getFaces() const;
-    void setFaces(QVector<vtkSmartPointer<vtkPolyData> > *value);
+    vtkPolyData *getObject() const;
+    void setObject(vtkPolyData *value);
+
+    vtkCellArray *getFaces() const;
+    void setFaces(vtkCellArray *value);
 
 private:
-    QVector<vtkSmartPointer<vtkPoints>>* vertexes;
-    QVector<vtkSmartPointer<vtkPolyData>>* faces;
+    vtkPoints* vertexes;
+    vtkPolyData* object;
+    vtkCellArray* faces;
 };
 
 #endif // OBJOBJECT_H
