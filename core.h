@@ -7,11 +7,13 @@ class Core
 {
 public:
     Core();
-    QVector<Object3D> getObjects() const;
-    void setObjects(const QVector<Object3D> &value);
+
+    void addObject(Object3D *value);
+    QVector<Object3D *> *getObjects() const;
+    void setObjects(QVector<Object3D *> *value);
 
 private:
-    QVector<Object3D> objects;
+    QVector<Object3D*> *objects;
 };
 
 #endif // CORE_H

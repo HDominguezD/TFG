@@ -44,11 +44,11 @@ bool ObjObject::readObjectFromFile(std::string fileName)
 
                 vtkIdList *pts = vtkIdList::New();
 
+
                 for(ulong i = 1; i < results.size(); i++)
                 {
                     pts->InsertId(static_cast<long long> (i-1), std::stoi(results.at(i)) -1);
-                    long long k = pts->GetId(static_cast<long long>(i-1));
-                    k++;
+
                 }
 
 
@@ -95,5 +95,10 @@ vtkCellArray *ObjObject::getFaces() const
 void ObjObject::setFaces(vtkCellArray *value)
 {
     faces = value;
+}
+
+const char* ObjObject::objectType()
+{
+    return "obj";
 }
 

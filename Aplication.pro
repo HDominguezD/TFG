@@ -30,7 +30,6 @@ SOURCES += \
     core.cpp \
     loaddata.cpp \
     objreader.cpp \
-    ObjectClasses/object3d.cpp \
     ObjectClasses/objobject.cpp
 
 HEADERS += \

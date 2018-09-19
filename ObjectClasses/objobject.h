@@ -22,6 +22,8 @@ public:
     vtkCellArray *getFaces() const;
     void setFaces(vtkCellArray *value);
 
+    const char* objectType();
+
 private:
     vtkPoints* vertexes;
     vtkPolyData* object;

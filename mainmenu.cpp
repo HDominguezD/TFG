@@ -1,12 +1,14 @@
 #include "mainmenu.h"
 #include "ui_mainmenu.h"
 #include "loaddata.h"
+#include <qwidget.h>
 
 mainMenu::mainMenu(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::mainMenu)
 {
     ui->setupUi(this);
+    core = new Core();
 }
 
 mainMenu::~mainMenu()
@@ -17,7 +19,8 @@ mainMenu::~mainMenu()
 void mainMenu::on_loadData_clicked(bool checked)
 {
     if(!checked){
-        LoadData* w = new LoadData();
+        QWidget *parent = 0;
+        LoadData* w = new LoadData(parent, core);
         w->show();
         ui->loadData->setDisabled(true);
     }

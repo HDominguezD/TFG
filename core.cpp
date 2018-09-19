@@ -2,15 +2,20 @@
 
 Core::Core()
 {
-
+    objects = new QVector<Object3D*>();
 }
 
-QVector<Object3D> Core::getObjects() const
+
+void Core::addObject(Object3D *value){
+    this->objects->append(value);
+}
+
+QVector<Object3D *> *Core::getObjects() const
 {
     return objects;
 }
 
-void Core::setObjects(const QVector<Object3D> &value)
+void Core::setObjects(QVector<Object3D *> *value)
 {
     objects = value;
 }

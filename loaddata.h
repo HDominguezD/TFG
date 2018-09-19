@@ -2,6 +2,7 @@
 #define LOADDATA_H
 
 #include <QWidget>
+#include <core.h>
 
 namespace Ui {
 class LoadData;
@@ -12,7 +13,7 @@ class LoadData : public QWidget
     Q_OBJECT
 
 public:
-    explicit LoadData(QWidget *parent = 0);
+    explicit LoadData(QWidget *parent, Core *core);
     ~LoadData();
 
 private slots:
@@ -24,6 +25,7 @@ private slots:
 
 private:
     Ui::LoadData *ui;
+    Core *core;
 };
 
 #endif // LOADDATA_H

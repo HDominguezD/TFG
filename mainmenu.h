@@ -2,6 +2,7 @@
 #define MAINMENU_H
 
 #include <QWidget>
+#include <core.h>
 
 namespace Ui {
 class mainMenu;
@@ -20,6 +21,7 @@ private slots:
 
 private:
     Ui::mainMenu *ui;
+    Core *core;
 };
 
 #endif // MAINMENU_H

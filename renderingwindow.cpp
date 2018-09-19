@@ -14,11 +14,12 @@
 
 
 
-RenderingWindow::RenderingWindow(QWidget *parent) :
+RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
     QWidget(parent),
     ui(new Ui::RenderingWindow)
 {
     ui->setupUi(this);
+    this->core = core;
 }
 
 RenderingWindow::~RenderingWindow()
@@ -26,7 +27,7 @@ RenderingWindow::~RenderingWindow()
     delete ui;
 }
 
-void RenderingWindow::printObjObject(ObjObject* obj)
+void RenderingWindow::printObjObject(Object3D* obj)
 {
     // Visualize
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -43,7 +44,13 @@ void RenderingWindow::printObjObject(ObjObject* obj)
     // VTK/Qt wedded
     ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
 
-    // Set up action signals and slots
-    //connect(this->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
+}
 
+void RenderingWindow::printObjects()
+{
+    for(Object3D *obj : *core->getObjects()){
+        if(strcmp(obj->objectType(), "obj") == 0){
+            printObjObject(obj);
+        }
+    }
 }
