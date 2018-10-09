@@ -8,6 +8,7 @@
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
 #include <vtkPolygon.h>
+#include <map>
 
 ObjObject::ObjObject()
 {
@@ -23,11 +24,22 @@ bool ObjObject::readObjectFromFile(std::string fileName)
     std::string line;
     std::ifstream input(fileName.c_str(), std::ifstream::out);
     int nPoints = 0;
+    int nfaces = 0;
     while (std::getline(input, line))
     {
-        switch (line[0])
+        static std::map<std::string, int> s_mapStringValues;
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("v "), 1));
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("f "), 2));
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vn"), 3));
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vt"), 4));
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vp"), 5));
+            s_mapStringValues.insert(std::pair<std::string, int>(std::string("l "), 6));
+
+        std::string beginning = line.substr(0, 2);
+
+        switch (s_mapStringValues.find(beginning)->second)
         {
-            case 'v':
+            case 1:
             {
                 std::vector<std::string> results;
                 boost::split(results, line, [](char c){return c == ' ';});
@@ -36,7 +48,7 @@ bool ObjObject::readObjectFromFile(std::string fileName)
                 nPoints++;
                 break;
             }
-            case 'f':
+            case 2:
             {
                 std::vector<std::string> results;
                 boost::split(results, line, [](char c){return c == ' ';});
@@ -54,7 +66,7 @@ bool ObjObject::readObjectFromFile(std::string fileName)
 
                 // Add the polygon to a list of polygons
                 faces->InsertNextCell(pts);
-
+                nfaces++;
                 break;
             };
         }

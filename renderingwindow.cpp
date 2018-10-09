@@ -29,20 +29,46 @@ RenderingWindow::~RenderingWindow()
 
 void RenderingWindow::printObjObject(Object3D* obj)
 {
-    // Visualize
-    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->SetBackground(0, 0, 0); // Background color salmon
+//    // Visualize
+//    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+//    renderer->SetBackground(0, 0, 0); // Background color salmon
 
-    // Create a mapper and actor
-    vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+//    // Create a mapper and actor
+//    vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+//    mapper->SetInputData(obj->getObject());
+
+//    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+//    actor->SetMapper(mapper);
+//    renderer->AddActor(actor);
+
+//    // VTK/Qt wedded
+//    ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
+
+    // Visualize
+    vtkSmartPointer<vtkPolyDataMapper> mapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(obj->getObject());
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+    vtkSmartPointer<vtkActor> actor =
+      vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    renderer->AddActor(actor);
 
-    // VTK/Qt wedded
-    ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    renderer->AddActor(actor);
+    renderer->SetBackground(.3, .6, .3); // Background color green
+
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
+
+    renderWindowInteractor->Start();
+
+     ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
 
 }
 
