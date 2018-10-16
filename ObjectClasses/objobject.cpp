@@ -10,6 +10,8 @@
 #include <vtkPolygon.h>
 #include <map>
 
+using namespace std;
+
 ObjObject::ObjObject()
 {
     vertexes = vtkPoints::New();
@@ -19,47 +21,43 @@ ObjObject::ObjObject()
 
 }
 
-bool ObjObject::readObjectFromFile(std::string fileName)
+bool ObjObject::readObjectFromFile(string fileName)
 {
-    std::string line;
-    std::ifstream input(fileName.c_str(), std::ifstream::out);
+    string line;
+    ifstream input(fileName.c_str(), ifstream::out);
     int nPoints = 0;
     int nfaces = 0;
-    while (std::getline(input, line))
+    while (getline(input, line))
     {
-        static std::map<std::string, int> s_mapStringValues;
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("v "), 1));
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("f "), 2));
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vn"), 3));
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vt"), 4));
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("vp"), 5));
-            s_mapStringValues.insert(std::pair<std::string, int>(std::string("l "), 6));
+        static map<string, int> s_mapStringValues;
+            s_mapStringValues.insert(pair<string, int>(string("v "), 1));
+            s_mapStringValues.insert(pair<string, int>(string("f "), 2));
+            s_mapStringValues.insert(pair<string, int>(string("vn"), 3));
+            s_mapStringValues.insert(pair<string, int>(string("vt"), 4));
+            s_mapStringValues.insert(pair<string, int>(string("vp"), 5));
+            s_mapStringValues.insert(pair<string, int>(string("l "), 6));
 
-        std::string beginning = line.substr(0, 2);
+        string beginning = line.substr(0, 2);
+        vector<string> results;
+        boost::split(results, line, [](char c){return c == ' ';});
 
         switch (s_mapStringValues.find(beginning)->second)
         {
             case 1:
             {
-                std::vector<std::string> results;
-                boost::split(results, line, [](char c){return c == ' ';});
-                vertexes->InsertPoint(nPoints, std::stod(results.at(1)), std::stod(results.at(2)), std::stod(results.at(3)));
+                vertexes->InsertPoint(nPoints, stod(results.at(1)), stod(results.at(2)), stod(results.at(3)));
 
                 nPoints++;
                 break;
             }
             case 2:
             {
-                std::vector<std::string> results;
-                boost::split(results, line, [](char c){return c == ' ';});
-
-
                 vtkIdList *pts = vtkIdList::New();
 
 
                 for(ulong i = 1; i < results.size(); i++)
                 {
-                    pts->InsertId(static_cast<long long> (i-1), std::stoi(results.at(i)) -1);
+                    pts->InsertId(static_cast<long long> (i-1), stoi(results.at(i)) -1);
 
                 }
 

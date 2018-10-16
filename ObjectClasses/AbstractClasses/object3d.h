@@ -5,10 +5,12 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 
+using namespace std;
+
 class Object3D
 {
 public:
-    virtual bool readObjectFromFile(std::string fileName) = 0;
+    virtual bool readObjectFromFile(string fileName) = 0;
 
     virtual vtkPoints *getVertexes() const = 0;
     virtual void setVertexes(vtkPoints *value) = 0;
@@ -18,6 +20,7 @@ public:
 
     virtual vtkCellArray *getFaces() const = 0;
     virtual void setFaces(vtkCellArray *value) = 0;
+
     virtual const char* objectType() = 0;
     virtual ~Object3D(){}
 };

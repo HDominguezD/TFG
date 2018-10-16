@@ -11,12 +11,13 @@
 #include <qfiledialog.h>
 #include <QObject>
 
+using namespace std;
 ObjReader::ObjReader()
 {
 
    QStringList fileNames = QFileDialog::getOpenFileNames( Q_NULLPTR, QObject::tr("Open File"),"/path/to/file/",QObject::tr("Mesh Files (*.obj)"));
 
-  std::string filename = fileNames.at(0).toStdString();
+  string filename = fileNames.at(0).toStdString();
   vtkSmartPointer<vtkOBJReader> reader =
   vtkSmartPointer<vtkOBJReader>::New();
   reader->SetFileName(filename.c_str());

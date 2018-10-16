@@ -1,6 +1,6 @@
 #ifndef OBJOBJECT_H
 #define OBJOBJECT_H
-#include <ObjectClasses/object3d.h>
+#include "AbstractClasses/object3d.h"
 #include <qvector.h>
 #include <vtkSmartPointer.h>
 #include <vtkPoints.h>
