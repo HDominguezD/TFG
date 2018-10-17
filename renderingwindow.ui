@@ -26,7 +26,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>Rendering Window</string>
+   <string>Application</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">

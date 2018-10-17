@@ -8,6 +8,7 @@ class VolObject
 {
 public:
     virtual bool readObjectFromFile(string fileName) = 0;
+    virtual const char* objectType() = 0;
     virtual ~VolObject(){}
 };
 

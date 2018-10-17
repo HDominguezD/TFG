@@ -15,6 +15,7 @@ public:
     void setImageMapper(const vtkSmartPointer<vtkImageMapper> &value);
 
     vtkSmartPointer<vtkImageData> getOutputData() const;
+    const char* objectType();
 
 private:
     vtkSmartPointer<vtkImageMapper> imageMapper;

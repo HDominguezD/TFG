@@ -30,6 +30,8 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
 
 private:
+    void initializateSlider();
+    void showOnlyToolBar();
     Ui::RenderingWindow *ui;
     Core *core;
 };

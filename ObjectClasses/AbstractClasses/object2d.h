@@ -13,6 +13,7 @@ public:
     virtual vtkSmartPointer<vtkImageMapper> getImageMapper() const = 0;
     virtual void setImageMapper(const vtkSmartPointer<vtkImageMapper> &value) = 0;
     virtual vtkSmartPointer<vtkImageData> getOutputData() const = 0;
+    virtual const char* objectType() = 0;
     virtual ~Object2D(){}
 };
 

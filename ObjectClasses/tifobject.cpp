@@ -46,3 +46,7 @@ vtkSmartPointer<vtkImageData> TifObject::getOutputData() const
 {
     return outputData;
 }
+
+const char* TifObject::objectType(){
+    return "tif";
+}
