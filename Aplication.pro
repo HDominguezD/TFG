@@ -29,6 +29,7 @@ SOURCES += \
     main.cpp \
     ObjectClasses/objobject.cpp \
     ObjectClasses/tifobject.cpp \
+    ObjectClasses/tifvolumeobject.cpp
 
 HEADERS += \
     renderingwindow.h \
@@ -40,12 +41,13 @@ HEADERS += \
     ObjectClasses/AbstractClasses/volobject.h \
     ObjectClasses/objobject.h \
     ObjectClasses/tifobject.h \
+    ObjectClasses/tifvolumeobject.h
 
 FORMS += \
     renderingwindow.ui
 
-   INCLUDEPATH += /usr/local/include/vtk-8.1
-DEPENDPATH += /usr/local/include/vtk-8.1
+INCLUDEPATH += /usr/local/include/vtk-8.1
+
 LIBS += -L/usr/local/lib/vtk/
 
 unix: LIBS += -lQVTKWidgetPlugin

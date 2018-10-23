@@ -185,6 +185,7 @@
     </property>
     <addaction name="actionopen_file"/>
     <addaction name="actionopen_stack_of_files"/>
+    <addaction name="actionopen_tif_Volume"/>
     <addaction name="actionsave"/>
     <addaction name="actionsave_as"/>
    </widget>
@@ -214,6 +215,11 @@
   <action name="actionopen_stack_of_files">
    <property name="text">
     <string>open stack of files</string>
+   </property>
+  </action>
+  <action name="actionopen_tif_Volume">
+   <property name="text">
+    <string>open tif Volume</string>
    </property>
   </action>
  </widget>

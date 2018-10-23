@@ -29,6 +29,8 @@ private slots:
 
     void on_horizontalSlider_valueChanged(int value);
 
+    void on_actionopen_tif_Volume_triggered();
+
 private:
     void initializateSlider();
     void showOnlyToolBar();
