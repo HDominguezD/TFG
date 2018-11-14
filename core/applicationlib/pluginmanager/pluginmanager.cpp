@@ -5,6 +5,7 @@
 #include <qpluginloader.h>
 #include "../plugins/plugin.h"
 #include "QApplication"
+#include "QDebug"
 
 
 PluginManager::PluginManager()
@@ -31,6 +32,8 @@ void PluginManager::loadPlugins()
         QPluginLoader loader(path);
         QObject* _plugin = loader.instance();
         if(!_plugin){
+            QString error = loader.errorString();
+            qDebug() << error;
             //qDebug("Plugin '%s' is not a proper *Qt* plugin!! %s", qPrintable(fileName), qPrintable(failurecauses_qtplugin));
             continue;
         }

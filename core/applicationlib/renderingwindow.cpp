@@ -28,7 +28,6 @@ RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
     ui(new Ui::RenderingWindow)
 {
     ui->setupUi(this);
-    toolBar = this->addToolBar(tr("File"));
     showOnlyToolBar();
     this->core = core;
 

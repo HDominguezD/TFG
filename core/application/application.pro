@@ -11,7 +11,7 @@ unix:!mac: PLUGINSPATH  = $$APPLICATIONPREFIX/ApplicationPackage/Plugins
 
 DEPENDPATH  *= $$PWD/applicationlib
 INCLUDEPATH *= $$PWD/applicationlib
-DESTDIR = $$EXECUTABLEPATH
+DESTDIR = ../../ApplicationPackage
 
 QT       += core gui
 
@@ -277,8 +277,6 @@ unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkzlib-8.1
 unix: LIBS += -lvtkzlib-8.1
-
-LIBS += -ldl
 
 SOURCES += main.cpp
 

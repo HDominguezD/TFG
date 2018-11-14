@@ -9,7 +9,7 @@ unix:!mac: LIBRARIESPATH  = $$APPLICATIONPREFIX/ApplicationPackage
 
 DEPENDPATH  *= $$PWD/applicationlib
 INCLUDEPATH *= $$PWD/applicationlib
-DESTDIR = $$LIBRARIESPATH
+DESTDIR = ../../ApplicationPackage
 
 TARGET = applicationlib
 TEMPLATE = lib
@@ -305,7 +305,5 @@ unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkzlib-8.1
 unix: LIBS += -lvtkzlib-8.1
-
-LIBS += -ldl
 
  QT += widgets

@@ -269,8 +269,6 @@ unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkzlib-8.1
 unix: LIBS += -lvtkzlib-8.1
 
-LIBS += -ldl
-
 ## Default rules for deployment.
 #qnx: target.path = /tmp/$${TARGET}/bin
 #else: unix:!android: target.path = /opt/$${TARGET}/bin
