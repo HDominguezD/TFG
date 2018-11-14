@@ -1,15 +1,33 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-11-12T19:17:25
+# Project created by QtCreator 2018-11-12T18:07:21
 #
 #-------------------------------------------------
 
-QT       += core gui
+unix:!mac: APPLICATIONPREFIX = $$(PWD)/../..
+unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
+unix:!mac: LIBRARIESPATH  = $$APPLICATIONPREFIX/ApplicationPackage
+unix:!mac: PLUGINSPATH  = $$APPLICATIONPREFIX/ApplicationPackage/Plugins
+unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+DEPENDPATH  *= $$PWD/applicationlib
+INCLUDEPATH *= $$PWD/applicationlib
+DESTDIR = $$EXECUTABLEPATH
 
-TEMPLATE = subdirs
-CONFIG += ordered
+QT*=xml opengl widgets
+
+TARGET = $$qtLibraryTarget(surfaceplugin)
+TEMPLATE = lib
+CONFIG += plugin
+OTHER_FILES    += surfaceplugin.json
+
+# install
+ target.path = $$[QT_INSTALL_EXAMPLES]/qtbase/tools/echoplugin/plugin
+ sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS plugin.pro
+ sources.path = $$[QT_INSTALL_EXAMPLES]/qtbase/tools/echoplugin/plugin
+ INSTALLS += target sources
+
+#DESTDIR = $$[QT_INSTALL_PLUGINS]/generic
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -22,11 +40,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11
+#DISTFILES += surfacePlugin.json
+
+#unix {
+#    target.path = /usr/lib
+#    INSTALLS += target
+#}
 
 INCLUDEPATH += /usr/local/include/vtk-8.1
-DEPENDPATH  *= $$PWD/applicationlib
-INCLUDEPATH *= $$PWD/applicationlib
+
 LIBS += -L/usr/local/lib/vtk/
 
 unix: LIBS += -lQVTKWidgetPlugin
@@ -271,15 +293,8 @@ unix: LIBS += -lvtkzlib-8.1
 
 LIBS += -ldl
 
-## Default rules for deployment.
-#qnx: target.path = /tmp/$${TARGET}/bin
-#else: unix:!android: target.path = /opt/$${TARGET}/bin
-#!isEmpty(target.path): INSTALLS += target
+HEADERS += \
+    surfaceplugin.h
 
-FORMS += \
-    renderingwindow.ui
-
-SUBDIRS += \
-    applicationlib \
-    application \
-    surfaceplugin
+SOURCES += \
+    surfaceplugin.cpp \

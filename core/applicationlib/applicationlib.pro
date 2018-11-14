@@ -1,15 +1,26 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-11-12T19:17:25
+# Project created by QtCreator 2018-11-13T18:25:32
 #
 #-------------------------------------------------
+unix:!mac:  APPLICATIONPREFIX = $$(PWD)/../..
+unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
+unix:!mac: LIBRARIESPATH  = $$APPLICATIONPREFIX/ApplicationPackage
 
-QT       += core gui
+DEPENDPATH  *= $$PWD/applicationlib
+INCLUDEPATH *= $$PWD/applicationlib
+DESTDIR = $$LIBRARIESPATH
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+TARGET = applicationlib
+TEMPLATE = lib
+CONFIG += dynamiclib
+unix:CONFIG += plugin
+# configures rpath
+mac:QMAKE_LFLAGS += -install_name @executable_path/lib"$$LIBNAME".dylib
+# import / export directive in win32
+win32:DEFINES *= DYNAMIC_$$upper($$LIBNAME)
 
-TEMPLATE = subdirs
-CONFIG += ordered
+DEFINES += APPLICATIONLIB_LIBRARY
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -22,12 +33,38 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11
+SOURCES += \
+    renderingwindow.cpp \
+    core.cpp \
+    objectclasses/objobject.cpp \
+    objectclasses/tifobject.cpp \
+    objectclasses/tifvolumeobject.cpp \
+    plugins/dinamiclibraryexample.cpp \
+    pluginmanager/pluginmanager.cpp \
 
-INCLUDEPATH += /usr/local/include/vtk-8.1
-DEPENDPATH  *= $$PWD/applicationlib
-INCLUDEPATH *= $$PWD/applicationlib
+HEADERS += \
+    renderingwindow.h \
+    core.h \
+    objectclasses/objobject.h \
+    objectclasses/tifobject.h \
+    objectclasses/objobject.h \
+    objectclasses/tifobject.h \
+    objectclasses/tifvolumeobject.h \
+    plugins/dinamiclibraryexample.h \
+    plugins/plugin.h \
+    objectclasses/abstractclasses/object.h \
+    pluginmanager/pluginmanager.h \
+
+FORMS += \
+    renderingwindow.ui
+
+unix {
+    target.path = /usr/lib
+    INSTALLS += target
+}
+
 LIBS += -L/usr/local/lib/vtk/
+INCLUDEPATH += /usr/local/include/vtk-8.1
 
 unix: LIBS += -lQVTKWidgetPlugin
 unix: LIBS += -lvtkalglib-8.1
@@ -271,15 +308,4 @@ unix: LIBS += -lvtkzlib-8.1
 
 LIBS += -ldl
 
-## Default rules for deployment.
-#qnx: target.path = /tmp/$${TARGET}/bin
-#else: unix:!android: target.path = /opt/$${TARGET}/bin
-#!isEmpty(target.path): INSTALLS += target
-
-FORMS += \
-    renderingwindow.ui
-
-SUBDIRS += \
-    applicationlib \
-    application \
-    surfaceplugin
+ QT += widgets

@@ -1,5 +1,0 @@
-QT += opengl xml
-TEMPLATE = lib
-CONFIG += plugin
-DESTDIR = $$PLUGINSPATH
-DEPENDPATH *= $$PWD
