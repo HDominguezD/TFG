@@ -1,0 +1,4 @@
+#ifndef ECHOINTERFACE_H
+#define ECHOINTERFACE_H
+
+#endif // ECHOINTERFACE_H
