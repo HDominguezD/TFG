@@ -13,8 +13,8 @@ public:
     const char* getType();
     void close();
 
-private:
-    void printObjects3D();
+//private:
+//    void printObjects3D();
 
 private slots:
     void open();

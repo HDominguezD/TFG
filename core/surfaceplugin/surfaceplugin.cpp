@@ -41,20 +41,20 @@ void SurfacePlugin::open(){
     object->readObject();
     core = new Core();
     core->addObject3D(object);
-    printObjects3D();
+    //printObjects3D();
 }
 
-void SurfacePlugin::printObjects3D()
-{
-    QMainWindow *window = this->getRenderingWindow();
-    QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkwidget");
-    widget->show();
+//void SurfacePlugin::printObjects3D()
+//{
+//    QMainWindow *window = this->getRenderingWindow();
+//    QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkwidget");
+//    widget->show();
 
-    for(Object *obj : *core->getObjects3D())
-    {
-        if(strcmp(obj->objectType(), "obj") == 0)
-        {
-            obj->printObject(widget);
-        }
-    }
-}
+//    for(Object *obj : *core->getObjects3D())
+//    {
+//        if(strcmp(obj->objectType(), "obj") == 0)
+//        {
+//            obj->printObject(widget);
+//        }
+//    }
+//}

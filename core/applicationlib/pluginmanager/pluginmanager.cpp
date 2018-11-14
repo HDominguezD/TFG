@@ -36,7 +36,6 @@ void PluginManager::loadPlugins()
         }
         loadPlugin(_plugin);
     }
-    int hol = 1;
 }
 
 bool PluginManager::loadPlugin(QObject* _plugin)
@@ -56,6 +55,6 @@ QString PluginManager::getPluginDirPath() {
     QDir pluginsDir(qApp->applicationDirPath());
 //    if(!pluginsDir.exists("Plugins"))
 //        throw QException("Serious error. Unable to find the plugins directory at %s.", qPrintable(pluginsDir.absoluteFilePath("plugins")) );
-    pluginsDir.cd("../Plugins");
+    pluginsDir.cd("Plugins");
     return pluginsDir.absolutePath();
 }
