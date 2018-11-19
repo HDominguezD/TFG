@@ -1,6 +1,6 @@
 #ifndef SURFACEPLUGIN_H
 #define SURFACEPLUGIN_H
-#include "../applicationlib/plugins/plugin.h"
+#include "plugins/plugin.h"
 
 class SurfacePlugin : public QObject, Plugin
 {
@@ -17,7 +17,7 @@ private:
     void printObjects3D();
 
 private slots:
-    void open();
+    void openObjFile();
 };
 
 #endif // SURFACEPLUGIN_H

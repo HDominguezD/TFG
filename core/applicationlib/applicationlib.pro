@@ -39,8 +39,8 @@ SOURCES += \
     objectclasses/objobject.cpp \
     objectclasses/tifobject.cpp \
     objectclasses/tifvolumeobject.cpp \
-    plugins/dinamiclibraryexample.cpp \
     pluginmanager/pluginmanager.cpp \
+    objectclasses/tifstackobject.cpp
 
 HEADERS += \
     renderingwindow.h \
@@ -50,10 +50,10 @@ HEADERS += \
     objectclasses/objobject.h \
     objectclasses/tifobject.h \
     objectclasses/tifvolumeobject.h \
-    plugins/dinamiclibraryexample.h \
     plugins/plugin.h \
     objectclasses/abstractclasses/object.h \
     pluginmanager/pluginmanager.h \
+    objectclasses/tifstackobject.h
 
 FORMS += \
     renderingwindow.ui

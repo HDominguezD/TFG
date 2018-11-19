@@ -3,6 +3,7 @@
 #include "abstractclasses/object.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageStack.h"
+#include "core.h"
 
 
 class TifObject : public Object
@@ -12,9 +13,9 @@ public:
     bool readObject();
     void printObject(QVTKWidget * widget);
     const char* objectType();
+    bool readObjectFromFile(std::string fileName);
 
 private:
-    bool readObjectFromFile(std::string fileName);
     vtkSmartPointer<vtkImageMapper> imageMapper;
     vtkSmartPointer<vtkImageData> outputData;
 };

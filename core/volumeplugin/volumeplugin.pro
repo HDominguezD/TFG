@@ -14,10 +14,9 @@ DESTDIR = $$PLUGINSPATH
 
 QT*=xml opengl widgets
 
-TARGET = $$qtLibraryTarget(surfaceplugin)
+TARGET = $$qtLibraryTarget(volumeplugin)
 TEMPLATE = lib
 CONFIG += plugin
-OTHER_FILES    += surfaceplugin.json
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -269,8 +268,11 @@ unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkzlib-8.1
 unix: LIBS += -lvtkzlib-8.1
 
-HEADERS += \
-    surfaceplugin.h
-
 SOURCES += \
-    surfaceplugin.cpp \
+        volumeplugin.cpp
+
+HEADERS += \
+        volumeplugin.h
+
+OTHER_FILES += \
+        volumeplugin.json

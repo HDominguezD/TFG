@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <qsurfaceformat.h>
 #include <QVTKOpenGLWidget.h>
-#include "../applicationlib/pluginmanager/pluginmanager.h"
+#include "pluginmanager/pluginmanager.h"
 
 int main(int argc, char *argv[])
 {

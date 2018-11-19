@@ -1,34 +1,34 @@
-#include "surfaceplugin.h"
+#include "volumeplugin.h"
 #include "QApplication"
 #include "QMenuBar"
 #include "QSlider"
-#include "objectclasses/objobject.h"
+#include "objectclasses/tifvolumeobject.h"
 
-void SurfacePlugin::load()
+void VolumePlugin::load()
 {
     QMainWindow *window = this->getRenderingWindow();
-    QMenu *menu = new QMenu("surface", window);
-    QAction *action = new QAction("Open Obj File");
+    QMenu *menu = new QMenu("volume", window);
+    QAction *action = new QAction("open tifs directory");
     menu->addAction(action);
 
     QMenuBar * toolbar = window->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
 
     /// Reacts to changes in mode
-    connect(action, SIGNAL(triggered()), this, SLOT(openObjFile()));
+    connect(action, SIGNAL(triggered()), this, SLOT(openTifStack()));
 }
 
-const char* SurfacePlugin::getType()
+const char* VolumePlugin::getType()
 {
-    return "surfacePlugin";
+    return "volumePlugin";
 }
 
-void SurfacePlugin::close()
+void VolumePlugin::close()
 {
     int hola = 1;
 }
 
-void SurfacePlugin::openObjFile()
+void VolumePlugin::openTifStack()
 {
     QMainWindow *window = this->getRenderingWindow();
     QSlider * slider = window->findChild<QSlider *>("horizontalSlider");
@@ -36,21 +36,21 @@ void SurfacePlugin::openObjFile()
 
     QWidget * widget = window->findChild<QWidget *>("centralwidget");
     widget->show();
-    Object *object = new ObjObject();
+    Object *object = new TifVolumeObject();
     object->readObject();
-    core->addObject3D(object);
-    printObjects3D();
+    core->addVolObject(object);
+    printVolumeObjects();
 }
 
-void SurfacePlugin::printObjects3D()
+void VolumePlugin::printVolumeObjects()
 {
     QMainWindow *window = this->getRenderingWindow();
     QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkWidget");
     widget->show();
 
-    for(Object *obj : *core->getObjects3D())
+    for(Object *obj : *core->getVolObjects())
     {
-        if(strcmp(obj->objectType(), "Obj") == 0)
+        if(strcmp(obj->objectType(), "TifVolume") == 0)
         {
             obj->printObject(widget);
         }

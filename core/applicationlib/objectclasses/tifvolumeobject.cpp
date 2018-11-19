@@ -109,5 +109,5 @@ void TifVolumeObject::printObject(QVTKWidget * widget)
 
 const char *TifVolumeObject::objectType()
 {
-    return "tifSlides";
+    return "TifVolume";
 }

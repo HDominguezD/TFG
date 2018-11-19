@@ -9,7 +9,7 @@ Core::Core()
 
 void Core::addObject3D(Object *value)
 {
-    if(strcmp(value->objectType(), "obj") == 0)
+    if(strcmp(value->objectType(), "Obj") == 0)
         this->objects3D->append(value);
 }
 
@@ -25,7 +25,7 @@ void Core::removeObject3D(Object *value)
 
 void Core::addObject2D(Object *value)
 {
-    if(strcmp(value->objectType(), "tif") == 0)
+    if((strcmp(value->objectType(), "Tif") == 0) || (strcmp(value->objectType(), "TifStack") == 0))
         this->objects2D->append(value);
 }
 
@@ -41,7 +41,7 @@ void Core::removeObject2D(Object *value)
 
 void Core::addVolObject(Object *value)
 {
-    if(strcmp(value->objectType(), "tifSlides") == 0)
+    if(strcmp(value->objectType(), "TifVolume") == 0)
         this->volObjects->append(value);
 }
 

@@ -31,7 +31,7 @@ private slots:
 
     void on_actionopen_stack_of_files_triggered();
 
-    void on_horizontalSlider_valueChanged(int value);
+    //void on_horizontalSlider_valueChanged(int value);
 
     void on_actionopen_tif_Volume_triggered();
 

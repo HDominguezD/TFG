@@ -37,21 +37,18 @@ bool TifObject::readObject()
         fileExtMap->insert(pair<string, int> ("tif", 1));
         fileExtMap->insert(pair<string, int> ("tiff", 1));
 
-    for(QString name : fileNames)
+    string fileName = fileNames.at(0).toStdString();
+
+    vector<string> splitName;
+    boost::split(splitName, fileName, [](char c){return c == '.';});
+    string ext = splitName.at(splitName.size() - 1);
+
+    switch(fileExtMap->find(ext)->second)
     {
-        string fileName = name.toStdString();
-
-        vector<string> splitName;
-        boost::split(splitName, fileName, [](char c){return c == '.';});
-        string ext = splitName.at(splitName.size() - 1);
-
-        switch(fileExtMap->find(ext)->second)
+        case 1 :
         {
-            case 1 :
-            {
-                readObjectFromFile(fileName);
-                break;
-            }
+            readObjectFromFile(fileName);
+            break;
         }
     }
 }
@@ -65,7 +62,6 @@ bool TifObject::readObjectFromFile(string fileName)
     imageMapper->SetInputData(reader->GetOutput());
     outputData = reader->GetOutput();
 
-    //añadir a core
     return true;
 }
 
@@ -94,5 +90,5 @@ void TifObject::printObject(QVTKWidget * widget)
 }
 
 const char* TifObject::objectType(){
-    return "tif";
+    return "Tif";
 }

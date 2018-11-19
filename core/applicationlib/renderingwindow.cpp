@@ -57,7 +57,7 @@ void RenderingWindow::printObjects3D()
 
     for(Object *obj : *core->getObjects3D())
     {
-        if(strcmp(obj->objectType(), "obj") == 0)
+        if(strcmp(obj->objectType(), "Obj") == 0)
         {
             obj->printObject(ui->qvtkWidget);
         }
@@ -70,7 +70,7 @@ void RenderingWindow::printVolObjects()
 
     for(Object *obj : *core->getVolObjects())
     {
-        if(strcmp(obj->objectType(), "tifSlides") == 0){
+        if(strcmp(obj->objectType(), "TifVolume") == 0){
             obj->printObject(ui->qvtkWidget);
         }
     }
@@ -82,7 +82,10 @@ void RenderingWindow::printObjects2D()
 
     for(Object *obj : *core->getObjects2D())
     {
-        if(strcmp(obj->objectType(), "tif") == 0){
+        if(strcmp(obj->objectType(), "Tif") == 0){
+            obj->printObject(ui->qvtkWidget);
+        }
+        else if(strcmp(obj->objectType(), "TifStack") == 0){
             obj->printObject(ui->qvtkWidget);
         }
     }
@@ -108,11 +111,11 @@ void RenderingWindow::on_actionopen_stack_of_files_triggered()
     initializateSlider();
 }
 
-void RenderingWindow::on_horizontalSlider_valueChanged(int value)
-{
+//void RenderingWindow::on_horizontalSlider_valueChanged(int value)
+//{
 
-    core->getObjects2D()->at(value)->printObject(ui->qvtkWidget);
-}
+//    core->getObjects2D()->at(value)->printObject(ui->qvtkWidget);
+//}
 
 void RenderingWindow::initializateSlider()
 {

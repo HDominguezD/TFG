@@ -40,7 +40,7 @@ bool ObjObject::readObject()
     boost::split(splitName, fileName, [](char c){return c == '.';});
     string ext = splitName.at(splitName.size() - 1);
 
-   if(ext == "obj"){
+   if(ext == "Obj"){
        readObjectFromFile(fileName);
    }
 }
@@ -121,6 +121,6 @@ void ObjObject::printObject(QVTKWidget * widget)
 
 const char* ObjObject::objectType()
 {
-    return "obj";
+    return "Obj";
 }
 

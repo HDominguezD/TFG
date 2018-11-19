@@ -1,18 +1,32 @@
-TEMPLATE = subdirs
-CONFIG += ordered
+#-------------------------------------------------
+#
+# Project created by QtCreator 2018-11-16T10:35:49
+#
+#-------------------------------------------------
+unix:!mac: APPLICATIONPREFIX = ../..
+unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
+unix:!mac: LIBRARIESPATH  = $$APPLICATIONPREFIX/ApplicationPackage
+unix:!mac: PLUGINSPATH  = $$APPLICATIONPREFIX/ApplicationPackage/Plugins
+unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
 
+DESTDIR = $$PLUGINSPATH
 
+QT*=xml opengl widgets
 
-SUBDIRS +=     core \
-    volumeplugin \
-    echoplugin
+TARGET = $$qtLibraryTarget(imageplugin)
+TEMPLATE = lib
+CONFIG += plugin
+OTHER_FILES    += imageplugin.json
 
-#unix:!mac:  APPLICATIONPREFIX = $$(PWD)/../..
-#unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
+DEFINES += QT_DEPRECATED_WARNINGS
 
+INCLUDEPATH += /usr/local/include/vtk-8.1
+INCLUDEPATH += ../applicationlib
+
+unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
+unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 LIBS += -L/usr/local/lib/vtk/
-INCLUDEPATH += /usr/local/include/vtk-8.1
 
 unix: LIBS += -lQVTKWidgetPlugin
 unix: LIBS += -lvtkalglib-8.1
@@ -254,3 +268,11 @@ unix: LIBS += -lvtkViewsQt-8.1
 unix: LIBS += -lvtkzlib-8.1
 unix: LIBS += -lvtkzlib-8.1
 
+SOURCES += \
+        imageplugin.cpp
+
+HEADERS += \
+        imageplugin.h
+
+OTHER_FILES += \
+        imageplugin.json

@@ -4,14 +4,15 @@
 #
 #-------------------------------------------------
 
-unix:!mac:  APPLICATIONPREFIX = $$(PWD)/../..
+unix:!mac:  APPLICATIONPREFIX = ../..
 unix:!mac: EXECUTABLEPATH = $$APPLICATIONPREFIX/ApplicationPackage
 unix:!mac: LIBRARIESPATH  = $$APPLICATIONPREFIX/ApplicationPackage
 unix:!mac: PLUGINSPATH  = $$APPLICATIONPREFIX/ApplicationPackage/Plugins
 
 DEPENDPATH  *= $$PWD/applicationlib
 INCLUDEPATH *= $$PWD/applicationlib
-DESTDIR = ../../ApplicationPackage
+
+DESTDIR = $$EXECUTABLEPATH
 
 QT       += core gui
 
@@ -32,11 +33,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 CONFIG += c++11
+
 INCLUDEPATH += /usr/local/include/vtk-8.1
-INCLUDEPATH += $$(PWD)/../applicationlib
+INCLUDEPATH += ../applicationlib
 
 unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
+
 LIBS += -L/usr/local/lib/vtk/
 unix: LIBS += -lQVTKWidgetPlugin
 unix: LIBS += -lvtkalglib-8.1
@@ -280,7 +283,3 @@ unix: LIBS += -lvtkzlib-8.1
 
 SOURCES += main.cpp
 
-## Default rules for deployment.
-#qnx: target.path = /tmp/$${TARGET}/bin
-#else: unix:!android: target.path = /opt/$${TARGET}/bin
-#!isEmpty(target.path): INSTALLS += target
