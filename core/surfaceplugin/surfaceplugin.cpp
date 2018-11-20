@@ -25,7 +25,12 @@ const char* SurfacePlugin::getType()
 
 void SurfacePlugin::close()
 {
-    int hola = 1;
+
+}
+
+SurfacePlugin::~SurfacePlugin()
+{
+
 }
 
 void SurfacePlugin::openObjFile()

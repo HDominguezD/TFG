@@ -13,6 +13,7 @@ public:
     void load();
     const char* getType();
     void close();
+    virtual ~ImagePlugin();
 
 private:
     void printObjects2D();

@@ -1,7 +1,6 @@
 #ifndef PLUGINMANAGER2_H
 #define PLUGINMANAGER2_H
 
-#include <QString>
 #include "QObject"
 #include "../plugins/plugin.h"
 
@@ -12,12 +11,11 @@ public:
     PluginManager();
     void loadPlugins();
 
-    QVector<Plugin *> *getPlugins() const;
+    QVector<Plugin*>* getPlugins() const;
 
 private:
     QString getPluginDirPath();
-    bool loadPlugin(QObject* _plugin);
-
+    bool loadPlugin(QObject *_plugin);
     QVector<Plugin*>* plugins;
 };
 

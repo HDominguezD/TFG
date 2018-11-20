@@ -25,7 +25,12 @@ const char* VolumePlugin::getType()
 
 void VolumePlugin::close()
 {
-    int hola = 1;
+
+}
+
+VolumePlugin::~VolumePlugin()
+{
+
 }
 
 void VolumePlugin::openTifStack()

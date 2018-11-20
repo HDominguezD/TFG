@@ -1,9 +1,5 @@
 #include "objobject.h"
-#include <sstream>
-#include <fstream>
-#include <string>
 #include <boost/algorithm/string.hpp>
-#include <vtkSmartPointer.h>
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
@@ -28,10 +24,11 @@ ObjObject::ObjObject()
 
 bool ObjObject::readObject()
 {
+    bool readed = false;
     QStringList fileNames = QFileDialog::getOpenFileNames( Q_NULLPTR, QObject::tr("Open File"),"/path/to/file/",QObject::tr("Mesh Files (*.obj)"));
     if(fileNames.isEmpty())
     {
-        return false;
+        return readed;
     }
 
     string fileName = fileNames.at(0).toStdString();
@@ -40,9 +37,10 @@ bool ObjObject::readObject()
     boost::split(splitName, fileName, [](char c){return c == '.';});
     string ext = splitName.at(splitName.size() - 1);
 
-   if(ext == "Obj"){
-       readObjectFromFile(fileName);
+   if(ext == "obj"){
+       readed = readObjectFromFile(fileName);
    }
+   return readed;
 }
 
 bool ObjObject::readObjectFromFile(string fileName)
@@ -50,7 +48,7 @@ bool ObjObject::readObjectFromFile(string fileName)
     string line;
     ifstream input(fileName.c_str(), ifstream::out);
     int nPoints = 0;
-    int nfaces = 0;
+    int nFaces = 0;
     while (getline(input, line))
     {
         static map<string, int> s_mapStringValues;
@@ -88,7 +86,7 @@ bool ObjObject::readObjectFromFile(string fileName)
 
                 // Add the polygon to a list of polygons
                 faces->InsertNextCell(pts);
-                nfaces++;
+                nFaces++;
                 break;
             };
         }
@@ -98,10 +96,14 @@ bool ObjObject::readObjectFromFile(string fileName)
     object->SetPoints(vertexes);
     object->SetPolys(faces);
 
+    if(nPoints == 0 || nFaces == 0){
+        return false;
+    }
+
     return true;
 }
 
-void ObjObject::printObject(QVTKWidget * widget)
+void ObjObject::printObject(QVTKWidget *widget)
 {
     // Visualize
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -122,5 +124,10 @@ void ObjObject::printObject(QVTKWidget * widget)
 const char* ObjObject::objectType()
 {
     return "Obj";
+}
+
+ObjObject::~ObjObject()
+{
+
 }
 

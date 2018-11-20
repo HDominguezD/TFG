@@ -12,6 +12,7 @@ public:
     void load();
     const char* getType();
     void close();
+    virtual ~SurfacePlugin();
 
 private:
     void printObjects3D();

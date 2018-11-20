@@ -10,10 +10,12 @@ TifStackObject::TifStackObject()
 
 bool TifStackObject::readObject()
 {
-    QDir directory = QFileDialog::getExistingDirectory(0, QObject::tr("select directory"));
+    bool readed = false;
+
+    QDir directory = QFileDialog::getExistingDirectory(Q_NULLPTR, QObject::tr("select directory"));
     if(!directory.exists())
     {
-        return false;
+        return readed;
     }
 
     QStringList images = directory.entryList(QStringList() << "*.tif" << "*.tiff",QDir::Files);
@@ -22,9 +24,11 @@ bool TifStackObject::readObject()
     }
     for(QString image : images){
         TifObject *tif = new TifObject();
-        tif->readObjectFromFile(directory.absolutePath().toStdString() + "/" + image.toStdString());
+        readed = tif->readObjectFromFile(directory.absolutePath().toStdString() + "/" + image.toStdString());
         tifStack->append(tif);
     }
+
+    return readed;
 }
 
 void TifStackObject::printObject(QVTKWidget *widget)
@@ -39,22 +43,22 @@ const char *TifStackObject::objectType()
     return "TifStack";
 }
 
-QVector<TifObject *> *TifStackObject::getTifStack() const
+QVector<TifObject*>* TifStackObject::getTifStack() const
 {
     return tifStack;
 }
 
-void TifStackObject::setTifStack(QVector<TifObject *> *value)
+void TifStackObject::setTifStack(QVector<TifObject*>* value)
 {
     tifStack = value;
 }
 
-void TifStackObject::addTifObject(TifObject *value)
+void TifStackObject::addTifObject(TifObject* value)
 {
     tifStack->append(value);
 }
 
-void TifStackObject::removeTifObject(TifObject *value)
+void TifStackObject::removeTifObject(TifObject* value)
 {
     tifStack->removeAll(value);
 }
@@ -67,4 +71,9 @@ int TifStackObject::getActiveImage() const
 void TifStackObject::setActiveImage(int value)
 {
     activeImage = value;
+}
+
+TifStackObject::~TifStackObject()
+{
+
 }

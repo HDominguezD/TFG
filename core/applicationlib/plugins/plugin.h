@@ -10,10 +10,11 @@ public:
     virtual void load() = 0;
     virtual const char * getType() = 0;
     virtual void close() = 0;
-    virtual void setRenderingWindow(RenderingWindow *value){ renderingWindow = value;}
-    virtual RenderingWindow *getRenderingWindow() const { return renderingWindow;}
+    void setRenderingWindow(RenderingWindow *value){ renderingWindow = value;}
+    RenderingWindow *getRenderingWindow() const { return renderingWindow;}
     Core *getCore() const {return core;}
-    void setCore(Core *value){core = value;}
+    void setCore(Core* value){core = value;}
+    virtual ~Plugin() = 0;
 
     RenderingWindow *renderingWindow;
     Core *core;

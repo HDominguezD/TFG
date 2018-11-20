@@ -5,6 +5,7 @@
 #include <qpluginloader.h>
 #include "../plugins/plugin.h"
 #include "QApplication"
+#include "QException"
 #include "QDebug"
 
 
@@ -15,14 +16,18 @@ PluginManager::PluginManager()
 
 void PluginManager::loadPlugins()
 {
-    // qDebug() << "PluginManager::loadPlugins(..)";
+    qDebug() << "PluginManager::loadPlugins(..)";
 
     QDir pluginsDir(getPluginDirPath());
-    // without adding the correct library path in the mac the loading of jpg (done via qt plugins) fails
-    // qApp->addLibraryPath(getPluginDirPath());
-    // qApp->addLibraryPath(getBaseDirPath());
 
-    // qDebug( "Loading plugins from: %s ",qPrintable(pluginsDir.absolutePath()));
+    qDebug( "Loading plugins from: %s ",qPrintable(pluginsDir.absolutePath()));
+
+    QString failurecauses_qtplugin(
+    "\nPOSSIBLE FAILURE REASONS:\n"
+    "  1) plugin needs a DLL which cannot be found in the executable folder\n"
+    "  2) Release / debug build mismatch\n"
+    "  3) Missing Q_INTERFACE(...) or Q_EXPORT_PLUGIN(...)\n"
+    "  *) any other reason?");
 
     /// Load all plugins
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
@@ -34,7 +39,7 @@ void PluginManager::loadPlugins()
         if(!_plugin){
             QString error = loader.errorString();
             qDebug() << error;
-            //qDebug("Plugin '%s' is not a proper *Qt* plugin!! %s", qPrintable(fileName), qPrintable(failurecauses_qtplugin));
+            qDebug("Plugin '%s' is not a proper *Qt* plugin!! %s", qPrintable(fileName), qPrintable(failurecauses_qtplugin));
             continue;
         }
         loadPlugin(_plugin);
@@ -56,8 +61,6 @@ QVector<Plugin *> *PluginManager::getPlugins() const
 
 QString PluginManager::getPluginDirPath() {
     QDir pluginsDir(qApp->applicationDirPath());
-//    if(!pluginsDir.exists("Plugins"))
-//        throw QException("Serious error. Unable to find the plugins directory at %s.", qPrintable(pluginsDir.absoluteFilePath("plugins")) );
     pluginsDir.cd("Plugins");
     return pluginsDir.absolutePath();
 }

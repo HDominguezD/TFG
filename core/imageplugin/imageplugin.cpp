@@ -26,11 +26,10 @@ void ImagePlugin::load()
     menu->addAction(action2);
 
     toolbar->addMenu(menu);
-    //slider = new QSlider();
+
     /// Reacts to changes in mode
     connect(action2, SIGNAL(triggered()), this, SLOT(openTifStack()));
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
-    //connect(slider, SIGNAL((valueChanged(int))), this, SLOT(changeImageShowed(int)));
 }
 
 const char* ImagePlugin::getType()
@@ -40,7 +39,12 @@ const char* ImagePlugin::getType()
 
 void ImagePlugin::close()
 {
-    int hola = 1;
+
+}
+
+ImagePlugin::~ImagePlugin()
+{
+
 }
 
 void ImagePlugin::openTifFile()
@@ -104,7 +108,6 @@ void ImagePlugin::initializateSlider()
             TifStackObject *obj = dynamic_cast<TifStackObject*>(core->getObjects2D()->at(0));
             slider->setMaximum(obj->getTifStack()->size() - 1);
             slider->setMinimum(0);
-            int max = slider->maximum();
             slider->setValue(0);
             obj->setActiveImage(0);
             obj->printObject(vtkWidget);

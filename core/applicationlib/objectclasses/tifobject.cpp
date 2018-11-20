@@ -1,23 +1,15 @@
 #include "tifobject.h"
+#include <boost/algorithm/string.hpp>
 #include <vtkSmartPointer.h>
 #include <vtkTIFFReader.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkSmartPointer.h>
-#include <vtkImageViewer2.h>
-#include <vtkTIFFReader.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkImageMapper.h>
 #include <vtkImageData.h>
+#include <vtkImageMapper.h>
 #include <vtkImageResize.h>
 #include <vtkActor2D.h>
-#include "vtkRenderWindow.h"
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
 #include "vtkRendererCollection.h"
 #include "qfiledialog.h"
-#include <boost/algorithm/string.hpp>
 
 TifObject::TifObject()
 {
@@ -27,10 +19,11 @@ TifObject::TifObject()
 
 bool TifObject::readObject()
 {
+    bool readed = false;
     QStringList fileNames = QFileDialog::getOpenFileNames( Q_NULLPTR, QObject::tr("Open Files"),"/path/to/file/",QObject::tr("Mesh Files (*.tiff *.tif)"));
     if(fileNames.isEmpty())
     {
-        return false;
+        return readed;
     }
 
     map<string, int> *fileExtMap = new map<string, int>();
@@ -47,10 +40,12 @@ bool TifObject::readObject()
     {
         case 1 :
         {
-            readObjectFromFile(fileName);
+            readed = readObjectFromFile(fileName);
             break;
         }
     }
+
+    return readed;
 }
 bool TifObject::readObjectFromFile(string fileName)
 {
@@ -65,7 +60,12 @@ bool TifObject::readObjectFromFile(string fileName)
     return true;
 }
 
-void TifObject::printObject(QVTKWidget * widget)
+TifObject::~TifObject()
+{
+
+}
+
+void TifObject::printObject(QVTKWidget *widget)
 {
     // Visualize
     vtkSmartPointer<vtkImageResize> resize = vtkSmartPointer<vtkImageResize>::New();

@@ -1,7 +1,6 @@
 #include "tifvolumeobject.h"
 #include "vtkImageReader.h"
 #include "vtkStringArray.h"
-#include "QStringList"
 #include "QDir"
 #include "vtkObjectFactory.h"
 #include "vtkRenderingOpenGL2ObjectFactory.h"
@@ -11,9 +10,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkVolumeProperty.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "qfiledialog.h"
-#include "QObject"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
@@ -25,7 +22,7 @@ TifVolumeObject::TifVolumeObject()
 
 bool TifVolumeObject::readObject()
 {
-    QDir directory = QFileDialog::getExistingDirectory(0, QObject::tr("select directory"));
+    QDir directory = QFileDialog::getExistingDirectory(Q_NULLPTR, QObject::tr("select directory"));
     if(!directory.exists())
     {
         return false;
@@ -52,7 +49,7 @@ bool TifVolumeObject::readObject()
 
     int height = header->GetDataExtent()[3];
     int width = header->GetDataExtent()[1];
-    int depth = directory.count();
+    int depth = static_cast<int>(directory.count());
 
     reader->SetDataExtent(0, width - 1, 0, height - 1, 0, depth - 1);
     reader->SetDataScalarTypeToUnsignedChar();
@@ -96,7 +93,7 @@ bool TifVolumeObject::readObject()
     return true;
 }
 
-void TifVolumeObject::printObject(QVTKWidget * widget)
+void TifVolumeObject::printObject(QVTKWidget *widget)
 {
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->SetBackground(.2, .2, .2);
@@ -110,4 +107,9 @@ void TifVolumeObject::printObject(QVTKWidget * widget)
 const char *TifVolumeObject::objectType()
 {
     return "TifVolume";
+}
+
+TifVolumeObject::~TifVolumeObject()
+{
+
 }

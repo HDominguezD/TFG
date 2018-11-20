@@ -1,6 +1,4 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-SUBDIRS +=     core \
-    volumeplugin \
-    echoplugin
+SUBDIRS +=     core
