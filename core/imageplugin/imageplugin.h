@@ -2,6 +2,7 @@
 #define IMAGEPLUGIN_H
 #include "plugins/plugin.h"
 #include "QSlider"
+#include "QTabWidget"
 
 class ImagePlugin : public QObject, Plugin
 {
@@ -16,12 +17,13 @@ public:
     virtual ~ImagePlugin();
 
 private:
-    void printObjects2D();
-    void initializateSlider();
-    QSlider *slider;
+    void initializateSlider(Object *obj);
     QWidget *widget;
+    QSlider *slider;
     QVTKWidget *vtkWidget;
     QMenuBar * toolbar;
+    QTabWidget * tab;
+    QWidget *window;
 
 private slots:
     void openTifFile();

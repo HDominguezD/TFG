@@ -43,7 +43,7 @@ void VolumePlugin::openTifStack()
     widget->show();
     Object *object = new TifVolumeObject();
     object->readObject();
-    core->addVolObject(object);
+    core->addObject(object);
     printVolumeObjects();
 }
 
@@ -53,7 +53,7 @@ void VolumePlugin::printVolumeObjects()
     QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkWidget");
     widget->show();
 
-    for(Object *obj : *core->getVolObjects())
+    for(Object *obj : *core->getObjects())
     {
         if(strcmp(obj->objectType(), "TifVolume") == 0)
         {

@@ -14,6 +14,9 @@ RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
     showOnlyToolBar();
     this->core = core;
 
+    ui->tabWidget->removeTab(0);
+    ui->tabWidget->removeTab(0);
+
     PluginManager *manager = new PluginManager();
     manager->loadPlugins();
     for(Plugin *plugin : *manager->getPlugins()){

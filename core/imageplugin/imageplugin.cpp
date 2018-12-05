@@ -5,6 +5,7 @@
 #include "objectclasses/tifstackobject.h"
 #include <QObject>
 #include "vtkImageSliceCollection.h"
+#include "QVBoxLayout"
 
 void ImagePlugin::load()
 {
@@ -12,12 +13,11 @@ void ImagePlugin::load()
     QAction *action = new QAction("Open tif File");
     menu->addAction(action);
 
-    vtkWidget = renderingWindow->findChild<QVTKWidget *>("qvtkWidget");
-    slider = renderingWindow->findChild<QSlider *>("horizontalSlider");
     widget = renderingWindow->findChild<QWidget *>("centralwidget");
     toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
-
-    toolbar->addMenu(menu);
+    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
+    tab->setMinimumHeight(602);
+    tab->setMinimumWidth(811);
 
     /// Reacts to changes in mode
     connect(action, SIGNAL(triggered()), this, SLOT(openTifFile()));
@@ -29,8 +29,7 @@ void ImagePlugin::load()
 
     /// Reacts to changes in mode
     connect(action2, SIGNAL(triggered()), this, SLOT(openTifStack()));
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
-}
+   }
 
 const char* ImagePlugin::getType()
 {
@@ -49,68 +48,76 @@ ImagePlugin::~ImagePlugin()
 
 void ImagePlugin::openTifFile()
 {
-    slider->hide();
+    window = new QWidget();
     widget->show();
+
+    vtkWidget = new QVTKWidget(window, 0);
+    vtkWidget->setObjectName("qvtkWidget");
+    vtkWidget->setFixedHeight(580);
+    vtkWidget->setFixedWidth(789);
+
+    const QString name = QObject::tr("tif Image");
+    tab->addTab(window, name);
 
     Object *object = new TifObject();
     object->readObject();
-    core->addObject2D(object);
-    printObjects2D();
+    core->addObject(object);
+    core->addTab(window);
+    object->printObject(vtkWidget);
 }
 
 void ImagePlugin::openTifStack()
 {
-    slider->show();
     widget->show();
+    window = new QWidget();
+    vtkWidget = new QVTKWidget();
+    vtkWidget->setObjectName("qvtkWidget");
+    vtkWidget->setFixedHeight(500);
+    vtkWidget->setFixedWidth(500);
 
+    slider = new QSlider(Qt::Orientation::Horizontal);
+    slider->setObjectName("slider");
+    slider->setFixedWidth(500);
+    slider->show();
+
+    QVBoxLayout *layout = new QVBoxLayout(window);
+
+    layout->addWidget(vtkWidget);
+    layout->addWidget(slider);
     Object *object = new TifStackObject();
     object->readObject();
-    core->addObject2D(object);
-    initializateSlider();
+    core->addObject(object);
+    core->addTab(window);
+    initializateSlider(object);
+
+    const QString name = QObject::tr("tif Stack");
+    tab->addTab(window, name);
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
 }
-
-
-void ImagePlugin::printObjects2D()
-{
-    vtkWidget->show();
-
-    for(Object *obj : *core->getObjects2D())
-    {
-        if(strcmp(obj->objectType(), "Tif") == 0)
-        {
-            obj->printObject(vtkWidget);
-        }
-        if(strcmp(obj->objectType(), "TifStack") == 0)
-        {
-            obj->printObject(vtkWidget);
-        }
-    }
-}
-
 
 void ImagePlugin::changeImageShowed(int value)
 {
-    if(core->getObjects2D() != nullptr)
-    {
-        if(strcmp(core->getObjects2D()->at(0)->objectType(),"TifStack") == 0){
-            TifStackObject *obj = dynamic_cast<TifStackObject*>(core->getObjects2D()->at(0));
+    int activeObject = tab->currentIndex();
+    if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty()){
+        Object *object = core->getObjects()->at(activeObject);
+        if(strcmp(object->objectType(),"TifStack") == 0){
+            TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
             obj->setActiveImage(value);
-            obj->printObject(vtkWidget);
+            QWidget *actualTab = core->getTabs()->at(activeObject);
+            QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("qvtkWidget");
+            obj->printObject(vtkWindow);
         }
     }
 }
 
-void ImagePlugin::initializateSlider()
+void ImagePlugin::initializateSlider(Object *object)
 {
-    if(core->getObjects2D() != nullptr)
-    {
-        if(strcmp(core->getObjects2D()->at(0)->objectType(),"TifStack") == 0){
-            TifStackObject *obj = dynamic_cast<TifStackObject*>(core->getObjects2D()->at(0));
-            slider->setMaximum(obj->getTifStack()->size() - 1);
-            slider->setMinimum(0);
-            slider->setValue(0);
-            obj->setActiveImage(0);
-            obj->printObject(vtkWidget);
-        }
+    if(strcmp(object->objectType(),"TifStack") == 0){
+        TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
+        slider->setMaximum(obj->getTifStack()->size() - 1);
+        slider->setMinimum(0);
+        slider->setValue(0);
+        obj->setActiveImage(0);
+        obj->printObject(vtkWidget);
     }
 }

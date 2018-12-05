@@ -2,55 +2,36 @@
 
 Core::Core()
 {
-    objects3D = new QVector<Object*>();
-    objects2D = new QVector<Object*>();
-    volObjects = new QVector<Object*>();
+    objects = new QVector<Object*>();
+    tabs = new QVector<QWidget*>();
 }
 
-void Core::addObject3D(Object *value)
+void Core::addObject(Object *value)
 {
-    if(strcmp(value->objectType(), "Obj") == 0)
-        this->objects3D->append(value);
+    this->objects->append(value);
 }
 
-QVector<Object *> *Core::getObjects3D() const
+QVector<Object *> *Core::getObjects() const
 {
-    return objects3D;
+    return objects;
 }
 
-void Core::removeObject3D(Object *value)
+void Core::removeObject(Object *value)
 {
-    this->objects3D->removeOne(value);
+    this->objects->removeOne(value);
 }
 
-void Core::addObject2D(Object *value)
+void Core::addTab(QWidget *value)
 {
-    if((strcmp(value->objectType(), "Tif") == 0) || (strcmp(value->objectType(), "TifStack") == 0))
-        this->objects2D->append(value);
+    this->tabs->append(value);
 }
 
-QVector<Object *> *Core::getObjects2D() const
+QVector<QWidget*> *Core::getTabs() const
 {
-    return objects2D;
+    return tabs;
 }
 
-void Core::removeObject2D(Object *value)
+void Core::removeTab(QWidget *value)
 {
-    this->objects2D->removeOne(value);
-}
-
-void Core::addVolObject(Object *value)
-{
-    if(strcmp(value->objectType(), "TifVolume") == 0)
-        this->volObjects->append(value);
-}
-
-QVector<Object *> * Core::getVolObjects() const
-{
-    return this->volObjects;
-}
-
-void Core::removeVolObject(Object * value)
-{
-    this->volObjects->removeOne(value);
+    this->tabs->removeOne(value);
 }

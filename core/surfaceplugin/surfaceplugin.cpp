@@ -43,7 +43,7 @@ void SurfacePlugin::openObjFile()
     widget->show();
     Object *object = new ObjObject();
     object->readObject();
-    core->addObject3D(object);
+    core->addObject(object);
     printObjects3D();
 }
 
@@ -53,7 +53,7 @@ void SurfacePlugin::printObjects3D()
     QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkWidget");
     widget->show();
 
-    for(Object *obj : *core->getObjects3D())
+    for(Object *obj : *core->getObjects())
     {
         if(strcmp(obj->objectType(), "Obj") == 0)
         {
