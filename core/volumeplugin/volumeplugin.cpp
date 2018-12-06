@@ -11,10 +11,13 @@ void VolumePlugin::load()
     QAction *action = new QAction("open tifs directory");
     menu->addAction(action);
 
-    QMenuBar * toolbar = window->findChild<QMenuBar *>("menubar");
+    widget = renderingWindow->findChild<QWidget *>("centralwidget");
+    QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
+    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
+    tab->setMinimumHeight(602);
+    tab->setMinimumWidth(811);
 
-    /// Reacts to changes in mode
     connect(action, SIGNAL(triggered()), this, SLOT(openTifStack()));
 }
 
@@ -35,29 +38,23 @@ VolumePlugin::~VolumePlugin()
 
 void VolumePlugin::openTifStack()
 {
-    QMainWindow *window = this->getRenderingWindow();
-    QSlider * slider = window->findChild<QSlider *>("horizontalSlider");
-    slider->hide();
-
-    QWidget * widget = window->findChild<QWidget *>("centralwidget");
-    widget->show();
     Object *object = new TifVolumeObject();
-    object->readObject();
-    core->addObject(object);
-    printVolumeObjects();
-}
-
-void VolumePlugin::printVolumeObjects()
-{
-    QMainWindow *window = this->getRenderingWindow();
-    QVTKWidget * widget = window->findChild<QVTKWidget *>("qvtkWidget");
-    widget->show();
-
-    for(Object *obj : *core->getObjects())
+    if(object->readObject())
     {
-        if(strcmp(obj->objectType(), "TifVolume") == 0)
-        {
-            obj->printObject(widget);
-        }
+        window = new QWidget();
+        widget->show();
+
+        QVTKWidget *vtkWidget = new QVTKWidget(window, 0);
+        vtkWidget->setObjectName("qvtkWidget");
+        vtkWidget->setFixedHeight(580);
+        vtkWidget->setFixedWidth(789);
+
+        const QString name = QObject::tr("Volume object");
+        tab->addTab(window, name);
+
+        core->addObject(object);
+        core->addTab(window);
+
+        object->printObject(vtkWidget);
     }
 }

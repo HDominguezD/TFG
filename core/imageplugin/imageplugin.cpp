@@ -12,23 +12,18 @@ void ImagePlugin::load()
     QMenu *menu = new QMenu("image", renderingWindow);
     QAction *action = new QAction("Open tif File");
     menu->addAction(action);
-
-    widget = renderingWindow->findChild<QWidget *>("centralwidget");
-    toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
-    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
-    tab->setMinimumHeight(602);
-    tab->setMinimumWidth(811);
-
-    /// Reacts to changes in mode
-    connect(action, SIGNAL(triggered()), this, SLOT(openTifFile()));
-
     QAction *action2 = new QAction("Open tif Stack Directory");
     menu->addAction(action2);
 
-    toolbar->addMenu(menu);
-
-    /// Reacts to changes in mode
+    connect(action, SIGNAL(triggered()), this, SLOT(openTifFile()));
     connect(action2, SIGNAL(triggered()), this, SLOT(openTifStack()));
+
+    widget = renderingWindow->findChild<QWidget *>("centralwidget");
+    QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
+    toolbar->addMenu(menu);
+    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
+    tab->setMinimumHeight(602);
+    tab->setMinimumWidth(811);
    }
 
 const char* ImagePlugin::getType()
@@ -48,51 +43,58 @@ ImagePlugin::~ImagePlugin()
 
 void ImagePlugin::openTifFile()
 {
-    window = new QWidget();
-    widget->show();
-
-    vtkWidget = new QVTKWidget(window, 0);
-    vtkWidget->setObjectName("qvtkWidget");
-    vtkWidget->setFixedHeight(580);
-    vtkWidget->setFixedWidth(789);
-
-    const QString name = QObject::tr("tif Image");
-    tab->addTab(window, name);
-
     Object *object = new TifObject();
-    object->readObject();
-    core->addObject(object);
-    core->addTab(window);
-    object->printObject(vtkWidget);
+    if(object->readObject())
+    {
+        window = new QWidget();
+        widget->show();
+
+        QVTKWidget *vtkWidget = new QVTKWidget(window, 0);
+        vtkWidget->setObjectName("qvtkWidget");
+        vtkWidget->setFixedHeight(580);
+        vtkWidget->setFixedWidth(789);
+
+        const QString name = QObject::tr("tif Image");
+        tab->addTab(window, name);
+
+        core->addObject(object);
+        core->addTab(window);
+
+        object->printObject(vtkWidget);
+    }
 }
 
 void ImagePlugin::openTifStack()
 {
-    widget->show();
-    window = new QWidget();
-    vtkWidget = new QVTKWidget();
-    vtkWidget->setObjectName("qvtkWidget");
-    vtkWidget->setFixedHeight(500);
-    vtkWidget->setFixedWidth(500);
-
-    slider = new QSlider(Qt::Orientation::Horizontal);
-    slider->setObjectName("slider");
-    slider->setFixedWidth(500);
-    slider->show();
-
-    QVBoxLayout *layout = new QVBoxLayout(window);
-
-    layout->addWidget(vtkWidget);
-    layout->addWidget(slider);
     Object *object = new TifStackObject();
-    object->readObject();
-    core->addObject(object);
-    core->addTab(window);
-    initializateSlider(object);
+    if(object->readObject())
+    {
+        widget->show();
+        window = new QWidget();
 
-    const QString name = QObject::tr("tif Stack");
-    tab->addTab(window, name);
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
+        QVTKWidget *vtkWidget = new QVTKWidget();
+        vtkWidget->setObjectName("qvtkWidget");
+        vtkWidget->setFixedHeight(500);
+        vtkWidget->setFixedWidth(500);
+
+        slider = new QSlider(Qt::Orientation::Horizontal);
+        slider->setObjectName("slider");
+        slider->setFixedWidth(500);
+
+        QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->addWidget(vtkWidget);
+        layout->addWidget(slider);
+
+        const QString name = QObject::tr("tif Stack");
+        tab->addTab(window, name);
+
+        core->addObject(object);
+        core->addTab(window);
+
+        initializateSlider(object);
+
+        object->printObject(vtkWidget);
+    }
 }
 
 void ImagePlugin::changeImageShowed(int value)
@@ -118,6 +120,6 @@ void ImagePlugin::initializateSlider(Object *object)
         slider->setMinimum(0);
         slider->setValue(0);
         obj->setActiveImage(0);
-        obj->printObject(vtkWidget);
+        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
     }
 }

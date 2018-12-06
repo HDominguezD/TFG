@@ -15,7 +15,9 @@ public:
     virtual ~SurfacePlugin();
 
 private:
-    void printObjects3D();
+    QWidget *widget;
+    QTabWidget * tab;
+    QWidget *window;
 
 private slots:
     void openObjFile();

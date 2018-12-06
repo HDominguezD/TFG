@@ -16,7 +16,9 @@ public:
     virtual ~VolumePlugin();
 
 private:
-    void printVolumeObjects();
+    QWidget *widget;
+    QTabWidget * tab;
+    QWidget *window;
 
 private slots:
     void openTifStack();
