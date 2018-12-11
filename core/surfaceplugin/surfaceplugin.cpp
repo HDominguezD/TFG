@@ -3,6 +3,8 @@
 #include "QMenuBar"
 #include "QSlider"
 #include "objectclasses/objobject.h"
+#include "QDockWidget"
+#include "QVBoxLayout"
 
 void SurfacePlugin::load()
 {
@@ -14,10 +16,6 @@ void SurfacePlugin::load()
     widget = renderingWindow->findChild<QWidget *>("centralwidget");
     QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
-    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
-    tab->setMinimumHeight(602);
-    tab->setMinimumWidth(811);
-
     connect(action, SIGNAL(triggered()), this, SLOT(openObjFile()));
 }
 
@@ -41,16 +39,29 @@ void SurfacePlugin::openObjFile()
     Object *object = new ObjObject();
     if(object->readObject())
     {
+        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
+
+        QDockWidget *dock = new QDockWidget(tr("Surface Object"), renderingWindow);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        if(docks.isEmpty()){
+            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+        }
+        else {
+            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+        }
+
+        QVTKWidget *vtkWidget = new QVTKWidget();
+        vtkWidget->setObjectName("QVTKWidget");
+
         window = new QWidget();
-        widget->show();
+        QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->addWidget(vtkWidget);
 
-        QVTKWidget *vtkWidget = new QVTKWidget(window, 0);
-        vtkWidget->setObjectName("qvtkWidget");
-        vtkWidget->setFixedHeight(580);
-        vtkWidget->setFixedWidth(789);
+        dock->setWidget(window);
 
-        const QString name = QObject::tr("Obj object");
-        tab->addTab(window, name);
+        QSize min(window->width() /2, window->height() /2);
+        dock->setMinimumSize(min);
 
         core->addObject(object);
         core->addTab(window);

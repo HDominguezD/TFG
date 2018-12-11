@@ -3,6 +3,8 @@
 #include "objectclasses/abstractclasses/object.h"
 #include "objectclasses/tifvolumeobject.h"
 #include "pluginmanager/pluginmanager.h"
+#include "qdesktopwidget.h"
+#include "QScrollArea"
 
 using namespace std;
 
@@ -11,11 +13,9 @@ RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
     ui(new Ui::RenderingWindow)
 {
     ui->setupUi(this);
+
     showOnlyToolBar();
     this->core = core;
-
-    ui->tabWidget->removeTab(0);
-    ui->tabWidget->removeTab(0);
 
     PluginManager *manager = new PluginManager();
     manager->loadPlugins();
@@ -25,6 +25,27 @@ RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
         plugin->load();
     }
 
+    QDesktopWidget *desktop = QApplication::desktop();
+
+    int screenWidth, width;
+    int screenHeight, height;
+    int x, y;
+    QSize windowSize;
+
+    screenWidth = desktop->width(); // get width of screen
+    screenHeight = desktop->height(); // get height of screen
+
+    windowSize = size(); // size of our application window
+    width = windowSize.width();
+    height = windowSize.height();
+
+    // little computations
+    x = (screenWidth - width) / 2;
+    y = (height);
+    y += 100;
+
+    // move window to desired coordinates
+    move ( x, y );
 }
 
 RenderingWindow::~RenderingWindow()
@@ -40,5 +61,4 @@ void RenderingWindow::showOnlyToolBar()
     this->setGeometry(geometry);
 
     ui->centralwidget->hide();
-    ui->horizontalSlider->hide();
 }

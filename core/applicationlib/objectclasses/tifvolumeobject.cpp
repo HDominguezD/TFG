@@ -14,7 +14,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-
 TifVolumeObject::TifVolumeObject()
 {
     volume = vtkSmartPointer<vtkVolume>::New();

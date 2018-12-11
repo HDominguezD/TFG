@@ -17,7 +17,6 @@ public:
 
 private:
     QWidget *widget;
-    QTabWidget * tab;
     QWidget *window;
 
 private slots:

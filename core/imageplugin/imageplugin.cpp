@@ -6,6 +6,7 @@
 #include <QObject>
 #include "vtkImageSliceCollection.h"
 #include "QVBoxLayout"
+#include "QDockWidget"
 
 void ImagePlugin::load()
 {
@@ -21,9 +22,6 @@ void ImagePlugin::load()
     widget = renderingWindow->findChild<QWidget *>("centralwidget");
     QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
-    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
-    tab->setMinimumHeight(602);
-    tab->setMinimumWidth(811);
    }
 
 const char* ImagePlugin::getType()
@@ -46,21 +44,36 @@ void ImagePlugin::openTifFile()
     Object *object = new TifObject();
     if(object->readObject())
     {
+        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
+
+        QDockWidget *dock = new QDockWidget(tr("Image Object"), renderingWindow);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        if(docks.isEmpty()){
+            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+        }
+        else {
+            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+        }
+
+        QVTKWidget *vtkWidget = new QVTKWidget();
+        vtkWidget->setObjectName("QVTKWidget");
+
         window = new QWidget();
-        widget->show();
+        QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->addWidget(vtkWidget);
 
-        QVTKWidget *vtkWidget = new QVTKWidget(window, 0);
-        vtkWidget->setObjectName("qvtkWidget");
-        vtkWidget->setFixedHeight(580);
-        vtkWidget->setFixedWidth(789);
-
-        const QString name = QObject::tr("tif Image");
-        tab->addTab(window, name);
+        dock->setWidget(window);
 
         core->addObject(object);
         core->addTab(window);
 
         object->printObject(vtkWidget);
+
+        QSize min(window->width() /2, window->height() / 2);
+        dock->setMinimumSize(min);
+        QSize max(window->width(), window->height());
+        dock->setMaximumSize(max);
     }
 }
 
@@ -69,24 +82,30 @@ void ImagePlugin::openTifStack()
     Object *object = new TifStackObject();
     if(object->readObject())
     {
-        widget->show();
-        window = new QWidget();
+        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
+
+        QDockWidget *dock = new QDockWidget(tr("Image stack Object"), renderingWindow);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        if(docks.isEmpty()){
+            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+        }
+        else {
+            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+        }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
-        vtkWidget->setObjectName("qvtkWidget");
-        vtkWidget->setFixedHeight(500);
-        vtkWidget->setFixedWidth(500);
+        vtkWidget->setObjectName("QVTKWidget");
 
         slider = new QSlider(Qt::Orientation::Horizontal);
         slider->setObjectName("slider");
-        slider->setFixedWidth(500);
 
+        window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
         layout->addWidget(vtkWidget);
         layout->addWidget(slider);
 
-        const QString name = QObject::tr("tif Stack");
-        tab->addTab(window, name);
+        dock->setWidget(window);
 
         core->addObject(object);
         core->addTab(window);
@@ -94,20 +113,31 @@ void ImagePlugin::openTifStack()
         initializateSlider(object);
 
         object->printObject(vtkWidget);
+
+        QSize min(window->width() /2, window->height() / 2);
+        dock->setMinimumSize(min);
+        QSize max(window->width(), window->height());
+        dock->setMaximumSize(max);
     }
 }
 
 void ImagePlugin::changeImageShowed(int value)
 {
-    int activeObject = tab->currentIndex();
-    if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty()){
-        Object *object = core->getObjects()->at(activeObject);
-        if(strcmp(object->objectType(),"TifStack") == 0){
-            TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
-            obj->setActiveImage(value);
-            QWidget *actualTab = core->getTabs()->at(activeObject);
-            QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("qvtkWidget");
-            obj->printObject(vtkWindow);
+    if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty())
+    {
+        for(int i = 0; i < core->getTabs()->size(); i++)
+        {
+            QWidget *actualTab = core->getTabs()->at(i);
+            QSlider *slider = actualTab->findChild<QSlider *>("slider");
+            if(slider!= nullptr && slider->value() == value){
+                Object *object = core->getObjects()->at(i);
+                if(strcmp(object->objectType(),"TifStack") == 0){
+                    TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
+                    obj->setActiveImage(value);
+                    QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("QVTKWidget");
+                    obj->printObject(vtkWindow);
+                }
+            }
         }
     }
 }

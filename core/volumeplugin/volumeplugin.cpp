@@ -3,20 +3,19 @@
 #include "QMenuBar"
 #include "QSlider"
 #include "objectclasses/tifvolumeobject.h"
+#include "QDockWidget"
+#include "QHBoxLayout"
+#include "QPushButton"
 
 void VolumePlugin::load()
 {
-    QMainWindow *window = this->getRenderingWindow();
-    QMenu *menu = new QMenu("volume", window);
+    QMenu *menu = new QMenu("volume", renderingWindow);
     QAction *action = new QAction("open tifs directory");
     menu->addAction(action);
 
     widget = renderingWindow->findChild<QWidget *>("centralwidget");
     QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
-    tab = renderingWindow->findChild<QTabWidget *>("tabWidget");
-    tab->setMinimumHeight(602);
-    tab->setMinimumWidth(811);
 
     connect(action, SIGNAL(triggered()), this, SLOT(openTifStack()));
 }
@@ -41,16 +40,33 @@ void VolumePlugin::openTifStack()
     Object *object = new TifVolumeObject();
     if(object->readObject())
     {
+        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
+
+        QDockWidget *dock = new QDockWidget(tr("Volume Object"), renderingWindow);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        if(docks.isEmpty()){
+            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+        }
+        else {
+            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+        }
+
+        QVTKWidget *vtkWidget = new QVTKWidget();
+        vtkWidget->setObjectName("QVTKWidget");
+
         window = new QWidget();
-        widget->show();
+        QHBoxLayout *layout = new QHBoxLayout(window);
+        layout->addWidget(vtkWidget);
 
-        QVTKWidget *vtkWidget = new QVTKWidget(window, 0);
-        vtkWidget->setObjectName("qvtkWidget");
-        vtkWidget->setFixedHeight(580);
-        vtkWidget->setFixedWidth(789);
+        QPushButton *compare = new QPushButton();
+        compare->setText("Compare with 3D Model");
+        layout->addWidget(compare);
 
-        const QString name = QObject::tr("Volume object");
-        tab->addTab(window, name);
+        dock->setWidget(window);
+
+        QSize min(window->width() /2, window->height() /2);
+        dock->setMinimumSize(min);
 
         core->addObject(object);
         core->addTab(window);

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QWidget *parent = nullptr;
 
     RenderingWindow *w = new RenderingWindow(parent, core);
-    w->setWindowFlags( Qt::WindowTitleHint |  Qt::WindowMinimizeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
+   // w->setWindowFlags( Qt::WindowTitleHint |  Qt::WindowMinimizeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
     w->show();
 
     return a.exec();

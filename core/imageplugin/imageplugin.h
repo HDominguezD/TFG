@@ -20,7 +20,6 @@ private:
     void initializateSlider(Object *obj);
     QWidget *widget;
     QSlider *slider;
-    QTabWidget * tab;
     QWidget *window;
 
 private slots:
