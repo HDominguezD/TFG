@@ -1,5 +1,6 @@
-INCLUDEPATH += ../../../include/vtk-8.1
-LIBS += -L../../../lib/vtk-8.1/
+    INCLUDEPATH += /usr/local/include/vtk-8.1
+
+    LIBS += -L/usr/local/lib/vtk/
     unix: LIBS += -lQVTKWidgetPlugin
     unix: LIBS += -lvtkalglib-8.1
     unix: LIBS += -lvtkChartsCore-8.1

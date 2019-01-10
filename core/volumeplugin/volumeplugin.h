@@ -21,6 +21,7 @@ private:
 
 private slots:
     void openTifStack();
+    void openObjFile();
 };
 
 #endif // VOLUMEPLUGIN_H

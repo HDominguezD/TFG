@@ -13,6 +13,8 @@
 #include "qfiledialog.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkTransform.h"
+#include "vtkImageData.h"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -27,7 +29,7 @@ bool TifVolumeObject::readObject()
         return false;
     }
     vtkImageReader *reader = vtkImageReader::New();
-    reader->SetDataScalarTypeToUnsignedChar();
+    reader->SetDataScalarTypeToUnsignedShort();
 
     QStringList images = directory.entryList(QStringList() << "*.tif" << "*.tiff",QDir::Files);
 
@@ -46,14 +48,41 @@ bool TifVolumeObject::readObject()
     header->SetFileName(fileName.c_str());
     header->Update();
 
+
+    //Image data of the readed image
+    vtkSmartPointer<vtkImageData> imageData = reader->GetOutput();
+
+    //image dimensions
+    int *dims = imageData->GetDimensions();
+
+//    for(int image = 0; image < dims[2]; ++image)
+//    {
+//        for(int row = 0; row < dims[0]; ++row)
+//        {
+//            for(int col = 0; col < dims[1]; ++col)
+//            {
+//                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
+//                if(pixel[0] < 200)
+//                {
+//                    pixel[0] = 0;
+//                }
+//            }
+//        }
+//    }
+
+
+    header->Update();
+
     int height = header->GetDataExtent()[3];
     int width = header->GetDataExtent()[1];
-    int depth = static_cast<int>(directory.count());
+    int depth = static_cast<int>(directory.count() - 2);
 
-    reader->SetDataExtent(0, width - 1, 0, height - 1, 0, depth - 1);
-    reader->SetDataScalarTypeToUnsignedChar();
+    reader->SetDataExtent(0, width, 0, height, 0, depth);
+    reader->SetDataScalarTypeToUnsignedShort();
 
     reader->Update();
+
+
 
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
     vtkObjectFactory::RegisterFactory(vtkRenderingVolumeOpenGL2ObjectFactory::New());
@@ -96,7 +125,13 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
 {
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->SetBackground(.2, .2, .2);
-    renderer->AddViewProp(this->volume);
+
+    vtkSmartPointer<vtkTransform> transform =
+        vtkSmartPointer<vtkTransform>::New();
+      transform->Translate(-this->volume->GetCenter()[0], -this->volume->GetCenter()[1], -this->volume->GetCenter()[2]);
+      volume->SetUserTransform(transform);
+
+    renderer->AddVolume(this->volume);
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);

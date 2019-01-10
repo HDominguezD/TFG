@@ -7,6 +7,7 @@
 #include "vtkImageSliceCollection.h"
 #include "QVBoxLayout"
 #include "QDockWidget"
+#include "QDesktopWidget"
 
 void ImagePlugin::load()
 {
@@ -22,7 +23,7 @@ void ImagePlugin::load()
     widget = renderingWindow->findChild<QWidget *>("centralwidget");
     QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
     toolbar->addMenu(menu);
-   }
+}
 
 const char* ImagePlugin::getType()
 {
@@ -49,18 +50,26 @@ void ImagePlugin::openTifFile()
         QDockWidget *dock = new QDockWidget(tr("Image Object"), renderingWindow);
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-        if(docks.isEmpty()){
+        if(docks.isEmpty())
+        {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
         }
-        else {
+        else
+        {
+            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
             renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+            dock->setVisible(true);
+            dock->setFocus();
+            dock->raise();
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
         vtkWidget->setObjectName("QVTKWidget");
 
         window = new QWidget();
+
         QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->setGeometry(window->geometry());
         layout->addWidget(vtkWidget);
 
         dock->setWidget(window);
@@ -68,12 +77,17 @@ void ImagePlugin::openTifFile()
         core->addObject(object);
         core->addTab(window);
 
-        object->printObject(vtkWidget);
+        QDesktopWidget *desktop = QApplication::desktop();
 
-        QSize min(window->width() /2, window->height() / 2);
+        QSize min(desktop->width() /2 -100, desktop->height() /2 -100);
         dock->setMinimumSize(min);
-        QSize max(window->width(), window->height());
+        QSize max(desktop->width() -200, desktop->height() -200);
         dock->setMaximumSize(max);
+
+        QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
+        vtkWidget->setSizePolicy(policy);
+
+        object->printObject(vtkWidget);
     }
 }
 
@@ -87,11 +101,17 @@ void ImagePlugin::openTifStack()
         QDockWidget *dock = new QDockWidget(tr("Image stack Object"), renderingWindow);
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-        if(docks.isEmpty()){
+        if(docks.isEmpty())
+        {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
         }
-        else {
+        else
+        {
+            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
             renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+            dock->setVisible(true);
+            dock->setFocus();
+            dock->raise();
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
@@ -102,6 +122,7 @@ void ImagePlugin::openTifStack()
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->setGeometry(window->geometry());
         layout->addWidget(vtkWidget);
         layout->addWidget(slider);
 
@@ -112,12 +133,17 @@ void ImagePlugin::openTifStack()
 
         initializateSlider(object);
 
-        object->printObject(vtkWidget);
+        QDesktopWidget *desktop = QApplication::desktop();
 
-        QSize min(window->width() /2, window->height() / 2);
+        QSize min(desktop->width() /2 -100, desktop->height() /2 -100);
         dock->setMinimumSize(min);
-        QSize max(window->width(), window->height());
+        QSize max(desktop->width() -200, desktop->height() -200);
         dock->setMaximumSize(max);
+
+        QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
+        vtkWidget->setSizePolicy(policy);
+
+        object->printObject(vtkWidget);
     }
 }
 
@@ -129,9 +155,11 @@ void ImagePlugin::changeImageShowed(int value)
         {
             QWidget *actualTab = core->getTabs()->at(i);
             QSlider *slider = actualTab->findChild<QSlider *>("slider");
-            if(slider!= nullptr && slider->value() == value){
+            if(slider!= nullptr && slider->value() == value)
+            {
                 Object *object = core->getObjects()->at(i);
-                if(strcmp(object->objectType(),"TifStack") == 0){
+                if(strcmp(object->objectType(),"TifStack") == 0)
+                {
                     TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
                     obj->setActiveImage(value);
                     QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("QVTKWidget");
@@ -144,7 +172,8 @@ void ImagePlugin::changeImageShowed(int value)
 
 void ImagePlugin::initializateSlider(Object *object)
 {
-    if(strcmp(object->objectType(),"TifStack") == 0){
+    if(strcmp(object->objectType(),"TifStack") == 0)
+    {
         TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
         slider->setMaximum(obj->getTifStack()->size() - 1);
         slider->setMinimum(0);

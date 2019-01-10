@@ -5,6 +5,7 @@
 #include "objectclasses/objobject.h"
 #include "QDockWidget"
 #include "QVBoxLayout"
+#include "QDesktopWidget"
 
 void SurfacePlugin::load()
 {
@@ -44,11 +45,17 @@ void SurfacePlugin::openObjFile()
         QDockWidget *dock = new QDockWidget(tr("Surface Object"), renderingWindow);
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-        if(docks.isEmpty()){
+        if(docks.isEmpty())
+        {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
         }
-        else {
+        else
+        {
+            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
             renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+            dock->setVisible(true);
+            dock->setFocus();
+            dock->raise();
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
@@ -56,12 +63,20 @@ void SurfacePlugin::openObjFile()
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->setGeometry(window->geometry());
         layout->addWidget(vtkWidget);
 
         dock->setWidget(window);
 
-        QSize min(window->width() /2, window->height() /2);
+        QDesktopWidget *desktop = QApplication::desktop();
+
+        QSize min(desktop->width() /2 -100, desktop->height() /2 -100);
         dock->setMinimumSize(min);
+        QSize max(desktop->width() -200, desktop->height() -200);
+        dock->setMaximumSize(max);
+
+        QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
+        vtkWidget->setSizePolicy(policy);
 
         core->addObject(object);
         core->addTab(window);
