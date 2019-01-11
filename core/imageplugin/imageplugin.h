@@ -17,7 +17,7 @@ public:
     virtual ~ImagePlugin();
 
 private:
-    void initializateSlider(Object *obj);
+    void initializeSlider(Object *obj);
     QWidget *widget;
     QSlider *slider;
     QWidget *window;

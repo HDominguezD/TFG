@@ -1,6 +1,7 @@
 #ifndef VOLUMEPLUGIN_H
 #define VOLUMEPLUGIN_H
 #include "plugins/plugin.h"
+#include "QSlider"
 
 class VolumePlugin : public QObject, Plugin
 {
@@ -16,10 +17,13 @@ public:
     virtual ~VolumePlugin();
 
 private:
+    void initializeSlider(QSlider *slider);
     QWidget *widget;
     QWidget *window;
+    int lastValue;
 
 private slots:
+    void changeObjScale(int value);
     void openTifStack();
     void openObjFile();
 };

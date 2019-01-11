@@ -131,7 +131,7 @@ void ImagePlugin::openTifStack()
         core->addObject(object);
         core->addTab(window);
 
-        initializateSlider(object);
+        initializeSlider(object);
 
         QDesktopWidget *desktop = QApplication::desktop();
 
@@ -170,7 +170,7 @@ void ImagePlugin::changeImageShowed(int value)
     }
 }
 
-void ImagePlugin::initializateSlider(Object *object)
+void ImagePlugin::initializeSlider(Object *object)
 {
     if(strcmp(object->objectType(),"TifStack") == 0)
     {

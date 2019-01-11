@@ -122,25 +122,9 @@ void ObjObject::printObject(QVTKWidget *widget)
         renderer = vtkSmartPointer<vtkRenderer>::New();
     }
 
-//    double *center = actor->GetCenter();
-//    double *o = actor->GetOrientation();
-//    double *origen = actor->GetOrigin();
-    //move actor to origin point
-//    vtkSmartPointer<vtkTransform> transform =
-//        vtkSmartPointer<vtkTransform>::New();
-//      transform->Translate(-actor->GetCenter()[0], -actor->GetCenter()[1], -actor->GetCenter()[2]);
-//      actor->SetUserTransform(transform);
-
-//      vtkActorCollection *collect = renderer->GetActors();
-//      vtkActor *actor2 = collect->GetLastActor();
-//      double* pos2 = actor2->GetCenter();
     renderer->AddActor(actor);
-    int actors = renderer->VisibleActorCount();
-    double *center2 = actor->GetCenter();
 
-//         renderer->ResetCamera();
     renderer->SetBackground(.2, .2, .2);
-    //renderer->Render();
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);
