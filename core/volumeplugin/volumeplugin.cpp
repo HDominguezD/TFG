@@ -12,7 +12,6 @@
 #include "vtkRendererCollection.h"
 #include "vtkActorCollection.h"
 #include "vtkTransform.h"
-#include "vtkMatrix4x4.h"
 #include "boost/algorithm/string.hpp"
 
 
@@ -120,9 +119,7 @@ void VolumePlugin::openObjFile()
     if(object->readObject())
     {
         QPushButton* buttonSender = qobject_cast<QPushButton*>(sender());
-
         string buttonName = buttonSender->objectName().toStdString();
-
         vector<string> splitName;
         boost::split(splitName, buttonName, [](char c){return c == ' ';});
         string number = splitName.at(splitName.size() - 1);
@@ -134,15 +131,15 @@ void VolumePlugin::openObjFile()
         string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
         QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
 
-        core->addObject(object);
+        //core->addObject(object);
 
         object->printObject(vtkWidget);
 
         vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
-
         vtkVolumeCollection *volumes = renderer->GetVolumes();
         volumes->InitTraversal();
         vtkVolume *volume = volumes->GetNextItem();
+
         if(volume != nullptr)
         {
             vtkActorCollection *actors = renderer->GetActors();
@@ -166,12 +163,12 @@ void VolumePlugin::openObjFile()
                 transform2->Translate(-actualActor->GetCenter()[0], -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
                 transform->Concatenate(transform2->GetMatrix());
 
-                double *o = actualActor->GetCenter();
                 actualActor->SetUserTransform(transform);
 
                 string nameButton = string("CompareObj ") + to_string(dockNumber);
                 QPushButton *compare = dock->findChild<QPushButton *>(nameButton.c_str());
-                if(compare){
+                if(compare)
+                {
                     compare->hide();
                     string nameSlider = string("ScaleObj ") + to_string(dockNumber);
                     QSlider *slider = dock->findChild<QSlider *>(nameSlider.c_str());
@@ -185,12 +182,14 @@ void VolumePlugin::openObjFile()
 
 void VolumePlugin::initializeSlider(QSlider *slider)
 {
-    if(slider){
+    if(slider)
+    {
         slider->show();
         slider->setMaximum(200);
         slider->setMinimum(0);
         slider->setValue(100);
         lastValue = 100;
+
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeObjScale(int)));
     }
 }
@@ -199,9 +198,7 @@ void VolumePlugin::initializeSlider(QSlider *slider)
 void VolumePlugin::changeObjScale(int value)
 {
         QSlider* sliderSender = qobject_cast<QSlider*>(sender());
-
         string sliderName = sliderSender->objectName().toStdString();
-
         vector<string> splitName;
         boost::split(splitName, sliderName, [](char c){return c == ' ';});
         string number = splitName.at(splitName.size() - 1);
@@ -222,32 +219,9 @@ void VolumePlugin::changeObjScale(int value)
         {
             //scale rotate traslate
             vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-
-            if(lastValue < value){
-                transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
-            } else {
-                transform->Scale(pow(0.99 , (lastValue - value)), pow(0.99 , (lastValue - value)), pow(0.99 , (lastValue - value)));
-            }
-
-            double po = pow(0.9 , (value - lastValue));
+            transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
             transform->Concatenate(actualActor->GetUserMatrix());
-            double *o = actualActor->GetCenter();
-            vtkMatrix4x4* mat = actualActor->GetUserMatrix();
-            int matr[4][4];
-            for(int i = 0; i < 4; i++){
-                for(int j = 0; j <4; j++){
-                    matr[i][j] = mat->Element[i][j];
-                }
-            }
             actualActor->SetUserTransform(transform);
-
-            vtkMatrix4x4* mat2 = actualActor->GetUserMatrix();
-            int matr2[4][4];
-            for(int i = 0; i < 4; i++){
-                for(int j = 0; j <4; j++){
-                    matr2[i][j] = mat2->Element[i][j];
-                }
-            }
         }
          vtkWidget->GetRenderWindow()->Render();
          lastValue = value;

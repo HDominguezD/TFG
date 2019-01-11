@@ -48,6 +48,8 @@ void SurfacePlugin::openObjFile()
         if(docks.isEmpty())
         {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
         else
         {
@@ -56,10 +58,13 @@ void SurfacePlugin::openObjFile()
             dock->setVisible(true);
             dock->setFocus();
             dock->raise();
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
-        vtkWidget->setObjectName("QVTKWidget");
+        string nameWidget = string("QVTKWidget ") + to_string(docks.size());
+        vtkWidget->setObjectName(nameWidget.c_str());
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);

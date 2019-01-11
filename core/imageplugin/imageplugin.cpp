@@ -8,6 +8,7 @@
 #include "QVBoxLayout"
 #include "QDockWidget"
 #include "QDesktopWidget"
+#include "boost/algorithm/string.hpp"
 
 void ImagePlugin::load()
 {
@@ -53,6 +54,8 @@ void ImagePlugin::openTifFile()
         if(docks.isEmpty())
         {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
         else
         {
@@ -61,10 +64,13 @@ void ImagePlugin::openTifFile()
             dock->setVisible(true);
             dock->setFocus();
             dock->raise();
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
-        vtkWidget->setObjectName("QVTKWidget");
+        string nameWidget = string("QVTKWidget ") + to_string(docks.size());
+        vtkWidget->setObjectName(nameWidget.c_str());
 
         window = new QWidget();
 
@@ -104,6 +110,8 @@ void ImagePlugin::openTifStack()
         if(docks.isEmpty())
         {
             renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
         else
         {
@@ -112,13 +120,17 @@ void ImagePlugin::openTifStack()
             dock->setVisible(true);
             dock->setFocus();
             dock->raise();
+            string nameDock = string("Dock ") + to_string(docks.size());
+            dock->setObjectName(nameDock.c_str());
         }
 
         QVTKWidget *vtkWidget = new QVTKWidget();
-        vtkWidget->setObjectName("QVTKWidget");
+        string nameWidget = string("QVTKWidget ") + to_string(docks.size());
+        vtkWidget->setObjectName(nameWidget.c_str());
 
         slider = new QSlider(Qt::Orientation::Horizontal);
-        slider->setObjectName("slider");
+        string nameSlider = string("Slider ") + to_string(docks.size());
+        slider->setObjectName(nameSlider.c_str());
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
@@ -151,21 +163,41 @@ void ImagePlugin::changeImageShowed(int value)
 {
     if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty())
     {
-        for(int i = 0; i < core->getTabs()->size(); i++)
+//        for(int i = 0; i < core->getTabs()->size(); i++)
+//        {
+//            QWidget *actualTab = core->getTabs()->at(i);
+//            QSlider *slider = actualTab->findChild<QSlider *>("slider");
+//            if(slider!= nullptr && slider->value() == value)
+//            {
+//                Object *object = core->getObjects()->at(i);
+//                if(strcmp(object->objectType(),"TifStack") == 0)
+//                {
+//                    TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
+//                    obj->setActiveImage(value);
+//                    QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("QVTKWidget");
+//                    obj->printObject(vtkWindow);
+//                }
+//            }
+//        }
+
+        QSlider* sliderSender = qobject_cast<QSlider*>(sender());
+        string sliderName = sliderSender->objectName().toStdString();
+        vector<string> splitName;
+        boost::split(splitName, sliderName, [](char c){return c == ' ';});
+        string number = splitName.at(splitName.size() - 1);
+        int dockNumber = atoi(number.c_str());
+
+        string nameDock = string("Dock ") + to_string(dockNumber);
+        QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
+
+        Object *object = core->getObjects()->at(dockNumber);
+        if(strcmp(object->objectType(),"TifStack") == 0)
         {
-            QWidget *actualTab = core->getTabs()->at(i);
-            QSlider *slider = actualTab->findChild<QSlider *>("slider");
-            if(slider!= nullptr && slider->value() == value)
-            {
-                Object *object = core->getObjects()->at(i);
-                if(strcmp(object->objectType(),"TifStack") == 0)
-                {
-                    TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
-                    obj->setActiveImage(value);
-                    QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("QVTKWidget");
-                    obj->printObject(vtkWindow);
-                }
-            }
+            TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
+            obj->setActiveImage(value);
+            string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
+            QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
+            obj->printObject(vtkWidget);
         }
     }
 }
