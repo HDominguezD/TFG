@@ -28,10 +28,12 @@ unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 SOURCES += \
-        volumeplugin.cpp
+        volumeplugin.cpp \
+    myqvtkwidget.cpp
 
 HEADERS += \
-        volumeplugin.h
+        volumeplugin.h \
+    myqvtkwidget.h
 
 OTHER_FILES += \
         volumeplugin.json

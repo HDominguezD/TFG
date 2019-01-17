@@ -53,6 +53,7 @@ bool TifObject::readObjectFromFile(string fileName)
     vtkSmartPointer<vtkTIFFReader> reader = vtkSmartPointer<vtkTIFFReader>::New();
     reader->SetFileName (fileName.c_str());
     reader->Update();
+
     imageMapper = vtkSmartPointer<vtkImageMapper>::New();
     imageMapper->SetInputData(reader->GetOutput());
     outputData = reader->GetOutput();

@@ -13,10 +13,16 @@
 #include "vtkActorCollection.h"
 #include "vtkTransform.h"
 #include "boost/algorithm/string.hpp"
+#include "QKeyEvent"
+#include "myqvtkwidget.h"
+#include "vtkWindowToImageFilter.h"
+#include "vtkPNGWriter.h"
+#include "qfiledialog.h"
 
 
 void VolumePlugin::load()
 {
+    //setFocusPolicy(Qt::StrongFocus);
     QMenu *menu = new QMenu("volume", renderingWindow);
     QAction *action = new QAction("open tifs directory");
     menu->addAction(action);
@@ -70,10 +76,11 @@ void VolumePlugin::openTifStack()
             dock->setObjectName(nameDock.c_str());
         }
 
-        QVTKWidget *vtkWidget = new QVTKWidget();
+        QVTKWidget *vtkWidget = new MyQVTKWidget();
         string nameWidget = string("QVTKWidget ") + to_string(docks.size());
         vtkWidget->setObjectName(nameWidget.c_str());
         vtkWidget->objectName();
+        vtkWidget->setToolTip("Press the arrow keys to move the camera around the object");
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
@@ -81,11 +88,18 @@ void VolumePlugin::openTifStack()
         layout->addWidget(vtkWidget);
 
         QPushButton *compare = new QPushButton();
-        string nameButton = string("CompareObj ") + to_string(docks.size());
-        compare->setObjectName(nameButton.c_str());
+        string nameCompare = string("CompareObj ") + to_string(docks.size());
+        compare->setObjectName(nameCompare.c_str());
         compare->setText("Compare with 3D Model");
         layout->addWidget(compare);
         connect(compare, SIGNAL(clicked()), this, SLOT(openObjFile()));
+
+        QPushButton *capture = new QPushButton();
+        string nameCapture = string("CaptureImg ") + to_string(docks.size());
+        capture->setObjectName(nameCapture.c_str());
+        capture->setText("Capture Image");
+        layout->addWidget(capture);
+        connect(capture, SIGNAL(clicked()), this, SLOT(captureImage()));
 
         QSlider *slider = new QSlider(Qt::Orientation::Horizontal);
         string nameSlider = string("ScaleObj ") + to_string(docks.size());
@@ -110,6 +124,7 @@ void VolumePlugin::openTifStack()
         core->addTab(window);
 
         object->printObject(vtkWidget);
+
     }
 }
 
@@ -160,7 +175,7 @@ void VolumePlugin::openObjFile()
                 vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
                 transform->Scale(14, -14, 14);
                 vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
-                transform2->Translate(-actualActor->GetCenter()[0], -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
+                transform2->Translate(-actualActor->GetCenter()[0] - 5, -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
                 transform->Concatenate(transform2->GetMatrix());
 
                 actualActor->SetUserTransform(transform);
@@ -225,4 +240,44 @@ void VolumePlugin::changeObjScale(int value)
         }
          vtkWidget->GetRenderWindow()->Render();
          lastValue = value;
+}
+
+void VolumePlugin::captureImage()
+{
+    QPushButton* buttonSender = qobject_cast<QPushButton*>(sender());
+    string buttonName = buttonSender->objectName().toStdString();
+    vector<string> splitName;
+    boost::split(splitName, buttonName, [](char c){return c == ' ';});
+    string number = splitName.at(splitName.size() - 1);
+    int dockNumber = atoi(number.c_str());
+
+    string nameDock = string("Dock ") + to_string(dockNumber);
+    QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
+
+    string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
+    QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
+
+    // Screenshot
+      vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter =
+        vtkSmartPointer<vtkWindowToImageFilter>::New();
+      windowToImageFilter->SetInput(vtkWidget->GetRenderWindow());
+      windowToImageFilter->SetMagnification(3); //set the resolution of the output image (3 times the current resolution of vtk render window)
+      windowToImageFilter->Update();
+
+      QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save File"), "/home/Desktop/newImage.png",tr("Images (*.png)"));
+      std::string filename = fileName.toStdString();
+
+      QFile f( fileName );
+      f.open( QIODevice::WriteOnly );
+
+      vtkSmartPointer<vtkPNGWriter> writer =
+        vtkSmartPointer<vtkPNGWriter>::New();
+      writer->SetFileName(filename.c_str());
+      writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+      writer->Write();
+
+      vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+      vtkWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
+      vtkWidget->GetRenderWindow()->AddRenderer(renderer);
+      vtkWidget->GetRenderWindow()->Render();
 }

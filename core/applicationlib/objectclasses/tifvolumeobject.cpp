@@ -28,8 +28,6 @@ bool TifVolumeObject::readObject()
     {
         return false;
     }
-    vtkImageReader *reader = vtkImageReader::New();
-    reader->SetDataScalarTypeToUnsignedShort();
 
     QStringList images = directory.entryList(QStringList() << "*.tif" << "*.tiff",QDir::Files);
 
@@ -41,6 +39,8 @@ bool TifVolumeObject::readObject()
     for(QString image : images){
         imagesName->InsertNextValue(directory.absolutePath().toStdString() + "/" + image.toStdString());
     }
+
+    vtkImageReader *reader = vtkImageReader::New();
     reader->SetFileNames(imagesName);
 
     vtkSmartPointer<vtkTIFFReader> header = vtkSmartPointer<vtkTIFFReader>::New();
@@ -48,6 +48,14 @@ bool TifVolumeObject::readObject()
     header->SetFileName(fileName.c_str());
     header->Update();
 
+    int height = header->GetDataExtent()[3];
+    int width = header->GetDataExtent()[1];
+    int depth = static_cast<int>(directory.count() - 2);
+
+    reader->SetDataExtent(0, width, 0, height, 0, depth);
+    int type = header->GetDataScalarType();
+    reader->SetDataScalarType(type);
+    reader->Update();
 
     //Image data of the readed image
     vtkSmartPointer<vtkImageData> imageData = reader->GetOutput();
@@ -55,31 +63,21 @@ bool TifVolumeObject::readObject()
     //image dimensions
     int *dims = imageData->GetDimensions();
 
-//    for(int image = 0; image < dims[2]; ++image)
-//    {
-//        for(int row = 0; row < dims[0]; ++row)
-//        {
-//            for(int col = 0; col < dims[1]; ++col)
-//            {
-//                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
-//                if(pixel[0] < 200)
-//                {
-//                    pixel[0] = 0;
-//                }
-//            }
-//        }
-//    }
-
-
-    header->Update();
-
-    int height = header->GetDataExtent()[3];
-    int width = header->GetDataExtent()[1];
-    int depth = static_cast<int>(directory.count() - 2);
-
-    reader->SetDataExtent(0, width, 0, height, 0, depth);
-    reader->SetDataScalarTypeToUnsignedShort();
-
+    for(int image = 0; image < dims[2]; ++image)
+    {
+        for(int row = 0; row < dims[0]; ++row)
+        {
+            for(int col = 0; col < dims[1]; ++col)
+            {
+                //removing pixels with value between 0 and 200 to remove some interferences
+                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
+                if(pixel[0] < 150)
+                {
+                    pixel[0] = 0;
+                }
+            }
+        }
+    }
     reader->Update();
 
 
