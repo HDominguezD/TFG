@@ -1,5 +1,5 @@
 #include "tifvolumeobject.h"
-#include "vtkImageReader.h"
+#include "vtkImageReader2.h"
 #include "vtkStringArray.h"
 #include "QDir"
 #include "vtkObjectFactory.h"
@@ -40,47 +40,61 @@ bool TifVolumeObject::readObject()
         imagesName->InsertNextValue(directory.absolutePath().toStdString() + "/" + image.toStdString());
     }
 
-    vtkImageReader *reader = vtkImageReader::New();
-    reader->SetFileNames(imagesName);
-
     vtkSmartPointer<vtkTIFFReader> header = vtkSmartPointer<vtkTIFFReader>::New();
-    string fileName = reader->GetFileNames()->GetValue(0);
-    header->SetFileName(fileName.c_str());
-    header->Update();
-
-    int height = header->GetDataExtent()[3];
-    int width = header->GetDataExtent()[1];
-    int depth = static_cast<int>(directory.count() - 2);
-
-    reader->SetDataExtent(0, width, 0, height, 0, depth);
-    int type = header->GetDataScalarType();
-    reader->SetDataScalarType(type);
-    reader->Update();
+    vtkImageReader2 *reader = vtkImageReader2::New();
 
     //Image data of the readed image
-    vtkSmartPointer<vtkImageData> imageData = reader->GetOutput();
+    vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+
+    if(imagesName->GetSize() > 1)
+    {
+        reader->SetFileNames(imagesName);
+
+        string fileName = imagesName->GetValue(0);
+        header->SetFileName(fileName.c_str());
+        header->Update();
+
+        int *data = header->GetDataExtent();
+//        int height = header->GetDataExtent()[3];
+//        int width = header->GetDataExtent()[1];
+//        int depth = header->GetDataExtent()[5];
+
+        reader->SetDataExtent(data);
+        int type = header->GetDataScalarType();
+        reader->SetDataScalarType(type);
+        reader->Update();
+
+        imageData = reader->GetOutput();
+    } else
+    {
+        string fileName = imagesName->GetValue(0);
+        header->SetFileName(fileName.c_str());
+        header->Update();
+
+        imageData = header->GetOutput();
+    }
 
     //image dimensions
-    int *dims = imageData->GetDimensions();
 
-    for(int image = 0; image < dims[2]; ++image)
-    {
-        for(int row = 0; row < dims[0]; ++row)
-        {
-            for(int col = 0; col < dims[1]; ++col)
-            {
-                //removing pixels with value between 0 and 200 to remove some interferences
-                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
-                if(pixel[0] < 150)
-                {
-                    pixel[0] = 0;
-                }
-            }
-        }
-    }
-    reader->Update();
+//    reader->Update();
 
+    //    int *dims = imageData->GetDimensions();
 
+    //    for(int image = 0; image < dims[2]; ++image)
+    //    {
+    //        for(int row = 0; row < dims[0]; ++row)
+    //        {
+    //            for(int col = 0; col < dims[1]; ++col)
+    //            {
+    //                //removing pixels with value between 0 and 200 to remove some interferences
+    //                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
+    //                if(pixel[0] >= 200)
+    //                {
+    //                    int hola = 1;
+    //                }
+    //            }
+    //        }
+    //    }
 
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
     vtkObjectFactory::RegisterFactory(vtkRenderingVolumeOpenGL2ObjectFactory::New());
@@ -91,19 +105,23 @@ bool TifVolumeObject::readObject()
     vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
 
     //Go through the visulizatin pipeline
-    texMapper->SetInputConnection(reader->GetOutputPort());
+//    texMapper->SetInputConnection(header->GetOutputPort());
+    texMapper->SetInputData(imageData);
 
     //Set the color curve for the volume
-    ctf->AddHSVPoint(0, .67, .07, 1);
-    ctf->AddHSVPoint(94, .67, .07, 1);
-    ctf->AddHSVPoint(139, 0, 0, 0);
-    ctf->AddHSVPoint(160, .28, .047, 1);
-    ctf->AddHSVPoint(254, .38, .013, 1);
+    //first parameter is the value of the pixel and the rest the rgb color value
+    //the pixel will have when it has the first value
+    ctf->AddRGBPoint(0, .91f, .7f, .61f);
+    ctf->AddRGBPoint(20, .91f, .7f, .61f);
+    ctf->AddRGBPoint(100, 1.0f, 1.0f, .85f);
+    ctf->AddRGBPoint(200, 1.0f, 1.0f, .85f);
 
     //Set the opacity curve for the volume
-    spwf->AddPoint(84, 0);
-    spwf->AddPoint(151, .1);
-    spwf->AddPoint(255, 1);
+    //first parameter is the value of the pixel and the second the opacity value
+    //the pixel will have when it has the first value
+    spwf->AddPoint(100, 0);
+    spwf->AddPoint(140, .5);
+    spwf->AddPoint(200, 1);
 
     //Set the gradient curve for the volume
     gpwf->AddPoint(0, .2);

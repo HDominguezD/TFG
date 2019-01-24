@@ -12,12 +12,18 @@ public:
     bool readObject();
     void printObject(QVTKWidget *widget);
     const char* objectType();
+    void resizeImage(int x, int y);
+    int * getDimensions();
     bool readObjectFromFile(std::string fileName);
     ~TifObject();
 
+    int getActiveImage() const;
+    void setActiveImage(int value);
+
 private:
-    vtkSmartPointer<vtkImageMapper> imageMapper;
     vtkSmartPointer<vtkImageData> outputData;
+    int activeImage;
+    vtkSmartPointer<vtkImageMapper> imageMapper;
 };
 
 #endif // TIFOBJECT_H

@@ -13,8 +13,9 @@
 
 TifObject::TifObject()
 {
-    imageMapper = vtkSmartPointer<vtkImageMapper>::New();
     outputData = vtkSmartPointer<vtkImageData>::New();
+    activeImage = 0;
+    imageMapper = vtkSmartPointer<vtkImageMapper>::New();
 }
 
 bool TifObject::readObject()
@@ -54,8 +55,6 @@ bool TifObject::readObjectFromFile(string fileName)
     reader->SetFileName (fileName.c_str());
     reader->Update();
 
-    imageMapper = vtkSmartPointer<vtkImageMapper>::New();
-    imageMapper->SetInputData(reader->GetOutput());
     outputData = reader->GetOutput();
 
     return true;
@@ -66,16 +65,20 @@ TifObject::~TifObject()
 
 }
 
+int TifObject::getActiveImage() const
+{
+    return activeImage;
+}
+
+void TifObject::setActiveImage(int value)
+{
+    activeImage = value;
+}
+
 void TifObject::printObject(QVTKWidget *widget)
 {
     // Visualize
-    vtkSmartPointer<vtkImageResize> resize = vtkSmartPointer<vtkImageResize>::New();
-    resize->SetInputData(this->outputData);
-    resize->SetOutputDimensions(widget->width(), widget->height(), 1);
-    resize->Update();
-
-    vtkSmartPointer<vtkImageMapper> imageMapper = this->imageMapper;
-    imageMapper->SetInputConnection(resize->GetOutputPort());
+    imageMapper->SetZSlice(activeImage);
 
     vtkSmartPointer<vtkActor2D> image = vtkSmartPointer<vtkActor2D>::New();
     image->SetMapper(imageMapper);
@@ -92,4 +95,19 @@ void TifObject::printObject(QVTKWidget *widget)
 
 const char* TifObject::objectType(){
     return "Tif";
+}
+
+void TifObject::resizeImage(int x, int y)
+{
+    vtkSmartPointer<vtkImageResize> resize = vtkSmartPointer<vtkImageResize>::New();
+    resize->SetInputData(outputData);
+    resize->SetOutputDimensions(x, y, outputData->GetDimensions()[2]);
+    resize->Update();
+
+    imageMapper->SetInputConnection(resize->GetOutputPort());
+}
+
+int *TifObject::getDimensions()
+{
+    return outputData->GetDimensions();
 }

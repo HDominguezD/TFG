@@ -78,6 +78,20 @@ void ImagePlugin::openTifFile()
         layout->setGeometry(window->geometry());
         layout->addWidget(vtkWidget);
 
+        TifObject *obj = dynamic_cast<TifObject*>(object);
+
+        int *dims = obj->getDimensions();
+        if(dims[2] > 1){
+            slider = new QSlider(Qt::Orientation::Horizontal);
+            string nameSlider = string("Slider ") + to_string(docks.size());
+            slider->setObjectName(nameSlider.c_str());
+            //slider->hide();
+
+            layout->addWidget(slider);
+
+            initializeSlider(object);
+        }
+
         dock->setWidget(window);
 
         core->addObject(object);
@@ -92,7 +106,7 @@ void ImagePlugin::openTifFile()
 
         QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
         vtkWidget->setSizePolicy(policy);
-
+        obj->resizeImage(vtkWidget->width(), vtkWidget->height());
         object->printObject(vtkWidget);
     }
 }
@@ -155,6 +169,12 @@ void ImagePlugin::openTifStack()
         QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
         vtkWidget->setSizePolicy(policy);
 
+        TifStackObject *objs = dynamic_cast<TifStackObject*>(object);
+        for(int i = 0; i < objs->getTifStack()->size(); i++)
+        {
+            objs->getTifStack()->at(i)->resizeImage(vtkWidget->width(), vtkWidget->height());
+        }
+
         object->printObject(vtkWidget);
     }
 }
@@ -163,23 +183,6 @@ void ImagePlugin::changeImageShowed(int value)
 {
     if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty())
     {
-//        for(int i = 0; i < core->getTabs()->size(); i++)
-//        {
-//            QWidget *actualTab = core->getTabs()->at(i);
-//            QSlider *slider = actualTab->findChild<QSlider *>("slider");
-//            if(slider!= nullptr && slider->value() == value)
-//            {
-//                Object *object = core->getObjects()->at(i);
-//                if(strcmp(object->objectType(),"TifStack") == 0)
-//                {
-//                    TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
-//                    obj->setActiveImage(value);
-//                    QVTKWidget *vtkWindow = actualTab->findChild<QVTKWidget *>("QVTKWidget");
-//                    obj->printObject(vtkWindow);
-//                }
-//            }
-//        }
-
         QSlider* sliderSender = qobject_cast<QSlider*>(sender());
         string sliderName = sliderSender->objectName().toStdString();
         vector<string> splitName;
@@ -191,6 +194,15 @@ void ImagePlugin::changeImageShowed(int value)
         QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
 
         Object *object = core->getObjects()->at(dockNumber);
+        if(strcmp(object->objectType(),"Tif") == 0)
+        {
+            TifObject *obj = dynamic_cast<TifObject*>(object);
+            obj->setActiveImage(value);
+            string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
+            QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
+            obj->printObject(vtkWidget);
+        }
+
         if(strcmp(object->objectType(),"TifStack") == 0)
         {
             TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
@@ -208,6 +220,18 @@ void ImagePlugin::initializeSlider(Object *object)
     {
         TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
         slider->setMaximum(obj->getTifStack()->size() - 1);
+        slider->setMinimum(0);
+        slider->setValue(0);
+        obj->setActiveImage(0);
+        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
+    }
+
+    if(strcmp(object->objectType(),"Tif") == 0)
+    {
+        //slider->show();
+        TifObject *obj = dynamic_cast<TifObject*>(object);
+        int dim = obj->getDimensions()[2];
+        slider->setMaximum(obj->getDimensions()[2] - 1);
         slider->setMinimum(0);
         slider->setValue(0);
         obj->setActiveImage(0);
