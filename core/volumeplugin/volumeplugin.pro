@@ -29,11 +29,15 @@ unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 SOURCES += \
         volumeplugin.cpp \
-    myqvtkwidget.cpp
+    myqvtkwidget.cpp \
+    transferFunctionEditor.cpp \
+    hoverpoints.cpp
 
 HEADERS += \
         volumeplugin.h \
-    myqvtkwidget.h
+    myqvtkwidget.h \
+    transferFunctionEditor.h \
+    hoverpoints.h
 
 OTHER_FILES += \
         volumeplugin.json

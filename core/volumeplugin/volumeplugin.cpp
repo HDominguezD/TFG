@@ -18,7 +18,9 @@
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
 #include "qfiledialog.h"
-
+#include "transferFunctionEditor.h"
+#include "QHBoxLayout"
+#include "QRect"
 
 void VolumePlugin::load()
 {
@@ -82,31 +84,45 @@ void VolumePlugin::openTifStack()
         vtkWidget->objectName();
         vtkWidget->setToolTip("Press the arrow keys to move the camera around the object");
 
-        window = new QWidget();
-        QVBoxLayout *layout = new QVBoxLayout(window);
-        layout->setGeometry(window->geometry());
-        layout->addWidget(vtkWidget);
-
         QPushButton *compare = new QPushButton();
         string nameCompare = string("CompareObj ") + to_string(docks.size());
         compare->setObjectName(nameCompare.c_str());
         compare->setText("Compare with 3D Model");
-        layout->addWidget(compare);
         connect(compare, SIGNAL(clicked()), this, SLOT(openObjFile()));
 
         QPushButton *capture = new QPushButton();
         string nameCapture = string("CaptureImg ") + to_string(docks.size());
         capture->setObjectName(nameCapture.c_str());
         capture->setText("Capture Image");
-        layout->addWidget(capture);
         connect(capture, SIGNAL(clicked()), this, SLOT(captureImage()));
+
+        TransferFunctionEditor *transferEditor = new TransferFunctionEditor(nullptr);
+        string nameEditor = string("TransferEditor ") + to_string(docks.size());
+        transferEditor->setObjectName(nameEditor.c_str());
+        transferEditor->setMaximumHeight(80);
+        transferEditor->setMinimumWidth(300);
 
         QSlider *slider = new QSlider(Qt::Orientation::Horizontal);
         string nameSlider = string("ScaleObj ") + to_string(docks.size());
         slider->setObjectName(nameSlider.c_str());
         compare->setText("scale 3D model");
-        layout->addWidget(slider);
         slider->hide();
+
+        window = new QWidget();
+        QVBoxLayout *layout = new QVBoxLayout(window);
+        layout->setGeometry(window->geometry());
+
+        QHBoxLayout *featuresLayout = new QHBoxLayout(nullptr);
+
+        QVBoxLayout *buttonsLayout = new QVBoxLayout(nullptr);
+        buttonsLayout->addWidget(capture);
+        buttonsLayout->addWidget(compare);
+        buttonsLayout->addWidget(slider);
+
+        featuresLayout->addLayout(buttonsLayout);
+        featuresLayout->addWidget(transferEditor);
+        layout->addLayout(featuresLayout);
+        layout->addWidget(vtkWidget);
 
         dock->setWidget(window);
 
