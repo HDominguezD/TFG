@@ -28,8 +28,7 @@ void MyQVTKWidget::keyPressEvent(QKeyEvent *event){
 
             camera->SetPosition(newPos);
 
-            this->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-            this->GetRenderWindow()->AddRenderer(renderer);
+
             this->GetRenderWindow()->Render();
 
             break;
@@ -48,8 +47,6 @@ void MyQVTKWidget::keyPressEvent(QKeyEvent *event){
 
             camera->SetPosition(newPos);
 
-            this->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-            this->GetRenderWindow()->AddRenderer(renderer);
             this->GetRenderWindow()->Render();
 
             break;
@@ -102,8 +99,6 @@ void MyQVTKWidget::keyPressEvent(QKeyEvent *event){
             newPos[2] = (focalPoint[2] + actualPosition[2])*1.25;
             camera->SetPosition(newPos);
 
-            this->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-            this->GetRenderWindow()->AddRenderer(renderer);
             this->GetRenderWindow()->Render();
              break;
         }

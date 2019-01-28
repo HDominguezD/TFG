@@ -84,6 +84,8 @@ void VolumePlugin::openTifStack()
         vtkWidget->objectName();
         vtkWidget->setToolTip("Press the arrow keys to move the camera around the object");
 
+        object->printObject(vtkWidget);
+
         QPushButton *compare = new QPushButton();
         string nameCompare = string("CompareObj ") + to_string(docks.size());
         compare->setObjectName(nameCompare.c_str());
@@ -96,11 +98,15 @@ void VolumePlugin::openTifStack()
         capture->setText("Capture Image");
         connect(capture, SIGNAL(clicked()), this, SLOT(captureImage()));
 
-        TransferFunctionEditor *transferEditor = new TransferFunctionEditor(nullptr);
+        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
+
+        TransferFunctionEditor *transferEditor = new TransferFunctionEditor(nullptr, vol);
         string nameEditor = string("TransferEditor ") + to_string(docks.size());
         transferEditor->setObjectName(nameEditor.c_str());
         transferEditor->setMaximumHeight(80);
         transferEditor->setMinimumWidth(300);
+
+        connect(transferEditor, SIGNAL(colorsChanged()), this, SLOT(updateWidget()));
 
         QSlider *slider = new QSlider(Qt::Orientation::Horizontal);
         string nameSlider = string("ScaleObj ") + to_string(docks.size());
@@ -138,9 +144,6 @@ void VolumePlugin::openTifStack()
 
         core->addObject(object);
         core->addTab(window);
-
-        object->printObject(vtkWidget);
-
     }
 }
 
@@ -292,8 +295,23 @@ void VolumePlugin::captureImage()
       writer->SetInputConnection(windowToImageFilter->GetOutputPort());
       writer->Write();
 
-      vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
-      vtkWidget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
-      vtkWidget->GetRenderWindow()->AddRenderer(renderer);
       vtkWidget->GetRenderWindow()->Render();
+}
+
+void VolumePlugin::updateWidget()
+{
+    TransferFunctionEditor* editorSender = qobject_cast<TransferFunctionEditor*>(sender());
+    string editorName = editorSender->objectName().toStdString();
+    vector<string> splitName;
+    boost::split(splitName, editorName, [](char c){return c == ' ';});
+    string number = splitName.at(splitName.size() - 1);
+    int dockNumber = atoi(number.c_str());
+
+    string nameDock = string("Dock ") + to_string(dockNumber);
+    QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
+
+    string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
+    QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
+
+    vtkWidget->GetRenderWindow()->Render();
 }

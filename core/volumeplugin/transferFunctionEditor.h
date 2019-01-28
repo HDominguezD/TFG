@@ -1,4 +1,5 @@
 #include "hoverpoints.h"
+#include "objectclasses/tifvolumeobject.h"
 
 
 class ColorPicker : public QWidget
@@ -56,22 +57,27 @@ class GradientEditor :public QWidget
   Q_OBJECT
 
 public:
-  GradientEditor(QWidget *parent);
+  GradientEditor(QWidget *parent, TifVolumeObject* vol);
   QLabel *label;
   QString text;
   void setValue(QColor color);
   //void setGradientStops(const QGradientStops &stops);
   void set_shade_points(const QPolygonF &points);
   int maxPoints = 15;
+  TifVolumeObject *getVol() const;
+
 signals:
   void gradientStopsChanged(QGradientStops &stops);
+  void colorsChanged();
 public slots:
   void pointsUpdated( );
   void colorUpdated( );
   void setGradientStops(QGradientStops &stops);
+
 private:
   ColorEditor *colorEditor;
   ColorPicker *colorPicker;
+  TifVolumeObject *vol;
 };
 
 
@@ -79,9 +85,12 @@ private:
 class TransferFunctionEditor: public QWidget{
   Q_OBJECT
 public:
-  TransferFunctionEditor(QWidget *parent);
+  TransferFunctionEditor(QWidget *parent, TifVolumeObject *vol);
 
   GradientEditor *m_editor;
+
+signals:
+  void colorsChanged();
 public slots:
   void setDefault( );
 private:

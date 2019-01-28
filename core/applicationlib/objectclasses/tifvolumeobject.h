@@ -14,6 +14,8 @@ public:
     const char* objectType();
     ~TifVolumeObject();
 
+    vtkSmartPointer<vtkVolume> getVolume() const;
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;

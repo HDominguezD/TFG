@@ -1,5 +1,9 @@
 
 #include "transferFunctionEditor.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
+
 ColorPicker::ColorPicker(QWidget *parent) : QWidget(parent)
 {
   QPolygonF points;
@@ -131,8 +135,9 @@ QRgb ColorEditor::colorAt(int x)
 }
 
 
-GradientEditor::GradientEditor(QWidget *parent) :QWidget(parent)
+GradientEditor::GradientEditor(QWidget *parent, TifVolumeObject *vol) :QWidget(parent)
 {
+  this->vol = vol;
   QVBoxLayout *vbox = new QVBoxLayout(this);
   vbox->setSpacing(1);
   vbox->setMargin(1);
@@ -196,6 +201,7 @@ void GradientEditor::pointsUpdated( )
     stops << QGradientStop(x / w, color);
   }
   emit gradientStopsChanged(stops);
+  emit colorsChanged();
 }
 
 void GradientEditor::colorUpdated( )
@@ -208,6 +214,11 @@ void GradientEditor::colorUpdated( )
   QColor color;
   colorPicker->generateShade( );
   color = colorPicker->m_shade.pixel(x, 0);
+
+
+  vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
+  ctf->AddRGBPoint(0, color.redF(), color.greenF(), color.blueF());
+  vol->getVolume()->GetProperty()->SetColor(ctf);
   setValue(color);
 
   emit colorEditor->colorsChanged( );
@@ -246,7 +257,12 @@ void GradientEditor::setGradientStops(QGradientStops &stops)
   colorUpdated( );
 }
 
-TransferFunctionEditor::TransferFunctionEditor(QWidget *parent) :QWidget(parent)
+TifVolumeObject *GradientEditor::getVol() const
+{
+    return vol;
+}
+
+TransferFunctionEditor::TransferFunctionEditor(QWidget *parent, TifVolumeObject *vol) :QWidget(parent)
 {
   QVBoxLayout *vbox = new QVBoxLayout(this);
   vbox->setSpacing(1);
@@ -254,10 +270,11 @@ TransferFunctionEditor::TransferFunctionEditor(QWidget *parent) :QWidget(parent)
 
   QPushButton *defaultButton = new QPushButton(tr("default"));
 
-  m_editor = new GradientEditor(this);
+  m_editor = new GradientEditor(this, vol);
   vbox->addWidget(m_editor);
   vbox->addWidget(defaultButton);
   connect(defaultButton, SIGNAL(clicked( )), this, SLOT(setDefault( )));
+  connect(m_editor, SIGNAL(colorsChanged()), this, SIGNAL(colorsChanged( )));
   QTimer::singleShot(50, this, SLOT(setDefault( )));
 }
 

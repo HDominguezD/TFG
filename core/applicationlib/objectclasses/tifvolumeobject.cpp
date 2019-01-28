@@ -100,9 +100,6 @@ bool TifVolumeObject::readObject()
     vtkObjectFactory::RegisterFactory(vtkRenderingVolumeOpenGL2ObjectFactory::New());
 
     vtkFixedPointVolumeRayCastMapper *texMapper = vtkFixedPointVolumeRayCastMapper::New();
-    vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
-    vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
-    vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
 
     //Go through the visulizatin pipeline
 //    texMapper->SetInputConnection(header->GetOutputPort());
@@ -111,6 +108,7 @@ bool TifVolumeObject::readObject()
     //Set the color curve for the volume
     //first parameter is the value of the pixel and the rest the rgb color value
     //the pixel will have when it has the first value
+    vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
     ctf->AddRGBPoint(0, .91f, .7f, .61f);
     ctf->AddRGBPoint(20, .91f, .7f, .61f);
     ctf->AddRGBPoint(100, 1.0f, 1.0f, .85f);
@@ -119,11 +117,13 @@ bool TifVolumeObject::readObject()
     //Set the opacity curve for the volume
     //first parameter is the value of the pixel and the second the opacity value
     //the pixel will have when it has the first value
+    vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
     spwf->AddPoint(100, 0);
     spwf->AddPoint(140, .5);
     spwf->AddPoint(200, 1);
 
     //Set the gradient curve for the volume
+    vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
     gpwf->AddPoint(0, .2);
     gpwf->AddPoint(10, .2);
     gpwf->AddPoint(25, 1);
@@ -162,4 +162,9 @@ const char *TifVolumeObject::objectType()
 TifVolumeObject::~TifVolumeObject()
 {
 
+}
+
+vtkSmartPointer<vtkVolume> TifVolumeObject::getVolume() const
+{
+    return volume;
 }
