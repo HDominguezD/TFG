@@ -122,16 +122,33 @@ bool TifVolumeObject::readObject()
     spwf->AddPoint(140, .5);
     spwf->AddPoint(200, 1);
 
-    //Set the gradient curve for the volume
+    // The gradient opacity function is used to decrease the opacity
+    // in the "flat" regions of the volume while maintaining the opacity
+    // at the boundaries between tissue types.  The gradient is measured
+    // as the amount by which the intensity changes over unit distance.
+    // For most medical data, the unit distance is 1mm.
     vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
     gpwf->AddPoint(0, .2);
-    gpwf->AddPoint(10, .2);
-    gpwf->AddPoint(25, 1);
+    gpwf->AddPoint(90, .5);
+    gpwf->AddPoint(100, 1);
 
 
-    volume->GetProperty()->SetColor(ctf);
-    volume->GetProperty()->SetScalarOpacity(spwf);
-    volume->GetProperty()->SetGradientOpacity(gpwf);
+    vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+    volumeProperty->SetColor(ctf);
+    volumeProperty->SetScalarOpacity(spwf);
+    volumeProperty->SetGradientOpacity(gpwf);
+    volumeProperty->SetInterpolationTypeToLinear();
+    volumeProperty->ShadeOn();
+
+
+    //Ambient especificates how the material reacts to global litghning
+    volumeProperty->SetAmbient(0.6);
+    //diffuse determines the average path of light in the material
+    volumeProperty->SetDiffuse(0.5);
+    //Specular determines how the light is reflected in the material
+    volumeProperty->SetSpecular(0.4);
+
+    volume->SetProperty(volumeProperty);
     volume->SetMapper(texMapper);
 
     return true;

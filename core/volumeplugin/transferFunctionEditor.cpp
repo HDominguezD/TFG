@@ -3,6 +3,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtkPiecewiseFunction.h"
 
 ColorPicker::ColorPicker(QWidget *parent) : QWidget(parent)
 {
@@ -186,6 +187,7 @@ void GradientEditor::pointsUpdated( )
     colorEditor->hoverPoints( )->setAddingEditable(true);
   }
   std::sort(points.begin( ), points.end( ), x_less_than);
+  vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
   for ( int i = 0; i < points.size( ); ++i )
   {
     qreal x = int(points.at(i).x( ));
@@ -199,7 +201,11 @@ void GradientEditor::pointsUpdated( )
       return;
     color.setAlphaF(1 - ( y / h ));
     stops << QGradientStop(x / w, color);
+
+    spwf->AddPoint(x, 1 - (y / h));
   }
+  vol->getVolume()->GetProperty()->SetScalarOpacity(spwf);
+
   emit gradientStopsChanged(stops);
   emit colorsChanged();
 }
@@ -285,33 +291,8 @@ void TransferFunctionEditor::setDefault( )
   QGradientStops stops;
 
   stops << QGradientStop(0.00, QColor::fromRgba(0));
-  stops << QGradientStop(13.00 / 255.0f, QColor::fromRgba(0)); //alpha 0.0
-  stops << QGradientStop(15.00 / 255.0f, QColor::fromRgba(0x33000000)); //alpha 0.2
-  stops << QGradientStop(67.00 / 255.0f, QColor::fromRgba(0x4d000000)); //alpha 0.3
-  stops << QGradientStop(70.00 / 255.0f, QColor::fromRgba(0x0d000000)); //alpha 0.05
   stops << QGradientStop(80.0 / 255.0, QColor::fromRgba(0)); //alpha 0.0
-  stops << QGradientStop(82.0 / 255.0, QColor::fromRgba(0xe6000000)); //alpha 0.9
   stops << QGradientStop(1.0, QColor::fromRgba(0xff000000));//alpha 1.0
-
-  //stops << QGradientStop(0.00, QColor::fromRgba(0));
-  //stops << QGradientStop(13.00 / 255.0f, QColor::fromRgba(0)); //alpha 0.0
-  //stops << QGradientStop(15.00 / 255.0f, QColor::fromRgba(0x33000000)); //alpha 0.2
-  //stops << QGradientStop(60.00 / 255.0f, QColor::fromRgba(0x33000000)); //alpha 0.2
-  //stops << QGradientStop(63.00 / 255.0f, QColor::fromRgba(0x0d000000)); //alpha 0.05
-  //stops << QGradientStop(80.0 / 255.0, QColor::fromRgba(0)); //alpha 0.0
-  //stops << QGradientStop(82.0 / 255.0, QColor::fromRgba(0xe6000000)); //alpha 0.9
-  //stops << QGradientStop(1.0, QColor::fromRgba(0xff000000));//alpha 1.0
-
-   
-  //stops << QGradientStop(0.00, QColor::fromRgba(0));
-  //stops << QGradientStop(13.00 / 255.0f, QColor::fromRgba(0)); //alpha 0.0
-  //stops << QGradientStop(40.00 / 255.0f, QColor::fromRgba(0xe6000000)); //alpha 0.2
-  ////stops << QGradientStop(67.00 / 255.0f, QColor::fromRgba(0x4d000000)); //alpha 0.3
-  //stops << QGradientStop(70.00 / 255.0f, QColor::fromRgba(0x4d000000)); //alpha 0.05
-  //stops << QGradientStop(80.0 / 255.0, QColor::fromRgba(0)); //alpha 0.0
-  //stops << QGradientStop(82.0 / 255.0, QColor::fromRgba(0xe6000000)); //alpha 0.9
-  //stops << QGradientStop(1.0, QColor::fromRgba(0xff000000));//alpha 1.0
-
   m_editor->setGradientStops(stops);
   update( );
 }
