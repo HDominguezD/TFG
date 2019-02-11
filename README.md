@@ -10,7 +10,7 @@ to add other functionalities to treat this data.
 ### Getting Started
 * __Install CMake:__ Download [CMake](https://cmake.org/download/)
 * __Install VTK:__ Download [vtk](https://vtk.org/download/) and unzip.
-
+ 
 Create a new folder into it and name it build.
 Move to /build and execute CMake with the next flags:
 
@@ -22,11 +22,11 @@ cmake -DVTK_QT_VERSION:STRING=5 \
       -DBUILD_SHARED_LIBS:BOOL=ON ..
 ```
 
-⋅⋅⋅Use ```cmake .. ```
+Use ```cmake .. ```
 
-⋅⋅⋅use ```make -j4 ```(4 is the number of threads you want to do this action in parallel)
+use ```make -j4 ```(4 is the number of threads you want to do this action in parallel)
 
-⋅⋅⋅Finally use ```make install```
+Finally use ```make install```
 
 * __Install QT:__ download the [qt installer](https://www.qt.io/download-qt-installer?hsCtaTracking=9f6a2170-a938-42df-a8e2-a9f0b1d6cdce%7C6cb0de4f-9bb5-4778-ab02-bfb62735f3e5) 
 and select the 5.9.6 version.
@@ -35,28 +35,44 @@ Move /usr/local/plugins/designer/libQVTKWidgetPlugin to /Qt/Tools/QtCreator/lib/
 
 ### Features
 * __Images:__  
-The application can read and represent tif files with one image or with a 
-stack of images changing the image that it's been represented. The stack of 
-images also can be readed as a directory with diferent tifs files with only
-one image of the same width each one.
+      The application can read and represent tif files with one image.
+
+![TifImage](/Documentation/tifImage.png)
+
+The application also can read stacks of tif files, and select which tif is showed using a slider.
+
+![TifStack](/Documentation/tifStack.gif)
+
 * __Surface.__  
-The application can read obj files and render the objects.
+      The application can read obj files and render the objects.
+
+![Surface](/Documentation/surface.gif)
+
 * __Volume.__  
 The application can create volume objects reading tif stack files. The 
 opacity and color value of this objects can be modified by the transference
-function editor. Also the transfer function can be saved with the next format:
-If a transfer function is not finded when the tif stack is readed, a default
+function editor. Also the transfer function can be saved with the next format.
+If a transfer function is not found when the tif stack is readed, a default
 transfer function is loaded.
+
+![Volume](/Documentation/volume.gif)
+
 A obj object can be loaded to the scene so you can compare the surface and the
 volume object, this surface can be scaled with a slider and all the scene can 
 be capturated pressing the button.
+
+![Scale](/Documentation/scale.gif)
+
+* __Interface__ The interface is based on docks. You can dock or undock each 
+part of the application to distribute the visualization of these parts as 
+you want.
+
+![Docks](/Documentation/docks.gif)
+
 * __Plugin Manager__  
 All the functionality modules of the project are saved as plugins and loaded
 in executions as a normal QT plugins. This plugins are loaded from the directory
 ApplicationPackage/Plugins
-* __Interface__ The interface is based on docks. You can dock or undock each 
-part of the application to distribute the visualization of these parts as 
-you want.
 
 ### Future Features
 * __Python script reader__  A plugin to load python scripts will be added,
@@ -77,8 +93,8 @@ of the project. When the project is initialized all the plugins of that director
 will be loaded.
 
 ### Built With
-* __[VTK](https://vtk.org/)__ open source software for manipulating and displaying scientific data.
-* __[QT](https://www.qt.io/)__ C++ framework used to design the project interfaces
+* __[VTK](https://vtk.org/)__: open source software for manipulating and displaying scientific data.
+* __[QT](https://www.qt.io/)__: C++ framework used to design the project interfaces
 and main code.
 
 
