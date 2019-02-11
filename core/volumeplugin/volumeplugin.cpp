@@ -182,32 +182,25 @@ void VolumePlugin::openObjFile()
 
             if(actualActor != nullptr)
             {
-                //scale actor to be equal to the volume actor
-//                double yrange = *actualActor->GetYRange();
-//                double yrange2 = *volume->GetYRange();
-//                double zrange = *actualActor->GetZRange();
-//                double zrange2 = *volume->GetZRange();
-//                double xrange = *actualActor->GetXRange();
-//                double xrange2 = *volume->GetXRange();
 
-                //scale rotate traslate
-                vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-                transform->Scale(14, -14, 14);
-                vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
-                transform2->Translate(-actualActor->GetCenter()[0] - 5, -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
-                transform->Concatenate(transform2->GetMatrix());
+            //scale rotate traslate
+            vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+            transform->Scale(14, -14, 14);
+            vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
+            transform2->Translate(-actualActor->GetCenter()[0] - 5, -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
+            transform->Concatenate(transform2->GetMatrix());
 
-                actualActor->SetUserTransform(transform);
+            actualActor->SetUserTransform(transform);
 
-                string nameButton = string("CompareObj ") + to_string(dockNumber);
-                QPushButton *compare = dock->findChild<QPushButton *>(nameButton.c_str());
-                if(compare)
-                {
-                    compare->hide();
-                    string nameSlider = string("ScaleObj ") + to_string(dockNumber);
-                    QSlider *slider = dock->findChild<QSlider *>(nameSlider.c_str());
-                    initializeSlider(slider);
-                }
+            string nameButton = string("CompareObj ") + to_string(dockNumber);
+            QPushButton *compare = dock->findChild<QPushButton *>(nameButton.c_str());
+            if(compare)
+            {
+                compare->hide();
+                string nameSlider = string("ScaleObj ") + to_string(dockNumber);
+                QSlider *slider = dock->findChild<QSlider *>(nameSlider.c_str());
+                initializeSlider(slider);
+            }
             }
        }
     }
@@ -231,34 +224,34 @@ void VolumePlugin::initializeSlider(QSlider *slider)
 
 void VolumePlugin::changeObjScale(int value)
 {
-        QSlider* sliderSender = qobject_cast<QSlider*>(sender());
-        string sliderName = sliderSender->objectName().toStdString();
-        vector<string> splitName;
-        boost::split(splitName, sliderName, [](char c){return c == ' ';});
-        string number = splitName.at(splitName.size() - 1);
-        int dockNumber = atoi(number.c_str());
+    QSlider* sliderSender = qobject_cast<QSlider*>(sender());
+    string sliderName = sliderSender->objectName().toStdString();
+    vector<string> splitName;
+    boost::split(splitName, sliderName, [](char c){return c == ' ';});
+    string number = splitName.at(splitName.size() - 1);
+    int dockNumber = atoi(number.c_str());
 
-        string nameDock = string("Dock ") + to_string(dockNumber);
-        QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
+    string nameDock = string("Dock ") + to_string(dockNumber);
+    QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
 
-        string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
-        QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
-        vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+    string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
+    QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
+    vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
 
-        vtkActorCollection *actors = renderer->GetActors();
-        actors->InitTraversal();
-        vtkActor *actualActor = actors->GetLastActor();
+    vtkActorCollection *actors = renderer->GetActors();
+    actors->InitTraversal();
+    vtkActor *actualActor = actors->GetLastActor();
 
-        if(actualActor)
-        {
-            //scale rotate traslate
-            vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-            transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
-            transform->Concatenate(actualActor->GetUserMatrix());
-            actualActor->SetUserTransform(transform);
-        }
-         vtkWidget->GetRenderWindow()->Render();
-         lastValue = value;
+    if(actualActor)
+    {
+        //scale rotate traslate
+        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+        transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
+        transform->Concatenate(actualActor->GetUserMatrix());
+        actualActor->SetUserTransform(transform);
+    }
+     vtkWidget->GetRenderWindow()->Render();
+     lastValue = value;
 }
 
 void VolumePlugin::captureImage()

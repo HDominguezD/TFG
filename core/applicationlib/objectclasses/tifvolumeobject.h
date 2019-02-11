@@ -15,6 +15,7 @@ public:
     ~TifVolumeObject();
 
     vtkSmartPointer<vtkVolume> getVolume() const;
+    void readTransferFunction(string fileName);
 
 private:
     void readObjectFromDir(QDir directory);

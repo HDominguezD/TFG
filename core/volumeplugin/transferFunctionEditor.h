@@ -1,6 +1,6 @@
 #include "hoverpoints.h"
 #include "objectclasses/tifvolumeobject.h"
-
+#include "vtkVolumeProperty.h"
 
 class ColorPicker : public QWidget
 {
@@ -18,6 +18,8 @@ public:
   void setGradientStops(const QGradientStops &stops);
 
   void generateShade();
+  void setHoverPoints(HoverPoints *hoverPoints);
+
 signals:
   void colorPickerChanged();
 private:
@@ -31,7 +33,7 @@ class ColorEditor : public QWidget
 public:
   QImage m_shade;
   QPolygonF points() const;
-  ColorEditor(QWidget *parent);
+  ColorEditor(QWidget *parent, QColor color);
   HoverPoints *hoverPoints() const
   {
     return m_hoverPoints;
@@ -57,7 +59,7 @@ class GradientEditor :public QWidget
   Q_OBJECT
 
 public:
-  GradientEditor(QWidget *parent, TifVolumeObject* vol);
+  GradientEditor(QWidget *parent, TifVolumeObject* vol, vtkVolumeProperty *defaultProperty);
   QLabel *label;
   QString text;
   void setValue(QColor color);
@@ -65,6 +67,7 @@ public:
   void set_shade_points(const QPolygonF &points);
   int maxPoints = 15;
   TifVolumeObject *getVol() const;
+  void setDefaultValues();
 
 signals:
   void gradientStopsChanged(QGradientStops &stops);
@@ -78,6 +81,7 @@ private:
   ColorEditor *colorEditor;
   ColorPicker *colorPicker;
   TifVolumeObject *vol;
+  vtkVolumeProperty *defaultProperty;
 };
 
 
@@ -86,12 +90,15 @@ class TransferFunctionEditor: public QWidget{
   Q_OBJECT
 public:
   TransferFunctionEditor(QWidget *parent, TifVolumeObject *vol);
-
   GradientEditor *m_editor;
+  TifVolumeObject *vol;
+  vtkSmartPointer<vtkVolumeProperty> defaultProperty;
 
 signals:
   void colorsChanged();
 public slots:
   void setDefault( );
+  bool saveFunction();
 private:
+  void saveDefault();
 };

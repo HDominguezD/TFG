@@ -15,6 +15,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 #include "vtkImageData.h"
+#include <boost/algorithm/string.hpp>
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -55,9 +56,6 @@ bool TifVolumeObject::readObject()
         header->Update();
 
         int *data = header->GetDataExtent();
-//        int height = header->GetDataExtent()[3];
-//        int width = header->GetDataExtent()[1];
-//        int depth = header->GetDataExtent()[5];
 
         reader->SetDataExtent(data);
         int type = header->GetDataScalarType();
@@ -74,81 +72,66 @@ bool TifVolumeObject::readObject()
         imageData = header->GetOutput();
     }
 
-    //image dimensions
-
-//    reader->Update();
-
-    //    int *dims = imageData->GetDimensions();
-
-    //    for(int image = 0; image < dims[2]; ++image)
-    //    {
-    //        for(int row = 0; row < dims[0]; ++row)
-    //        {
-    //            for(int col = 0; col < dims[1]; ++col)
-    //            {
-    //                //removing pixels with value between 0 and 200 to remove some interferences
-    //                ushort* pixel = static_cast<ushort*>(imageData->GetScalarPointer(row, col, image));
-    //                if(pixel[0] >= 200)
-    //                {
-    //                    int hola = 1;
-    //                }
-    //            }
-    //        }
-    //    }
-
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
     vtkObjectFactory::RegisterFactory(vtkRenderingVolumeOpenGL2ObjectFactory::New());
 
     vtkFixedPointVolumeRayCastMapper *texMapper = vtkFixedPointVolumeRayCastMapper::New();
 
     //Go through the visulizatin pipeline
-//    texMapper->SetInputConnection(header->GetOutputPort());
+
     texMapper->SetInputData(imageData);
 
-    //Set the color curve for the volume
-    //first parameter is the value of the pixel and the rest the rgb color value
-    //the pixel will have when it has the first value
-    vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
-    ctf->AddRGBPoint(0, .91f, .7f, .61f);
-    ctf->AddRGBPoint(20, .91f, .7f, .61f);
-    ctf->AddRGBPoint(100, 1.0f, 1.0f, .85f);
-    ctf->AddRGBPoint(200, 1.0f, 1.0f, .85f);
+    QStringList transferFunction = directory.entryList(QStringList() << "*.trans",QDir::Files);
 
-    //Set the opacity curve for the volume
-    //first parameter is the value of the pixel and the second the opacity value
-    //the pixel will have when it has the first value
-    vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
-    spwf->AddPoint(100, 0);
-    spwf->AddPoint(140, .5);
-    spwf->AddPoint(200, 1);
+    if(transferFunction.isEmpty()){
+        //Set the color curve for the volume
+        //first parameter is the value of the pixel and the rest the rgb color value
+        //the pixel will have when it has the first value
+        vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
+        ctf->AddRGBPoint(0, .91f, .7f, .61f);
+        ctf->AddRGBPoint(20, .91f, .7f, .61f);
+        ctf->AddRGBPoint(100, 1.0f, 1.0f, .85f);
+        ctf->AddRGBPoint(200, 1.0f, 1.0f, .85f);
 
-    // The gradient opacity function is used to decrease the opacity
-    // in the "flat" regions of the volume while maintaining the opacity
-    // at the boundaries between tissue types.  The gradient is measured
-    // as the amount by which the intensity changes over unit distance.
-    // For most medical data, the unit distance is 1mm.
-    vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
-    gpwf->AddPoint(0, .2);
-    gpwf->AddPoint(90, .5);
-    gpwf->AddPoint(100, 1);
+        //Set the opacity curve for the volume
+        //first parameter is the value of the pixel and the second the opacity value
+        //the pixel will have when it has the first value
+        vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
+        spwf->AddPoint(100, 0);
+        spwf->AddPoint(140, .5);
+        spwf->AddPoint(200, 1);
 
-
-    vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
-    volumeProperty->SetColor(ctf);
-    volumeProperty->SetScalarOpacity(spwf);
-    volumeProperty->SetGradientOpacity(gpwf);
-    volumeProperty->SetInterpolationTypeToLinear();
-    volumeProperty->ShadeOn();
+        // The gradient opacity function is used to decrease the opacity
+        // in the "flat" regions of the volume while maintaining the opacity
+        // at the boundaries between tissue types.  The gradient is measured
+        // as the amount by which the intensity changes over unit distance.
+        // For most medical data, the unit distance is 1mm.
+        vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
+        gpwf->AddPoint(0, .2);
+        gpwf->AddPoint(90, .5);
+        gpwf->AddPoint(100, 1);
 
 
-    //Ambient especificates how the material reacts to global litghning
-    volumeProperty->SetAmbient(0.6);
-    //diffuse determines the average path of light in the material
-    volumeProperty->SetDiffuse(0.5);
-    //Specular determines how the light is reflected in the material
-    volumeProperty->SetSpecular(0.4);
+        vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+        volumeProperty->SetColor(ctf);
+        volumeProperty->SetScalarOpacity(spwf);
+        volumeProperty->SetGradientOpacity(gpwf);
+        volumeProperty->SetInterpolationTypeToLinear();
+        volumeProperty->ShadeOn();
 
-    volume->SetProperty(volumeProperty);
+
+        //Ambient especificates how the material reacts to global litghning
+        volumeProperty->SetAmbient(0.6);
+        //diffuse determines the average path of light in the material
+        volumeProperty->SetDiffuse(0.5);
+        //Specular determines how the light is reflected in the material
+        volumeProperty->SetSpecular(0.4);
+
+        volume->SetProperty(volumeProperty);
+    } else {
+        readTransferFunction(directory.absolutePath().toStdString() + "/" + transferFunction.at(0).toStdString());
+    }
+
     volume->SetMapper(texMapper);
 
     return true;
@@ -184,4 +167,61 @@ TifVolumeObject::~TifVolumeObject()
 vtkSmartPointer<vtkVolume> TifVolumeObject::getVolume() const
 {
     return volume;
+}
+
+void TifVolumeObject::readTransferFunction(string fileName)
+{
+    string line;
+    ifstream input(fileName.c_str(), ifstream::out);
+
+    static map<string, int> s_mapStringValues;
+        s_mapStringValues.insert(pair<string, int>(string("c "), 1));
+        s_mapStringValues.insert(pair<string, int>(string("s "), 2));
+        s_mapStringValues.insert(pair<string, int>(string("g "), 3));
+
+    vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
+    vtkPiecewiseFunction *gpwf = vtkPiecewiseFunction::New();
+    vtkPiecewiseFunction *spwf = vtkPiecewiseFunction::New();
+
+    while (getline(input, line))
+    {
+        string beginning = line.substr(0, 2);
+        vector<string> results;
+        boost::split(results, line, [](char c){return c == ' ';});
+
+        switch (s_mapStringValues.find(beginning)->second)
+        {
+            case 1:
+            {
+                ctf->AddRGBPoint(stof(results.at(1)), stof(results.at(2)), stof(results.at(3)), stof(results.at(4)));
+                break;
+            }
+            case 2:
+            {
+                spwf->AddPoint(stof(results.at(1)), stof(results.at(2)));
+                break;
+            }
+            case 3:
+            {
+                gpwf->AddPoint(stof(results.at(1)), stof(results.at(2)));
+                break;
+            };
+        }
+    }
+    vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+    volumeProperty->SetColor(ctf);
+    volumeProperty->SetScalarOpacity(spwf);
+    volumeProperty->SetGradientOpacity(gpwf);
+    //volumeProperty->SetInterpolationTypeToLinear();
+    volumeProperty->ShadeOn();
+
+    int j = volumeProperty->GetScalarOpacity()->GetSize();
+    //Ambient especificates how the material reacts to global litghning
+    volumeProperty->SetAmbient(0.6);
+    //diffuse determines the average path of light in the material
+    volumeProperty->SetDiffuse(0.5);
+    //Specular determines how the light is reflected in the material
+    volumeProperty->SetSpecular(0.4);
+
+    volume->SetProperty(volumeProperty);
 }
