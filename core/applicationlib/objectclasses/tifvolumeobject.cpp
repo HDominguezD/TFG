@@ -16,7 +16,6 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include <boost/algorithm/string.hpp>
-#include "vtkInformation.h"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -91,6 +90,26 @@ bool TifVolumeObject::readObject()
 
         imageData = header->GetOutput();
         imageData->SetSpacing(1, 1, 3);
+
+        //image dimensions
+        int *dims = header->GetOutput()->GetDimensions();
+
+        maxValue = 0;
+        //calculate the max value
+        for(int row = 0; row < dims[0]; ++row)
+        {
+            for(int col = 0; col < dims[1]; ++col)
+            {
+                for(int z = 0; z < dims[2]; ++z)
+                {
+                    ushort* pixel = static_cast<ushort*>(header->GetOutput()->GetScalarPointer(row, col, z));
+                    if(pixel[0] > maxValue)
+                        maxValue = pixel[0];
+                   }
+
+            }
+
+        }
     }
 
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());

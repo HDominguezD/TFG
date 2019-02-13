@@ -171,6 +171,7 @@ void GradientEditor::pointsUpdated( )
 {
     double max = vol->getMaxValue();
     qreal w = colorEditor->width( );
+    qreal widthRelation = max / w;
     qreal h = colorEditor->height( );
     QGradientStops stops;
     QPolygonF points;
@@ -202,10 +203,11 @@ void GradientEditor::pointsUpdated( )
         if ( x / w > 1 )
             return;
         color.setAlphaF(1 - ( y / h ));
-        stops << QGradientStop(x / w, color);
+        //interpolate the editor width value with the max value of the pixels
+        stops << QGradientStop((x * widthRelation) / max, color);
 
-        spwf->AddPoint(x, 1 - (y / h));
-        gpwf->AddPoint(x / w * 100, 1 - (y / h));
+        spwf->AddPoint(x * widthRelation, 1 - (y / h));
+        gpwf->AddPoint((x * widthRelation) / max * 100, 1 - (y / h));
     }
 
     vol->getVolume()->GetProperty()->SetScalarOpacity(spwf);
@@ -223,7 +225,7 @@ void GradientEditor::colorUpdated( )
   qreal x = int(points.at(0).x( ));
   qreal y = int(points.at(0).y( ));
   QColor color;
-  //colorPicker->generateShade( );
+  colorPicker->generateShade( );
   color = colorPicker->m_shade.pixel(x, 0);
 
   vtkColorTransferFunction *ctf = vtkColorTransferFunction::New();
@@ -289,7 +291,7 @@ void GradientEditor::setDefaultValues()
             QPolygonF points = colorPicker->hoverPoints()->points();
             points.replace(0,point);
             colorPicker->hoverPoints()->setPoints(points);
-
+            setValue(pixel);
             break;
         }
     }
@@ -299,7 +301,7 @@ void GradientEditor::setDefaultValues()
         spwf->GetNodeValue(i, node);
         qreal w = colorEditor->width( );
         color.setAlphaF(node[1]);
-        stops << QGradientStop(node[0] / w, color);
+        stops << QGradientStop(node[0] / vol->getMaxValue(), color);
     }
     vol->getVolume()->GetProperty()->SetColor(defaultProperty->GetRGBTransferFunction());
     vol->getVolume()->GetProperty()->SetScalarOpacity(defaultProperty->GetScalarOpacity());
@@ -333,33 +335,8 @@ TransferFunctionEditor::TransferFunctionEditor(QWidget *parent, TifVolumeObject 
 
 void TransferFunctionEditor::setDefault( )
 {
-  //color = QColor(232, 179, 156);0x00e8b93c
-  //init
-
-//  //just defining the alpha or opacity for the point values
-//        qreal x = int(points.at(i).x( ));
-//        qreal y = int(points.at(i).y( ));
-//        QGradientStops stops;
-//        QColor color = new QColor(QColor::red());
-
-//        color = colorEditor->colorAt(int(x));
-//        if ( x / w > 1 )
-//          return;
-//        color.setAlphaF(1 - ( y / h ));
-//        stops << QGradientStop(x / w, color);
-
-
-//  stops << QGradientStop(0.00, QColor::fromRgba(0)); //alpha 0
-//  stops << QGradientStop(12.0 / 378.0, 0.62); //alpha 0.0
-//  stops << QGradientStop(118.0 / 378.0, QColor::fromRgba(0));
-//  stops << QGradientStop(256.0 / 378.0, QColor::fromRgba(0));
-//  stops << QGradientStop(1.0, QColor::fromRgba(0xff000000));//alpha 1.0
-//    m_editor->setGradientStops(stops);
     m_editor->setDefaultValues();
     update( );
-
-//    QGradientStops stops;
-
 }
 
 bool TransferFunctionEditor::saveFunction()
