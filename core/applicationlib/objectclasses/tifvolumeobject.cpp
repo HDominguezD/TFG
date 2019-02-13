@@ -16,6 +16,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include <boost/algorithm/string.hpp>
+#include "vtkInformation.h"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -42,27 +43,46 @@ bool TifVolumeObject::readObject()
     }
 
     vtkSmartPointer<vtkTIFFReader> header = vtkSmartPointer<vtkTIFFReader>::New();
-    vtkImageReader2 *reader = vtkImageReader2::New();
+    vtkSmartPointer<vtkImageReader2> reader = vtkImageReader2::New();
 
     //Image data of the readed image
     vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 
     if(imagesName->GetSize() > 1)
     {
-        reader->SetFileNames(imagesName);
 
-        string fileName = imagesName->GetValue(0);
-        header->SetFileName(fileName.c_str());
+        header->SetFileNames(imagesName);
         header->Update();
 
-        int *data = header->GetDataExtent();
+        //image dimensions
+        int *dims = header->GetOutput()->GetDimensions();
 
-        reader->SetDataExtent(data);
-        int type = header->GetDataScalarType();
-        reader->SetDataScalarType(type);
-        reader->Update();
+        int *ext = header->GetDataExtent();
+        // Create an image data where apply the changes
+        imageData->SetDimensions(dims[0], dims[1], dims[2]);
+        imageData->SetExtent(imageData->GetExtent());
+        imageData->AllocateScalars(header->GetDataScalarType(),1);
+        imageData->SetSpacing(1,1,3);
 
-        imageData = reader->GetOutput();
+
+        maxValue = 0;
+        //calculate the max value
+        for(int row = 0; row < dims[0]; ++row)
+        {
+            for(int col = 0; col < dims[1]; ++col)
+            {
+                for(int z = 0; z < dims[2]; ++z)
+                {
+                    ushort* pixel = static_cast<ushort*>(header->GetOutput()->GetScalarPointer(row, col, z));
+                    ushort* pixel2 = static_cast<ushort*>(imageData->GetScalarPointer(row, col, z));
+                    if(pixel[0] > maxValue)
+                        maxValue = pixel[0];
+                    pixel2[0] = pixel[0];
+                }
+
+            }
+
+        }
     } else
     {
         string fileName = imagesName->GetValue(0);
@@ -70,6 +90,7 @@ bool TifVolumeObject::readObject()
         header->Update();
 
         imageData = header->GetOutput();
+        imageData->SetSpacing(1, 1, 3);
     }
 
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
@@ -224,4 +245,9 @@ void TifVolumeObject::readTransferFunction(string fileName)
     volumeProperty->SetSpecular(0.4);
 
     volume->SetProperty(volumeProperty);
+}
+
+double TifVolumeObject::getMaxValue() const
+{
+    return maxValue;
 }

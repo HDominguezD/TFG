@@ -17,9 +17,12 @@ public:
     vtkSmartPointer<vtkVolume> getVolume() const;
     void readTransferFunction(string fileName);
 
+    double getMaxValue() const;
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;
+    double maxValue;
 
 };
 

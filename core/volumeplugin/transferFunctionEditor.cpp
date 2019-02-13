@@ -169,6 +169,7 @@ inline static bool x_less_than(const QPointF &p1, const QPointF &p2)
 
 void GradientEditor::pointsUpdated( )
 {
+    double max = vol->getMaxValue();
     qreal w = colorEditor->width( );
     qreal h = colorEditor->height( );
     QGradientStops stops;
