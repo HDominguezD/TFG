@@ -23,4 +23,5 @@ SUBDIRS += \
     application \
     surfaceplugin \
     volumeplugin \
-    imageplugin
+    imageplugin \
+    ReadPythonPlugin

@@ -185,7 +185,7 @@ void VolumePlugin::openObjFile()
 
             //scale rotate traslate
             vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-            transform->Scale(14, -14, 14);
+            transform->Scale(1, -1, 1);
             vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
             transform2->Translate(-actualActor->GetCenter()[0] + 8, -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
             transform->Concatenate(transform2->GetMatrix());

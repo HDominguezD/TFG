@@ -47,22 +47,42 @@ bool TifVolumeObject::readObject()
     //Image data of the readed image
     vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 
+    string pythonCode = "/home/hector/Desktop/Python/getSpacing.py";
+    string code = "python3 " + pythonCode;
+
+    string fileName = std::tmpnam(nullptr);
+
+    code = code + " > " + fileName;
+
+    system(code.c_str());
+    string line;
+    ifstream input(fileName.c_str(), ifstream::out);
+
+    double spacing[3];
+    for(int i = 0; i < 3; i++)
+    {
+        std::getline(input, line);
+        if(line != "")
+        {
+            std::cout << "stdout: " << line << '\n';
+            string value = line.substr(4);
+            spacing[i] = stod(value);
+        }
+    }
+
     if(imagesName->GetSize() > 1)
     {
-
         header->SetFileNames(imagesName);
         header->Update();
 
         //image dimensions
         int *dims = header->GetOutput()->GetDimensions();
-
         int *ext = header->GetDataExtent();
         // Create an image data where apply the changes
         imageData->SetDimensions(dims[0], dims[1], dims[2]);
         imageData->SetExtent(imageData->GetExtent());
         imageData->AllocateScalars(header->GetDataScalarType(),1);
-        imageData->SetSpacing(1,1,3);
-
+        imageData->SetSpacing(spacing);
 
         maxValue = 0;
         //calculate the max value
@@ -89,7 +109,7 @@ bool TifVolumeObject::readObject()
         header->Update();
 
         imageData = header->GetOutput();
-        imageData->SetSpacing(1, 1, 3);
+        imageData->SetSpacing(spacing);
 
         //image dimensions
         int *dims = header->GetOutput()->GetDimensions();

@@ -31,6 +31,11 @@ DEFINES += APPLICATIONLIB_LIBRARY
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
+INCLUDEPATH += /usr/include/python3.6
+
+LIBS += -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/ -lpython3.6
+DEPENDPATH += /usr/include/python3.6
+
 SOURCES += \
     renderingwindow.cpp \
     core.cpp \
