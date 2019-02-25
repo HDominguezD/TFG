@@ -47,29 +47,6 @@ bool TifVolumeObject::readObject()
     //Image data of the readed image
     vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 
-    string pythonCode = "/home/hector/Desktop/Python/getSpacing.py";
-    string code = "python3 " + pythonCode;
-
-    string fileName = std::tmpnam(nullptr);
-
-    code = code + " > " + fileName;
-
-    system(code.c_str());
-    string line;
-    ifstream input(fileName.c_str(), ifstream::out);
-
-    double spacing[3];
-    for(int i = 0; i < 3; i++)
-    {
-        std::getline(input, line);
-        if(line != "")
-        {
-            std::cout << "stdout: " << line << '\n';
-            string value = line.substr(4);
-            spacing[i] = stod(value);
-        }
-    }
-
     if(imagesName->GetSize() > 1)
     {
         header->SetFileNames(imagesName);
@@ -82,7 +59,6 @@ bool TifVolumeObject::readObject()
         imageData->SetDimensions(dims[0], dims[1], dims[2]);
         imageData->SetExtent(imageData->GetExtent());
         imageData->AllocateScalars(header->GetDataScalarType(),1);
-        imageData->SetSpacing(spacing);
 
         maxValue = 0;
         //calculate the max value
@@ -109,7 +85,6 @@ bool TifVolumeObject::readObject()
         header->Update();
 
         imageData = header->GetOutput();
-        imageData->SetSpacing(spacing);
 
         //image dimensions
         int *dims = header->GetOutput()->GetDimensions();
@@ -131,6 +106,10 @@ bool TifVolumeObject::readObject()
 
         }
     }
+
+    string fileName = imagesName->GetValue(0);
+    std::array<double, 3> spacing = calculateSpacing(fileName);
+    imageData->SetSpacing(spacing.at(0), spacing.at(1), spacing.at(2));
 
     vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
     vtkObjectFactory::RegisterFactory(vtkRenderingVolumeOpenGL2ObjectFactory::New());
@@ -290,3 +269,30 @@ double TifVolumeObject::getMaxValue() const
 {
     return maxValue;
 }
+
+std::array<double, 3> TifVolumeObject::calculateSpacing(string name)
+{
+    //calculate spacing
+     string pythonCode = "/home/hector/Desktop/Python/getSpacing.py";
+     string code = "python3 " + pythonCode /* + name*/;
+     string fileName = std::tmpnam(nullptr);
+     code = code + " > " + fileName;
+     system(code.c_str());
+
+     string line;
+     ifstream input(fileName.c_str(), ifstream::out);
+     std::array<double, 3> spacing;
+     for(int i = 0; i < 3; i++)
+     {
+         std::getline(input, line);
+         if(line != "")
+         {
+             std::cout << "stdout: " << line << '\n';
+             string value = line.substr(4);
+             spacing.at(i) = stod(value);
+
+         }
+     }
+     return spacing;
+ }
+

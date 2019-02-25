@@ -18,6 +18,7 @@ public:
     void readTransferFunction(string fileName);
 
     double getMaxValue() const;
+    std::array<double, 3> calculateSpacing(string name);
 
 private:
     void readObjectFromDir(QDir directory);
