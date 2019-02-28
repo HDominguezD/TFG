@@ -106,7 +106,7 @@ void ImagePlugin::openTifFile()
 
         QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
         vtkWidget->setSizePolicy(policy);
-        obj->resizeImage(vtkWidget->width(), vtkWidget->height());
+        obj->resizeImage(vtkWidget);
         object->printObject(vtkWidget);
     }
 }
@@ -172,7 +172,7 @@ void ImagePlugin::openTifStack()
         TifStackObject *objs = dynamic_cast<TifStackObject*>(object);
         for(int i = 0; i < objs->getTifStack()->size(); i++)
         {
-            objs->getTifStack()->at(i)->resizeImage(vtkWidget->width(), vtkWidget->height());
+            objs->getTifStack()->at(i)->resizeImage(vtkWidget);
         }
 
         object->printObject(vtkWidget);

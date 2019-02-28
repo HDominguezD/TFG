@@ -116,6 +116,9 @@ void VolumePlugin::openTifStack()
 
         window = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout(window);
+
+        this->layout()->setMenuBar(menuBar);
+
         layout->setGeometry(window->geometry());
 
         QHBoxLayout *featuresLayout = new QHBoxLayout(nullptr);

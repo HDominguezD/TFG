@@ -97,14 +97,31 @@ const char* TifObject::objectType(){
     return "Tif";
 }
 
-void TifObject::resizeImage(int x, int y)
+void TifObject::resizeImage(QVTKWidget *widget)
 {
+    int x = widget->width();
+    int y = widget->height();
+    int *dims = outputData->GetDimensions();
+    int resizeX = 0;
+    int resizeY = 0;
+
+    if((x / dims[0]) < (y / dims[1])){
+        resizeX = x;
+        resizeY = (dims[1]) / (dims[0] / x);
+    } else {
+        resizeY = y;
+        resizeX = (dims[0]) / (dims[1] / y);
+    }
+
+
     vtkSmartPointer<vtkImageResize> resize = vtkSmartPointer<vtkImageResize>::New();
     resize->SetInputData(outputData);
-    resize->SetOutputDimensions(x, y, outputData->GetDimensions()[2]);
+    resize->SetOutputDimensions(resizeX, resizeY, outputData->GetDimensions()[2]);
     resize->Update();
 
     imageMapper->SetInputConnection(resize->GetOutputPort());
+    QSize *size = new QSize(resizeX, resizeY);
+    widget->setFixedSize(*size);
 }
 
 int *TifObject::getDimensions()

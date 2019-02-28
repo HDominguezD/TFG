@@ -3,6 +3,7 @@
 #include "abstractclasses/object.h"
 #include <vtkImageMapper.h>
 #include "core.h"
+#include "QVTKWidget.h"
 
 
 class TifObject : public Object
@@ -12,7 +13,7 @@ public:
     bool readObject();
     void printObject(QVTKWidget *widget);
     const char* objectType();
-    void resizeImage(int x, int y);
+    void resizeImage(QVTKWidget *widget);
     int * getDimensions();
     bool readObjectFromFile(std::string fileName);
     ~TifObject();

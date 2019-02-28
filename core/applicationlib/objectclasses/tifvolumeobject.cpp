@@ -16,6 +16,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include <boost/algorithm/string.hpp>
+#include "QApplication"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -273,26 +274,42 @@ double TifVolumeObject::getMaxValue() const
 std::array<double, 3> TifVolumeObject::calculateSpacing(string name)
 {
     //calculate spacing
-     string pythonCode = "/home/hector/Desktop/Python/getSpacing.py";
-     string code = "python3 " + pythonCode /* + name*/;
-     string fileName = std::tmpnam(nullptr);
-     code = code + " > " + fileName;
-     system(code.c_str());
+    QDir pluginsDir(qApp->applicationDirPath());
+    pluginsDir.cd("Scripts");
+    string script = pluginsDir.absolutePath().toStdString() + "/getSpacing.py";
+    string code = "python3 " + script + " \"" + name + "\"";
+    string fileName = std::tmpnam(nullptr);
+    code = code + " > " + fileName;
+    system(code.c_str());
 
-     string line;
-     ifstream input(fileName.c_str(), ifstream::out);
-     std::array<double, 3> spacing;
-     for(int i = 0; i < 3; i++)
-     {
-         std::getline(input, line);
-         if(line != "")
-         {
-             std::cout << "stdout: " << line << '\n';
-             string value = line.substr(4);
-             spacing.at(i) = stod(value);
-
-         }
-     }
-     return spacing;
- }
+    string line;
+    ifstream input(fileName.c_str(), ifstream::out);
+    std::array<double, 3> spacing;
+    for(int i = 0; i < 3; i++)
+    {
+        std::getline(input, line);
+        if(line != "")
+        {
+            std::cout << "stdout: " << line << '\n';
+            string subLine = line.substr(0, 7);
+            if(subLine == "spacing")
+            {
+                spacing[0] = stod(line.substr(9));
+                spacing[1] = stod(line.substr(9));
+                spacing[2] = stod(line.substr(9));
+                return spacing;
+            } else
+            {
+                string value = line.substr(4);
+                spacing.at(i) = stod(value);
+            }
+        }
+    }
+    if(spacing[0] == 0 && spacing[1] == 0 && spacing[2] == 0){
+        spacing[0] = 1;
+        spacing[1] = 1;
+        spacing[2] = 1;
+    }
+    return spacing;
+    }
 
