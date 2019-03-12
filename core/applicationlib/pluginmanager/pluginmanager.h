@@ -2,7 +2,8 @@
 #define PLUGINMANAGER2_H
 
 #include "QObject"
-#include "../plugins/plugin.h"
+#include "../plugins/interfaceplugin.h"
+#include "../plugins/executionplugin.h"
 
 
 class PluginManager
@@ -11,12 +12,15 @@ public:
     PluginManager();
     void loadPlugins();
 
-    QVector<Plugin*>* getPlugins() const;
+    QVector<ExecutionPlugin *> *getExecutionPlugins() const;
+
+    QVector<InterfacePlugin *> *getInterfacePlugins() const;
 
 private:
     QString getPluginDirPath();
     bool loadPlugin(QObject *_plugin);
-    QVector<Plugin*>* plugins;
+    QVector<InterfacePlugin*>* interfacePlugins;
+    QVector<ExecutionPlugin*>* executionPlugins;
 };
 
 #endif // PLUGINMANAGER2_H

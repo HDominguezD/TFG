@@ -1,5 +1,4 @@
 #include "readpythonplugin.h"
-//#include "Python.h"
 
 void ReadPythonPlugin::load()
 {
@@ -10,12 +9,12 @@ void ReadPythonPlugin::load()
 
     string pythonCode = "/home/hector/Desktop/Python/evaluation_NN.py";
     string code = "python3 " + pythonCode;
-    system(code.c_str());
+    //system(code.c_str());
 }
 
 const char *ReadPythonPlugin::getType()
 {
-    return "Execution";
+    return "ExecutionPlugin";
 }
 
 void ReadPythonPlugin::close()

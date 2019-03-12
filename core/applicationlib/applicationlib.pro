@@ -43,7 +43,7 @@ SOURCES += \
     objectclasses/tifobject.cpp \
     objectclasses/tifvolumeobject.cpp \
     pluginmanager/pluginmanager.cpp \
-    objectclasses/tifstackobject.cpp
+    objectclasses/tifstackobject.cpp \
 
 HEADERS += \
     renderingwindow.h \
@@ -53,10 +53,11 @@ HEADERS += \
     objectclasses/objobject.h \
     objectclasses/tifobject.h \
     objectclasses/tifvolumeobject.h \
-    plugins/plugin.h \
     objectclasses/abstractclasses/object.h \
     pluginmanager/pluginmanager.h \
-    objectclasses/tifstackobject.h
+    objectclasses/tifstackobject.h \
+    plugins/interfaceplugin.h \
+    plugins/executionplugin.h
 
 FORMS += \
     renderingwindow.ui

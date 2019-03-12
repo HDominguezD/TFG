@@ -1,10 +1,10 @@
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#ifndef INTERFACE_PLUGIN_H
+#define INTERFACE_PLUGIN_H
 
 #include "../renderingwindow.h"
 #include "QtPlugin"
 
-class Plugin
+class InterfacePlugin
 {
 public:
     virtual void load() = 0;
@@ -14,7 +14,7 @@ public:
     RenderingWindow *getRenderingWindow() const { return renderingWindow;}
     Core *getCore() const {return core;}
     void setCore(Core* value){core = value;}
-    virtual ~Plugin() = 0;
+    virtual ~InterfacePlugin() = 0;
 
     RenderingWindow *renderingWindow;
     Core *core;
@@ -22,6 +22,6 @@ public:
 
 #define PluginInterface_iid "application::Plugin/2.0"
 
-Q_DECLARE_INTERFACE(Plugin, PluginInterface_iid)
+Q_DECLARE_INTERFACE(InterfacePlugin, PluginInterface_iid)
 
 #endif // PLUGIN_H

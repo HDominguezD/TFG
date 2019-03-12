@@ -1,14 +1,14 @@
 #ifndef READPYTHONPLUGIN_H
 #define READPYTHONPLUGIN_H
 
-#include "plugins/plugin.h"
+#include "plugins/executionplugin.h"
 
-class ReadPythonPlugin : public QObject, Plugin
+class ReadPythonPlugin : public QObject, ExecutionPlugin
 {
 
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "application.plugin/2.0" FILE "readpythonplugin.json")
-    Q_INTERFACES(Plugin)
+    Q_PLUGIN_METADATA(IID "application.plugin/1.0" FILE "readpythonplugin.json")
+    Q_INTERFACES(ExecutionPlugin)
 
 public:
     void load();

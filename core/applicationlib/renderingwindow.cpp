@@ -19,7 +19,14 @@ RenderingWindow::RenderingWindow(QWidget *parent, Core *core) :
 
     PluginManager *manager = new PluginManager();
     manager->loadPlugins();
-    for(Plugin *plugin : *manager->getPlugins()){
+
+//    for(ExecutionPlugin *plugin : *manager->getExecutionPlugins()){
+//        plugin->setRenderingWindow(this);
+//        plugin->setCore(core);
+//        plugin->load();
+//    }
+
+    for(InterfacePlugin *plugin : *manager->getInterfacePlugins()){
         plugin->setRenderingWindow(this);
         plugin->setCore(core);
         plugin->load();

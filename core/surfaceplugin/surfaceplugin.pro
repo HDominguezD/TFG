@@ -28,9 +28,11 @@ unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 HEADERS += \
-    surfaceplugin.h
+    surfaceplugin.h \
+    surfacewindow.h
 
 SOURCES += \
-    surfaceplugin.cpp
+    surfaceplugin.cpp \
+    surfacewindow.cpp
 
 OTHER_FILES    += surfaceplugin.json

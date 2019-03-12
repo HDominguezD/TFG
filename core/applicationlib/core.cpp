@@ -3,7 +3,7 @@
 Core::Core()
 {
     objects = new QVector<Object*>();
-    tabs = new QVector<QWidget*>();
+    tabs = new QVector<QDockWidget*>();
 }
 
 void Core::addObject(Object *value)
@@ -21,17 +21,17 @@ void Core::removeObject(Object *value)
     this->objects->removeOne(value);
 }
 
-void Core::addTab(QWidget *value)
+void Core::addTab(QDockWidget *value)
 {
     this->tabs->append(value);
 }
 
-QVector<QWidget*> *Core::getTabs() const
+QVector<QDockWidget*> *Core::getTabs() const
 {
     return tabs;
 }
 
-void Core::removeTab(QWidget *value)
+void Core::removeTab(QDockWidget *value)
 {
     this->tabs->removeOne(value);
 }

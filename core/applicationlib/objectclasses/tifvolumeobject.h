@@ -20,10 +20,13 @@ public:
     double getMaxValue() const;
     std::array<double, 3> calculateSpacing(string name);
 
+    double *getCenter() const;
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;
     double maxValue;
+    double *center;
 
 };
 

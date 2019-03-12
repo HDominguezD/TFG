@@ -28,10 +28,12 @@ unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 SOURCES += \
-        imageplugin.cpp
+        imageplugin.cpp \
+    imagewindow.cpp
 
 HEADERS += \
-        imageplugin.h
+        imageplugin.h \
+    imagewindow.h
 
 OTHER_FILES += \
         imageplugin.json

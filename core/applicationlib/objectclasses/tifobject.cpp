@@ -13,8 +13,9 @@
 
 TifObject::TifObject()
 {
-    outputData = vtkSmartPointer<vtkImageData>::New();
     activeImage = 0;
+    actor2D = vtkSmartPointer<vtkActor2D>::New();
+    outputData = vtkSmartPointer<vtkImageData>::New();
     imageMapper = vtkSmartPointer<vtkImageMapper>::New();
 }
 
@@ -54,8 +55,12 @@ bool TifObject::readObjectFromFile(string fileName)
     vtkSmartPointer<vtkTIFFReader> reader = vtkSmartPointer<vtkTIFFReader>::New();
     reader->SetFileName (fileName.c_str());
     reader->Update();
-
     outputData = reader->GetOutput();
+
+    imageMapper->SetInputData(outputData);
+    imageMapper->SetZSlice(activeImage);
+
+    actor2D->SetMapper(imageMapper);
 
     return true;
 }
@@ -77,14 +82,9 @@ void TifObject::setActiveImage(int value)
 
 void TifObject::printObject(QVTKWidget *widget)
 {
-    // Visualize
     imageMapper->SetZSlice(activeImage);
-
-    vtkSmartPointer<vtkActor2D> image = vtkSmartPointer<vtkActor2D>::New();
-    image->SetMapper(imageMapper);
-
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor2D(image);
+    renderer->AddActor2D(actor2D);
     renderer->ResetCamera();
     renderer->SetBackground(.2, .2, .2);
 
@@ -107,10 +107,10 @@ void TifObject::resizeImage(QVTKWidget *widget)
 
     if((x / dims[0]) < (y / dims[1])){
         resizeX = x;
-        resizeY = (dims[1]) / (dims[0] / x);
+        resizeY = (dims[1]) / ((float)dims[0] / (float)x);
     } else {
         resizeY = y;
-        resizeX = (dims[0]) / (dims[1] / y);
+        resizeX = (dims[0]) / ((float)dims[1] / (float)y);
     }
 
 
@@ -119,7 +119,7 @@ void TifObject::resizeImage(QVTKWidget *widget)
     resize->SetOutputDimensions(resizeX, resizeY, outputData->GetDimensions()[2]);
     resize->Update();
 
-    imageMapper->SetInputConnection(resize->GetOutputPort());
+    actor2D->GetMapper()->SetInputConnection(resize->GetOutputPort());
     QSize *size = new QSize(resizeX, resizeY);
     widget->setFixedSize(*size);
 }

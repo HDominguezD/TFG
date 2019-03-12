@@ -1,14 +1,13 @@
 #ifndef IMAGEPLUGIN_H
 #define IMAGEPLUGIN_H
-#include "plugins/plugin.h"
-#include "QSlider"
-#include "QTabWidget"
+#include "plugins/interfaceplugin.h"
+#include "imagewindow.h"
 
-class ImagePlugin : public QObject, Plugin
+class ImagePlugin : public QObject, InterfacePlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "application.plugin/2.0" FILE "imageplugin.json")
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(InterfacePlugin)
 
 public:
     void load();
@@ -17,15 +16,11 @@ public:
     virtual ~ImagePlugin();
 
 private:
-    void initializeSlider(Object *obj);
-    QWidget *widget;
-    QSlider *slider;
-    QWidget *window;
+    QVector<ImageWindow*> *windows;
 
 private slots:
     void openTifFile();
     void openTifStack();
-    void changeImageShowed(int value);
 };
 
 #endif // SURFACEPLUGIN_H

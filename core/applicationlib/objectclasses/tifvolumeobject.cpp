@@ -189,6 +189,8 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
 
     renderer->AddVolume(this->volume);
 
+    center = volume->GetCenter();
+
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);
     widget->GetRenderWindow()->Render();
@@ -311,5 +313,10 @@ std::array<double, 3> TifVolumeObject::calculateSpacing(string name)
         spacing[2] = 1;
     }
     return spacing;
-    }
+}
+
+double *TifVolumeObject::getCenter() const
+{
+    return center;
+}
 

@@ -1,6 +1,7 @@
 #ifndef TIFOBJECT_H
 #define TIFOBJECT_H
 #include "abstractclasses/object.h"
+#include <vtkActor2D.h>
 #include <vtkImageMapper.h>
 #include "core.h"
 #include "QVTKWidget.h"
@@ -22,9 +23,10 @@ public:
     void setActiveImage(int value);
 
 private:
+    vtkSmartPointer<vtkActor2D> actor2D;
     vtkSmartPointer<vtkImageData> outputData;
-    int activeImage;
     vtkSmartPointer<vtkImageMapper> imageMapper;
+    int activeImage;
 };
 
 #endif // TIFOBJECT_H

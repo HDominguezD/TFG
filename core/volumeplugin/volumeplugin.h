@@ -1,14 +1,19 @@
 #ifndef VOLUMEPLUGIN_H
 #define VOLUMEPLUGIN_H
-#include "plugins/plugin.h"
+#include "plugins/interfaceplugin.h"
 #include "QSlider"
+#include "objectclasses/tifvolumeobject.h"
+#include "objectclasses/objobject.h"
+#include "vtkCamera.h"
+#include "QVector"
+#include "volumewindow.h"
 
-class VolumePlugin : public QObject, Plugin
+class VolumePlugin : public QObject, InterfacePlugin
 {
 
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "application.plugin/2.0" FILE "volumeplugin.json")
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(InterfacePlugin)
 
 public:
     void load();
@@ -17,17 +22,10 @@ public:
     virtual ~VolumePlugin();
 
 private:
-    void initializeSlider(QSlider *slider);
-    QWidget *widget;
-    QWidget *window;
-    int lastValue;
+    QVector<VolumeWindow*> *windows;
 
 private slots:
-    void changeObjScale(int value);
     void openTifStack();
-    void openObjFile();
-    void captureImage();
-    void updateWidget();
 };
 
 #endif // VOLUMEPLUGIN_H

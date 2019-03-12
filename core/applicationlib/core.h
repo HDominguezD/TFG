@@ -3,6 +3,7 @@
 #include <QtWidgets/qmenu.h>
 #include "objectclasses/abstractclasses/object.h"
 #include <QVTKWidget.h>
+#include <QDockWidget>
 
 class Core
 {
@@ -13,13 +14,13 @@ public:
     QVector<Object*>* getObjects() const;
     void removeObject(Object* value);
 
-    void addTab(QWidget *value);
-    QVector<QWidget*>* getTabs() const;
-    void removeTab(QWidget* value);
+    void addTab(QDockWidget *value);
+    QVector<QDockWidget*>* getTabs() const;
+    void removeTab(QDockWidget* value);
 
 private:
     QVector<Object*>* objects;
-    QVector<QWidget*>* tabs;
+    QVector<QDockWidget*>* tabs;
 };
 
 #endif // CORE_H

@@ -1,14 +1,5 @@
 #include "imageplugin.h"
-#include "QApplication"
 #include "QMenuBar"
-#include "objectclasses/tifobject.h"
-#include "objectclasses/tifstackobject.h"
-#include <QObject>
-#include "vtkImageSliceCollection.h"
-#include "QVBoxLayout"
-#include "QDockWidget"
-#include "QDesktopWidget"
-#include "boost/algorithm/string.hpp"
 
 void ImagePlugin::load()
 {
@@ -17,18 +8,18 @@ void ImagePlugin::load()
     menu->addAction(action);
     QAction *action2 = new QAction("Open tif Stack Directory");
     menu->addAction(action2);
+    QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
+    toolbar->addMenu(menu);
+
+    windows = new QVector<ImageWindow*>();
 
     connect(action, SIGNAL(triggered()), this, SLOT(openTifFile()));
     connect(action2, SIGNAL(triggered()), this, SLOT(openTifStack()));
-
-    widget = renderingWindow->findChild<QWidget *>("centralwidget");
-    QMenuBar *toolbar = renderingWindow->findChild<QMenuBar *>("menubar");
-    toolbar->addMenu(menu);
 }
 
 const char* ImagePlugin::getType()
 {
-    return "imagePlugin";
+    return "interfacePlugin";
 }
 
 void ImagePlugin::close()
@@ -43,198 +34,60 @@ ImagePlugin::~ImagePlugin()
 
 void ImagePlugin::openTifFile()
 {
-    Object *object = new TifObject();
-    if(object->readObject())
+    ImageWindow *dock = new ImageWindow(renderingWindow);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setRenderingWindow(renderingWindow);
+    dock->setCore(core);
+    bool initialized = dock->initializeTif();
+
+    if(initialized)
     {
-        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
-
-        QDockWidget *dock = new QDockWidget(tr("Image Object"), renderingWindow);
-        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-
-        if(docks.isEmpty())
+        if(core->getTabs()->size() == 1)
         {
-            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
-            string nameDock = string("Dock ") + to_string(docks.size());
-            dock->setObjectName(nameDock.c_str());
+            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
+            windows->append(dock);
         }
         else
         {
-            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
-            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+            renderingWindow->tabifyDockWidget(core->getTabs()->at(core->getTabs()->size() -2), dock);
+            windows->append(dock);
             dock->setVisible(true);
             dock->setFocus();
             dock->raise();
-            string nameDock = string("Dock ") + to_string(docks.size());
-            dock->setObjectName(nameDock.c_str());
         }
-
-        QVTKWidget *vtkWidget = new QVTKWidget();
-        string nameWidget = string("QVTKWidget ") + to_string(docks.size());
-        vtkWidget->setObjectName(nameWidget.c_str());
-
-        window = new QWidget();
-
-        QVBoxLayout *layout = new QVBoxLayout(window);
-        layout->setGeometry(window->geometry());
-        layout->addWidget(vtkWidget);
-
-        TifObject *obj = dynamic_cast<TifObject*>(object);
-
-        int *dims = obj->getDimensions();
-        if(dims[2] > 1){
-            slider = new QSlider(Qt::Orientation::Horizontal);
-            string nameSlider = string("Slider ") + to_string(docks.size());
-            slider->setObjectName(nameSlider.c_str());
-            //slider->hide();
-
-            layout->addWidget(slider);
-
-            initializeSlider(object);
-        }
-
-        dock->setWidget(window);
-
-        core->addObject(object);
-        core->addTab(window);
-
-        QDesktopWidget *desktop = QApplication::desktop();
-
-        QSize min(desktop->width() /2 -100, desktop->height() /2 -100);
-        dock->setMinimumSize(min);
-        QSize max(desktop->width() -200, desktop->height() -200);
-        dock->setMaximumSize(max);
-
-        QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
-        vtkWidget->setSizePolicy(policy);
-        obj->resizeImage(vtkWidget);
-        object->printObject(vtkWidget);
+    }
+    else
+    {
+        core->removeTab(dock);
     }
 }
 
 void ImagePlugin::openTifStack()
 {
-    Object *object = new TifStackObject();
-    if(object->readObject())
+    ImageWindow *dock = new ImageWindow(renderingWindow);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setRenderingWindow(renderingWindow);
+    dock->setCore(core);
+    bool initialized = dock->initializeTifStack();
+
+    if(initialized)
     {
-        QList<QDockWidget*> docks = renderingWindow->findChildren<QDockWidget*>();
-
-        QDockWidget *dock = new QDockWidget(tr("Image stack Object"), renderingWindow);
-        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-
-        if(docks.isEmpty())
+        if(core->getTabs()->size() == 1)
         {
-            renderingWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
-            string nameDock = string("Dock ") + to_string(docks.size());
-            dock->setObjectName(nameDock.c_str());
+            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
+            windows->append(dock);
         }
         else
         {
-            renderingWindow->addDockWidget(Qt::TopDockWidgetArea, dock);
-            renderingWindow->tabifyDockWidget(docks.at(docks.size() -1), dock);
+            renderingWindow->tabifyDockWidget(core->getTabs()->at(core->getTabs()->size() -2), dock);
+            windows->append(dock);
             dock->setVisible(true);
             dock->setFocus();
             dock->raise();
-            string nameDock = string("Dock ") + to_string(docks.size());
-            dock->setObjectName(nameDock.c_str());
-        }
-
-        QVTKWidget *vtkWidget = new QVTKWidget();
-        string nameWidget = string("QVTKWidget ") + to_string(docks.size());
-        vtkWidget->setObjectName(nameWidget.c_str());
-
-        slider = new QSlider(Qt::Orientation::Horizontal);
-        string nameSlider = string("Slider ") + to_string(docks.size());
-        slider->setObjectName(nameSlider.c_str());
-
-        window = new QWidget();
-        QVBoxLayout *layout = new QVBoxLayout(window);
-        layout->setGeometry(window->geometry());
-        layout->addWidget(vtkWidget);
-        layout->addWidget(slider);
-
-        dock->setWidget(window);
-
-        core->addObject(object);
-        core->addTab(window);
-
-        initializeSlider(object);
-
-        QDesktopWidget *desktop = QApplication::desktop();
-
-        QSize min(desktop->width() /2 -100, desktop->height() /2 -100);
-        dock->setMinimumSize(min);
-        QSize max(desktop->width() -200, desktop->height() -200);
-        dock->setMaximumSize(max);
-
-        QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
-        vtkWidget->setSizePolicy(policy);
-
-        TifStackObject *objs = dynamic_cast<TifStackObject*>(object);
-        for(int i = 0; i < objs->getTifStack()->size(); i++)
-        {
-            objs->getTifStack()->at(i)->resizeImage(vtkWidget);
-        }
-
-        object->printObject(vtkWidget);
-    }
-}
-
-void ImagePlugin::changeImageShowed(int value)
-{
-    if( !core->getObjects()->isEmpty() && !core->getTabs()->isEmpty())
-    {
-        QSlider* sliderSender = qobject_cast<QSlider*>(sender());
-        string sliderName = sliderSender->objectName().toStdString();
-        vector<string> splitName;
-        boost::split(splitName, sliderName, [](char c){return c == ' ';});
-        string number = splitName.at(splitName.size() - 1);
-        int dockNumber = atoi(number.c_str());
-
-        string nameDock = string("Dock ") + to_string(dockNumber);
-        QDockWidget* dock = renderingWindow->findChild<QDockWidget*>(nameDock.c_str());
-
-        Object *object = core->getObjects()->at(dockNumber);
-        if(strcmp(object->objectType(),"Tif") == 0)
-        {
-            TifObject *obj = dynamic_cast<TifObject*>(object);
-            obj->setActiveImage(value);
-            string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
-            QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
-            obj->printObject(vtkWidget);
-        }
-
-        if(strcmp(object->objectType(),"TifStack") == 0)
-        {
-            TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
-            obj->setActiveImage(value);
-            string nameWidget = string("QVTKWidget ") + to_string(dockNumber);
-            QVTKWidget *vtkWidget = dock->findChild<QVTKWidget*>(nameWidget.c_str());
-            obj->printObject(vtkWidget);
         }
     }
-}
-
-void ImagePlugin::initializeSlider(Object *object)
-{
-    if(strcmp(object->objectType(),"TifStack") == 0)
+    else
     {
-        TifStackObject *obj = dynamic_cast<TifStackObject*>(object);
-        slider->setMaximum(obj->getTifStack()->size() - 1);
-        slider->setMinimum(0);
-        slider->setValue(0);
-        obj->setActiveImage(0);
-        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
-    }
-
-    if(strcmp(object->objectType(),"Tif") == 0)
-    {
-        //slider->show();
-        TifObject *obj = dynamic_cast<TifObject*>(object);
-        int dim = obj->getDimensions()[2];
-        slider->setMaximum(obj->getDimensions()[2] - 1);
-        slider->setMinimum(0);
-        slider->setValue(0);
-        obj->setActiveImage(0);
-        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeImageShowed(int)));
+        core->removeTab(dock);
     }
 }

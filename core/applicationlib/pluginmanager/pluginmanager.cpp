@@ -3,7 +3,6 @@
 #include <qfiledialog.h>
 #include <qexception.h>
 #include <qpluginloader.h>
-#include "../plugins/plugin.h"
 #include "QApplication"
 #include "QException"
 #include "QDebug"
@@ -11,7 +10,8 @@
 
 PluginManager::PluginManager()
 {
-    plugins = new QVector<Plugin*>();
+    executionPlugins = new QVector<ExecutionPlugin*>();
+    interfacePlugins = new QVector<InterfacePlugin*>();
 }
 
 void PluginManager::loadPlugins()
@@ -48,15 +48,32 @@ void PluginManager::loadPlugins()
 
 bool PluginManager::loadPlugin(QObject* _plugin)
 {
-    Plugin* plugin = qobject_cast<Plugin*>(_plugin);
-    if(!plugin) return false;
-    this->plugins->append(plugin);
+    InterfacePlugin* interfacePlugin = qobject_cast<InterfacePlugin*>(_plugin);
+    ExecutionPlugin* executionPlugin = qobject_cast<ExecutionPlugin*>(_plugin);
+    if(!interfacePlugin)
+    {
+        if(!executionPlugin)
+            return false;
+        else
+        {
+            this->executionPlugins->append(executionPlugin);
+        }
+    }
+    else {
+        this->interfacePlugins->append(interfacePlugin);
+    }
+
     return true;
 }
 
-QVector<Plugin *> *PluginManager::getPlugins() const
+QVector<InterfacePlugin *> *PluginManager::getInterfacePlugins() const
 {
-    return plugins;
+    return interfacePlugins;
+}
+
+QVector<ExecutionPlugin *> *PluginManager::getExecutionPlugins() const
+{
+    return executionPlugins;
 }
 
 QString PluginManager::getPluginDirPath() {

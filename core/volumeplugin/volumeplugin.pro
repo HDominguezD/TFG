@@ -30,14 +30,26 @@ unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 SOURCES += \
         volumeplugin.cpp \
     myqvtkwidget.cpp \
-    transferFunctionEditor.cpp \
-    hoverpoints.cpp
+    Editors/transferFunctionEditor.cpp \
+    Editors/hoverpoints.cpp \
+    Editors/transformeditor.cpp \
+    volumewindow.cpp \
+    Buttons/camerabutton.cpp \
+    Buttons/objectbutton.cpp \
+    Pairs/objectpropertiespair.cpp \
+    Pairs/camerapropertiespair.cpp
 
 HEADERS += \
         volumeplugin.h \
     myqvtkwidget.h \
-    transferFunctionEditor.h \
-    hoverpoints.h
+    Editors/transferFunctionEditor.h \
+    Editors/hoverpoints.h \
+    Editors/transformeditor.h \
+    volumewindow.h \
+    Buttons/camerabutton.h \
+    Buttons/objectbutton.h \
+    Pairs/objectpropertiespair.h \
+    Pairs/camerapropertiespair.h
 
 OTHER_FILES += \
         volumeplugin.json
