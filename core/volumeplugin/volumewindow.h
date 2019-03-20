@@ -49,10 +49,11 @@ public slots:
 private slots:
     void changeObjScale(int value);
     void openObjFile();
+    void openTifVolume();
     void captureImage();
     void changeFocusedToCamera(CameraPropertiesPair *cameraPropertiesPair);
     void changeFocusedToObject(ObjectPropertiesPair *objectPropertiesPair);
-    void  updateWidget();
+    void updateWidget();
 };
 
 #endif // VOLUMEWINDOW_H

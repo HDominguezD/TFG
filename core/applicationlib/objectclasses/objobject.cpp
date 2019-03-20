@@ -64,11 +64,6 @@ vtkSmartPointer<vtkActor> ObjObject::getActor() const
     return actor;
 }
 
-double *ObjObject::getCenter() const
-{
-    return center;
-}
-
 void ObjObject::printObject(QVTKWidget *widget)
 {
     vtkSmartPointer<vtkRenderer> renderer;
@@ -78,11 +73,15 @@ void ObjObject::printObject(QVTKWidget *widget)
         renderer = vtkSmartPointer<vtkRenderer>::New();
     }
 
-    renderer->AddActor(actor);
-
-    center = actor->GetCenter();
-
     renderer->SetBackground(.2, .2, .2);
+    renderer->AddActor(actor);
+    renderer->SetBackground(.2, .2, .2);
+
+    vtkSmartPointer<vtkTransform> transform =
+        vtkSmartPointer<vtkTransform>::New();
+    //the y position in obj objects is inverse
+      transform->Translate(-this->actor->GetCenter()[0], this->actor->GetCenter()[1], -this->actor->GetCenter()[2]);
+      actor->SetUserTransform(transform);
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);

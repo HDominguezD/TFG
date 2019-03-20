@@ -179,7 +179,13 @@ bool TifVolumeObject::readObject()
 
 void TifVolumeObject::printObject(QVTKWidget *widget)
 {
-    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderer> renderer;
+    if(widget->GetRenderWindow()->GetRenderers()->GetFirstRenderer() != nullptr){
+        renderer = widget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+    } else {
+        renderer = vtkSmartPointer<vtkRenderer>::New();
+    }
+
     renderer->SetBackground(.2, .2, .2);
 
     vtkSmartPointer<vtkTransform> transform =
@@ -188,8 +194,6 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
       volume->SetUserTransform(transform);
 
     renderer->AddVolume(this->volume);
-
-    center = volume->GetCenter();
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);
@@ -314,9 +318,3 @@ std::array<double, 3> TifVolumeObject::calculateSpacing(string name)
     }
     return spacing;
 }
-
-double *TifVolumeObject::getCenter() const
-{
-    return center;
-}
-

@@ -22,9 +22,10 @@
 #include "QHBoxLayout"
 #include "QRect"
 #include "QMainWindow"
-#include "Editors/transformeditor.h"
+#include "Editors/transformeditorObject.h"
 #include "Buttons/objectbutton.h"
 #include "Buttons/camerabutton.h"
+#include "Editors/transformeditorcamera.h"
 
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
@@ -56,6 +57,7 @@ bool VolumeWindow::initialize()
         menuBar->addAction(capture);
 
         connect(objAction, SIGNAL(triggered()), this, SLOT(openObjFile()));
+        connect(volAction, SIGNAL(triggered()), this, SLOT(openTifVolume()));
         connect(capture, SIGNAL(triggered()), this, SLOT(captureImage()));
 
         window->layout()->setMenuBar(menuBar);
@@ -97,8 +99,7 @@ bool VolumeWindow::initialize()
         QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Ignored, QSizePolicy::DefaultType);
         vtkWidget->setSizePolicy(policy);
 
-        //vtkCamera *camera = vtkWidget->GetRenderWindow()->GetRenderers()->GetNextItem()->GetActiveCamera();
-        vtkCamera *camera = vtkSmartPointer<vtkCamera>::New();
+        vtkSmartPointer<vtkCamera> camera = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
         cameraPropertiesPair = createCameraPropertiesPanel(camera);
 
         core->addObject(vol);
@@ -140,13 +141,11 @@ void VolumeWindow::openObjFile()
             {
 
             //scale rotate traslate
-            vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-            transform->Scale(1, -1, 1);
-            vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
-            transform2->Translate(-actualActor->GetCenter()[0] + 8, -actualActor->GetCenter()[1], -actualActor->GetCenter()[2]);
-            transform->Concatenate(transform2->GetMatrix());
 
-            actualActor->SetUserTransform(transform);
+            double pos[3] = {0, 0, 0};
+            double sca[3] = {1, -1, 1};
+            actualActor->SetPosition(pos);
+            actualActor->SetScale(sca);
 
             string nameButton = string("CompareObj");
             QPushButton *compare = this->findChild<QPushButton *>(nameButton.c_str());
@@ -161,6 +160,21 @@ void VolumeWindow::openObjFile()
         }
         addObjectToHierarchyPanel(objectPropertiesPair);
         createObjectPropertiesPanel(object);
+        changeFocusedToObject(objectPropertiesPair);
+        vtkWidget->GetRenderWindow()->Render();
+    }
+}
+
+void VolumeWindow::openTifVolume()
+{
+    TifVolumeObject *object = new TifVolumeObject();
+    if(object->readObject())
+    {
+        core->addObject(object);
+        object->printObject(vtkWidget);
+        ObjectPropertiesPair *objectPropertiesPair = createVolumePropertiesPanel(object);
+
+        addObjectToHierarchyPanel(objectPropertiesPair);
         changeFocusedToObject(objectPropertiesPair);
         vtkWidget->GetRenderWindow()->Render();
     }
@@ -203,7 +217,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     transformLabel->setAlignment(Qt::AlignCenter);
     transformLabel->setFixedHeight(20);
 
-    TransformEditor *transformEditor = new TransformEditor(transformWidget);
+    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, vol, vtkWidget);
     transformEditor->setMinimumWidth(300);
 
     transformLayout->addWidget(transformLabel);
@@ -260,7 +274,7 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     transformLabel->setAlignment(Qt::AlignCenter);
     transformLabel->setFixedHeight(20);
 
-    TransformEditor *transformEditor = new TransformEditor(transformWidget);
+    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, obj, vtkWidget);
     transformEditor->setMinimumWidth(300);
 
     transformLayout->addWidget(transformLabel);
@@ -297,7 +311,8 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
     transformLabel->setAlignment(Qt::AlignCenter);
     transformLabel->setFixedHeight(20);
 
-    TransformEditor *transformEditor = new TransformEditor(transformWidget);
+    TransformEditorCamera *transformEditor = new TransformEditorCamera(transformWidget, camera, vtkWidget);
+    transformEditor->setObjectName("Transform Editor Camera");
     transformEditor->setMinimumWidth(300);
 
     transformLayout->addWidget(transformLabel);
@@ -466,17 +481,22 @@ void VolumeWindow::changeFocusedToObject(ObjectPropertiesPair *objectPropertiesP
     ObjObject *obj = dynamic_cast<ObjObject*>(objectPropertiesPair->getObject());
     if(obj != nullptr)
     {
-        double *center = obj->getCenter();
-        //cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
-
+        double *center = obj->getActor()->GetCenter();
+        cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
+        TransformEditorCamera *editorCamera = cameraPropertiesPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
+        editorCamera->updateFocalPoint(center);
+        updateWidget();
     }
     else
     {
         TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(objectPropertiesPair->getObject());
         if(vol != nullptr)
         {
-            double *center = vol->getCenter();
-            //cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
+            double *center = vol->getVolume()->GetCenter();
+            cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
+            TransformEditorCamera *editorCamera = cameraPropertiesPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
+            editorCamera->updateFocalPoint(center);
+            updateWidget();
         }
     }
 }

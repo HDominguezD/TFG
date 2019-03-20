@@ -22,7 +22,7 @@
 #include "QHBoxLayout"
 #include "QRect"
 #include "QMainWindow"
-#include "Editors/transformeditor.h"
+#include "Editors/transformeditorObject.h"
 
 void VolumePlugin::load()
 {

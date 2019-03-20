@@ -32,24 +32,26 @@ SOURCES += \
     myqvtkwidget.cpp \
     Editors/transferFunctionEditor.cpp \
     Editors/hoverpoints.cpp \
-    Editors/transformeditor.cpp \
     volumewindow.cpp \
     Buttons/camerabutton.cpp \
     Buttons/objectbutton.cpp \
     Pairs/objectpropertiespair.cpp \
-    Pairs/camerapropertiespair.cpp
+    Pairs/camerapropertiespair.cpp \
+    Editors/transformeditorObject.cpp \
+    Editors/transformeditorcamera.cpp
 
 HEADERS += \
         volumeplugin.h \
     myqvtkwidget.h \
     Editors/transferFunctionEditor.h \
     Editors/hoverpoints.h \
-    Editors/transformeditor.h \
     volumewindow.h \
     Buttons/camerabutton.h \
     Buttons/objectbutton.h \
     Pairs/objectpropertiespair.h \
-    Pairs/camerapropertiespair.h
+    Pairs/camerapropertiespair.h \
+    Editors/transformeditorObject.h \
+    Editors/transformeditorcamera.h
 
 OTHER_FILES += \
         volumeplugin.json
