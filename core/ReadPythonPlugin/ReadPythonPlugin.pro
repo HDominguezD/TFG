@@ -32,9 +32,14 @@ unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 HEADERS += \
-    readpythonplugin.h
+    readpythonplugin.h \
+    pythonscriptswindow.h
 
 SOURCES += \
-    readpythonplugin.cpp
+    readpythonplugin.cpp \
+    pythonscriptswindow.cpp
 
 OTHER_FILES    += readpythonplugin.json
+
+FORMS += \
+    pythonscriptswindow.ui
