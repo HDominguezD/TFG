@@ -29,16 +29,16 @@ unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
 
 SOURCES += \
         volumeplugin.cpp \
-    myqvtkwidget.cpp \
     Editors/transferFunctionEditor.cpp \
     Editors/hoverpoints.cpp \
     volumewindow.cpp \
-    Buttons/camerabutton.cpp \
-    Buttons/objectbutton.cpp \
     Pairs/objectpropertiespair.cpp \
     Pairs/camerapropertiespair.cpp \
     Editors/transformeditorObject.cpp \
-    Editors/transformeditorcamera.cpp
+    Editors/transformeditorcamera.cpp \
+    Editors/objecteditor.cpp \
+    TreeWidgetItems/cameratreewidgetitem.cpp \
+    TreeWidgetItems/objecttreewidgetitem.cpp
 
 HEADERS += \
         volumeplugin.h \
@@ -46,12 +46,13 @@ HEADERS += \
     Editors/transferFunctionEditor.h \
     Editors/hoverpoints.h \
     volumewindow.h \
-    Buttons/camerabutton.h \
-    Buttons/objectbutton.h \
     Pairs/objectpropertiespair.h \
     Pairs/camerapropertiespair.h \
     Editors/transformeditorObject.h \
-    Editors/transformeditorcamera.h
+    Editors/transformeditorcamera.h \
+    Editors/objecteditor.h \
+    TreeWidgetItems/cameratreewidgetitem.h \
+    TreeWidgetItems/objecttreewidgetitem.h
 
 OTHER_FILES += \
         volumeplugin.json

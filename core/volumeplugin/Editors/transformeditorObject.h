@@ -13,6 +13,14 @@ class TransformEditorObject: public QWidget
 public:
     TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget);
 
+    int digits;
+
+private slots:
+    void updateObject();
+
+private:
+    Object *object;
+    QVTKWidget *vtkWidget;
     QLineEdit *positionXInput;
     QLineEdit *positionYInput;
     QLineEdit *positionZInput;
@@ -24,15 +32,6 @@ public:
     QLineEdit *scaleXInput;
     QLineEdit *scaleYInput;
     QLineEdit *scaleZInput;
-
-    int digits;
-
-private slots:
-    void updateObject();
-
-private:
-    Object *object;
-    QVTKWidget *vtkWidget;
 };
 
 #endif // TRANSFORMEDITOR_H

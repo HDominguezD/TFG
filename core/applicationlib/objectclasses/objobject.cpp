@@ -15,6 +15,8 @@
 #include "vtkActorCollection.h"
 #include "vtkCamera.h"
 #include "vtkOBJReader.h"
+#include "vtkLinearTransform.h"
+
 
 using namespace std;
 
@@ -79,9 +81,41 @@ void ObjObject::printObject(QVTKWidget *widget)
 
     vtkSmartPointer<vtkTransform> transform =
         vtkSmartPointer<vtkTransform>::New();
-    //the y position in obj objects is inverse
-      transform->Translate(-this->actor->GetCenter()[0], this->actor->GetCenter()[1], -this->actor->GetCenter()[2]);
-      actor->SetUserTransform(transform);
+
+    double distanceToOrigin[3];
+
+    double *pos = this->actor->GetPosition();
+    double *center = this->actor->GetCenter();
+    if(this->actor->GetCenter()[0] > 0)
+    {
+        distanceToOrigin[0] = this->actor->GetCenter()[0];
+    }
+    else
+    {
+        distanceToOrigin[0] = - this->actor->GetCenter()[0];
+    }
+    if(this->actor->GetCenter()[1] > 0)
+    {
+        distanceToOrigin[1] = this->actor->GetCenter()[1];
+    }
+    else
+    {
+        distanceToOrigin[1] = - this->actor->GetCenter()[1];
+    }
+    if(this->actor->GetCenter()[2] > 0)
+    {
+        distanceToOrigin[2] = this->actor->GetCenter()[2];
+    }
+    else
+    {
+        distanceToOrigin[2] = - this->actor->GetCenter()[2];
+    }
+    //the Y translation has a bug and have to be inverted
+
+//    transform->Translate(- distanceToOrigin[0], - distanceToOrigin[1], - distanceToOrigin[2]);
+//    if(actor->GetUserMatrix())
+//            transform->Concatenate(actor->GetUserMatrix());
+//    actor->SetUserTransform(transform);
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);

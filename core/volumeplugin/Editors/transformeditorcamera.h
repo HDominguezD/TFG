@@ -13,14 +13,6 @@ public:
     TransformEditorCamera(QWidget *parent, vtkCamera *camera, QVTKWidget *vtkWidget);
     void updateFocalPoint(double *fP);
 
-    QLineEdit *positionXInput;
-    QLineEdit *positionYInput;
-    QLineEdit *positionZInput;
-
-    QLineEdit *fPointXInput;
-    QLineEdit *fPointYInput;
-    QLineEdit *fPointZInput;
-
     int digits;
 
 private slots:
@@ -29,6 +21,14 @@ private slots:
 private:
     vtkCamera *camera;
     QVTKWidget *vtkWidget;
+
+    QLineEdit *positionXInput;
+    QLineEdit *positionYInput;
+    QLineEdit *positionZInput;
+
+    QLineEdit *fPointXInput;
+    QLineEdit *fPointYInput;
+    QLineEdit *fPointZInput;
 };
 
 #endif // TRANSFORMEDITORCAMERA_H

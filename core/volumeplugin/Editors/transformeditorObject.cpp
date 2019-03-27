@@ -99,13 +99,14 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj != nullptr)
     {
-        double *pos = obj->getActor()->GetPosition();
+        //double *pos = obj->getActor()->GetPosition();
+        double *center = obj->getActor()->GetCenter();
         double *rot = obj->getActor()->GetOrientation();
         double *sca = obj->getActor()->GetScale();
 
-        positionXInput->setText(to_string(pos[0]).c_str());
-        positionYInput->setText(to_string(pos[1]).c_str());
-        positionZInput->setText(to_string(pos[2]).c_str());
+        positionXInput->setText(to_string(center[0]).c_str());
+        positionYInput->setText(to_string(center[1]).c_str());
+        positionZInput->setText(to_string(center[2]).c_str());
 
         rotationXInput->setText(to_string(rot[0]).c_str());
         rotationYInput->setText(to_string(rot[1]).c_str());
@@ -122,13 +123,18 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
         TifVolumeObject *obj = dynamic_cast<TifVolumeObject*>(object);
         if(obj != nullptr)
         {
-            double *pos = obj->getVolume()->GetPosition();
+            //double *pos = obj->getVolume()->GetPosition();
+            double *center = obj->getVolume()->GetCenter();
             double *rot = obj->getVolume()->GetOrientation();
             double *sca = obj->getVolume()->GetScale();
 
-            positionXInput->setText(to_string(pos[0]).c_str());
-            positionYInput->setText(to_string(pos[1]).c_str());
-            positionZInput->setText(to_string(pos[2]).c_str());
+//            positionXInput->setText(to_string(pos[0]).c_str());
+//            positionYInput->setText(to_string(pos[1]).c_str());
+//            positionZInput->setText(to_string(pos[2]).c_str());
+
+            positionXInput->setText(to_string(center[0]).c_str());
+            positionYInput->setText(to_string(center[1]).c_str());
+            positionZInput->setText(to_string(center[2]).c_str());
 
             rotationXInput->setText(to_string(rot[0]).c_str());
             rotationYInput->setText(to_string(rot[1]).c_str());
@@ -158,10 +164,16 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
 void TransformEditorObject::updateObject()
 {
     double *center;
-    double pos[3];
-    pos[0] = positionXInput->text().toDouble();
-    pos[1] = positionYInput->text().toDouble();
-    pos[2] = positionZInput->text().toDouble();
+    double *position;
+//    double pos[3];
+//    pos[0] = positionXInput->text().toDouble();
+//    pos[1] = positionYInput->text().toDouble();
+//    pos[2] = positionZInput->text().toDouble();
+
+    double tras[3];
+        tras[0] = positionXInput->text().toDouble();
+        tras[1] = positionYInput->text().toDouble();
+        tras[2] = positionZInput->text().toDouble();
     double rot[3];
     rot[0] = rotationXInput->text().toDouble();
     rot[1] = rotationYInput->text().toDouble();
@@ -175,9 +187,30 @@ void TransformEditorObject::updateObject()
     if(obj != nullptr)
     {
         center = obj->getActor()->GetCenter();
-        obj->getActor()->SetPosition(pos);
-        obj->getActor()->SetOrientation(rot);
-        obj->getActor()->SetScale(sca);
+        position = obj->getActor()->GetPosition();
+        //there's a bug in the y axis and the pos value has to be inverted
+        //pos[1] = - pos[1];
+
+        //obj->getActor()->SetPosition(pos);
+//        obj->getActor()->SetOrientation(rot);
+//        obj->getActor()->SetScale(sca);
+
+        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+        //move object to origin(0,0,0)
+        transform->Translate(-center[0], -center[1], -center[2]);
+        //scale object
+        transform->Scale(sca[0], sca[1], sca[2]);
+        //rotate object
+        transform->RotateX(rot[0]);
+        transform->RotateY(rot[1]);
+        transform->RotateZ(rot[2]);
+        //translate object to the desire point
+        transform->Translate(tras[0], tras[1], tras[2]);
+
+        if(obj->getActor()->GetUserMatrix())
+        transform->Concatenate(obj->getActor()->GetUserMatrix());
+        obj->getActor()->SetUserTransform(transform);
+
     }
     else
     {
@@ -185,8 +218,24 @@ void TransformEditorObject::updateObject()
         if(obj != nullptr)
         {
             center = obj->getVolume()->GetCenter();
-            obj->getVolume()->SetPosition(pos);
-            obj->getVolume()->SetOrientation(rot);
+//            obj->getVolume()->SetPosition(pos);
+//            obj->getVolume()->SetOrientation(rot);
+
+            vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+            //move object to origin(0,0,0)
+            transform->Translate(-center[0], -center[1], -center[2]);
+            //scale object
+            //transform->Scale(sca[0], sca[1], sca[2]);
+            //rotate object
+            transform->RotateX(rot[0]);
+            transform->RotateY(rot[1]);
+            transform->RotateZ(rot[2]);
+            //translate object to the desire point
+            transform->Translate(tras[0], tras[1], tras[2]);
+
+            if(obj->getVolume()->GetUserMatrix())
+                transform->Concatenate(obj->getVolume()->GetUserMatrix());
+            obj->getVolume()->SetUserTransform(transform);
             obj->getVolume()->SetScale(sca);
         }
     }

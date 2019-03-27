@@ -18,6 +18,9 @@ public:
 
 private slots:
 
+    void on_CancelOkbuttonBox_rejected();
+
+    void on_CancelOkbuttonBox_accepted();
     void on_openScriptButton_clicked();
 
     void on_openFileButton_clicked();

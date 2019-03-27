@@ -23,9 +23,11 @@
 #include "QRect"
 #include "QMainWindow"
 #include "Editors/transformeditorObject.h"
-#include "Buttons/objectbutton.h"
-#include "Buttons/camerabutton.h"
+#include "TreeWidgetItems/cameratreewidgetitem.h"
+#include "TreeWidgetItems/objecttreewidgetitem.h"
 #include "Editors/transformeditorcamera.h"
+#include "QTreeWidget"
+#include "Editors/objecteditor.h"
 
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
@@ -63,6 +65,7 @@ bool VolumeWindow::initialize()
         window->layout()->setMenuBar(menuBar);
 
         hierarchy = new QDockWidget(tr("Hierarchy"), window);
+        hierarchy->setMinimumWidth(275);
         hierarchy->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         vtkWidget = new QVTKWidget(window);
@@ -181,19 +184,19 @@ void VolumeWindow::openTifVolume()
 }
 
 
-void VolumeWindow::initializeSlider(QSlider *slider)
-{
-    if(slider)
-    {
-        slider->show();
-        slider->setMaximum(200);
-        slider->setMinimum(0);
-        slider->setValue(100);
-        //lastValue = 100;
+//void VolumeWindow::initializeSlider(QSlider *slider)
+//{
+//    if(slider)
+//    {
+//        slider->show();
+//        slider->setMaximum(200);
+//        slider->setMinimum(0);
+//        slider->setValue(100);
+//        //lastValue = 100;
 
-        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeObjScale(int)));
-    }
-}
+//        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeObjScale(int)));
+//    }
+//}
 
 ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject *vol)
 {
@@ -207,6 +210,27 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     QVBoxLayout *propertiesLayout = new QVBoxLayout(propertiesWidget);
     propertiesLayout->setAlignment(Qt::AlignTop);
 
+    //object  widget
+    QWidget *objectWidget = new QWidget(propertiesWidget);
+    QVBoxLayout *objectLayout = new QVBoxLayout(objectWidget);
+    objectLayout->setAlignment(Qt::AlignTop);
+
+    QLabel *objectLabel = new QLabel(objectWidget);
+    objectLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    objectLabel->setText("Object");
+    objectLabel->setAlignment(Qt::AlignCenter);
+    objectLabel->setFixedHeight(20);
+
+    ObjectEditor *objectEditor = new ObjectEditor(objectWidget, vol, vtkWidget);
+    objectEditor->setMinimumWidth(300);
+
+    objectLayout->addWidget(objectLabel);
+    objectLayout->addWidget(objectEditor);
+
+    propertiesLayout->addWidget(objectWidget);
+    connect(objectEditor, SIGNAL(changeObjectName(QString)), this, SLOT(changeName(QString)));
+
+    //transform widget
     QWidget *transformWidget = new QWidget(propertiesWidget);
     QVBoxLayout *transformLayout = new QVBoxLayout(transformWidget);
     transformLayout->setAlignment(Qt::AlignTop);
@@ -225,6 +249,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
 
     propertiesLayout->addWidget(transformWidget);
 
+    //transfer function widget
     QWidget *transferFunctionWidget = new QWidget(propertiesWidget);
     QVBoxLayout *transferFunctionLayout = new QVBoxLayout(transferFunctionWidget);
     transferFunctionLayout->setAlignment(Qt::AlignTop);
@@ -264,6 +289,27 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     QVBoxLayout *propertiesLayout = new QVBoxLayout(propertiesWidget);
     propertiesLayout->setAlignment(Qt::AlignTop);
 
+    //object  widget
+    QWidget *objectWidget = new QWidget(propertiesWidget);
+    QVBoxLayout *objectLayout = new QVBoxLayout(objectWidget);
+    objectLayout->setAlignment(Qt::AlignTop);
+
+    QLabel *objectLabel = new QLabel(objectWidget);
+    objectLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    objectLabel->setText("Object");
+    objectLabel->setAlignment(Qt::AlignCenter);
+    objectLabel->setFixedHeight(20);
+
+    ObjectEditor *objectEditor = new ObjectEditor(objectWidget, obj, vtkWidget);
+    objectEditor->setMinimumWidth(300);
+
+    objectLayout->addWidget(objectLabel);
+    objectLayout->addWidget(objectEditor);
+
+    propertiesLayout->addWidget(objectWidget);
+    connect(objectEditor, SIGNAL(changeObjectName(QString)), this, SLOT(changeName(QString)));
+
+    //transform editor widget
     QWidget *transformWidget = new QWidget(propertiesWidget);
     QVBoxLayout *transformLayout = new QVBoxLayout(transformWidget);
     transformLayout->setAlignment(Qt::AlignTop);
@@ -334,37 +380,14 @@ void VolumeWindow::initializeHierarchyPanel()
     QWidget *hierarchyWidget = new QWidget(hierarchy);
     hierarchyWidget->setObjectName("Hierarchy Widget");
 
-    QVBoxLayout *hierarchyLayout = new QVBoxLayout(hierarchyWidget);
-    hierarchyLayout->setAlignment(Qt::AlignTop);
-    hierarchyLayout->setObjectName("Hierarchy Layout");
+    QTreeWidget *treeWidget = new QTreeWidget(hierarchyWidget);
+    treeWidget->setObjectName("Tree Widget");
+    treeWidget->setColumnCount(1);
+    treeWidget->setHeaderLabel("Scene Tree");
+    CameraTreeWidgetItem *camera = new CameraTreeWidgetItem(cameraPropertiesPair, "Camera");
+    treeWidget->insertTopLevelItem(0,camera);
 
-    CameraButton *cameraButton = new CameraButton(cameraPropertiesPair, hierarchyWidget);
-    cameraButton->setText("Camera");
-    hierarchyLayout->addWidget(cameraButton);
-    connect(cameraButton, SIGNAL(cameraButtonClicked(CameraPropertiesPair*)), this, SLOT(changeFocusedToCamera(CameraPropertiesPair*)));
-
-    //connect(camera, SIGNAL(clicked(bool)), this, SLOT(updateWidget());
-
-
-//    vtkRendererCollection * renderers = vtkWidget->GetRenderWindow()->GetRenderers();
-//    vtkRenderer *renderer = renderers->GetFirstRenderer();
-
-//    vtkVolumeCollection volumes = renderer->GetVolumes();
-//    vtkActorCollection actors = renderer->GetActors();
-
-//    for(vtkVolume *vol : volumes)
-//    {
-//        QPushButton *volume = new QPushButton("VolumeObject", hierarchyWidget);
-//        hierarchyLayout->addWidget(volume);
-//        connect(volume, SIGNAL(clicked(bool)), this, SLOT(updateWidget());
-//    }
-
-//    for(vtkActor *obj : actors)
-//    {
-//        QPushButton *obj = new QPushButton("Obj Object", hierarchyWidget);
-//        hierarchyLayout->addWidget(obj);
-//        connect(obj, SIGNAL(clicked(bool)), this, SLOT(updateWidget());
-//    }
+    connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeWidgetItemClicked(QTreeWidgetItem*,int)));
 
     hierarchy->setWidget(hierarchyWidget);
     window->addDockWidget(Qt::LeftDockWidgetArea, hierarchy);
@@ -374,26 +397,20 @@ void VolumeWindow::addObjectToHierarchyPanel(ObjectPropertiesPair * objectProper
 {
     ObjObject *obj = dynamic_cast<ObjObject*>(objectPropertiesPair->getObject());
     QWidget *hierarchyWidget = hierarchy->findChild<QWidget *>("Hierarchy Widget");
-    QVBoxLayout *hierarchyLayout = hierarchyWidget->findChild<QVBoxLayout *>("Hierarchy Layout");
+    QTreeWidget *treeWidget = hierarchyWidget->findChild<QTreeWidget *>("Tree Widget");
 
     if(obj != nullptr)
     {
-        ObjectButton *objButton = new ObjectButton(objectPropertiesPair, hierarchyWidget);
-        objButton->setText("Obj Object");
-        hierarchyLayout->addWidget(objButton);
-        connect(objButton, SIGNAL(objectButtonClicked(ObjectPropertiesPair*)), this, SLOT(changeFocusedToObject(ObjectPropertiesPair*)));
-
+        ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
+        treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
     }
     else
     {
         TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(objectPropertiesPair->getObject());
         if(vol != nullptr)
         {
-            ObjectButton *volumeButton = new ObjectButton(objectPropertiesPair, hierarchyWidget);
-            volumeButton->setText("Volume Object");
-            hierarchyLayout->addWidget(volumeButton);
-                    connect(volumeButton, SIGNAL(objectButtonClicked(ObjectPropertiesPair*)), this, SLOT(changeFocusedToObject(ObjectPropertiesPair*)));
-
+            ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
+            treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
         }
     }
 }
@@ -409,25 +426,25 @@ void VolumeWindow::setRenderingWindow(RenderingWindow *value)
 }
 
 
-void VolumeWindow::changeObjScale(int value)
-{
-    vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+//void VolumeWindow::changeObjScale(int value)
+//{
+//    vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
 
-    vtkActorCollection *actors = renderer->GetActors();
-    actors->InitTraversal();
-    vtkActor *actualActor = actors->GetLastActor();
+//    vtkActorCollection *actors = renderer->GetActors();
+//    actors->InitTraversal();
+//    vtkActor *actualActor = actors->GetLastActor();
 
-    if(actualActor)
-    {
-        //scale rotate traslate
-        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-        //transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
-        transform->Concatenate(actualActor->GetUserMatrix());
-        actualActor->SetUserTransform(transform);
-    }
-     vtkWidget->GetRenderWindow()->Render();
-     //lastValue = value;
-}
+//    if(actualActor)
+//    {
+//        //scale rotate traslate
+//        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+//        //transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
+//        transform->Concatenate(actualActor->GetUserMatrix());
+//        actualActor->SetUserTransform(transform);
+//    }
+//     vtkWidget->GetRenderWindow()->Render();
+//     //lastValue = value;
+//}
 
 void VolumeWindow::captureImage()
 {
@@ -451,6 +468,23 @@ void VolumeWindow::captureImage()
       writer->Write();
 
       vtkWidget->GetRenderWindow()->Render();
+}
+
+void VolumeWindow::treeWidgetItemClicked(QTreeWidgetItem * item, int col)
+{
+    CameraTreeWidgetItem * cameraItem = dynamic_cast<CameraTreeWidgetItem*>(item);
+    if(cameraItem)
+    {
+        changeFocusedToCamera(cameraItem->getCameraPropertiesPair());
+    }
+    else
+    {
+        ObjectTreeWidgetItem * objectItem = dynamic_cast<ObjectTreeWidgetItem*>(item);
+        if(objectItem)
+        {
+            changeFocusedToObject(objectItem->getObjectPropertiesPair());
+        }
+    }
 }
 
 void VolumeWindow::changeFocusedToCamera(CameraPropertiesPair *cameraPropertiesPair)
@@ -504,4 +538,9 @@ void VolumeWindow::changeFocusedToObject(ObjectPropertiesPair *objectPropertiesP
 void VolumeWindow::updateWidget()
 {
     vtkWidget->GetRenderWindow()->Render();
+}
+
+void VolumeWindow::changeName(QString name)
+{
+    int hola = 1;
 }
