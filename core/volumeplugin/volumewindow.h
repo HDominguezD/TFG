@@ -14,6 +14,9 @@
 #include "objectclasses/tifvolumeobject.h"
 #include "objectclasses/objobject.h"
 #include "QTreeWidgetItem"
+#include "TreeWidgetItems/objecttreewidgetitem.h"
+#include "TreeWidgetItems/cameratreewidgetitem.h"
+#include "Editors/objecteditor.h"
 
 class VolumeWindow : public QDockWidget
 {
@@ -39,8 +42,10 @@ private:
 
     QVTKWidget *vtkWidget;
     CameraPropertiesPair *cameraPropertiesPair;
+    CameraTreeWidgetItem *cameraTreeWidget;
     Core *core;
     RenderingWindow *renderingWindow;
+    QVector<ObjectTreeWidgetItem*>* objectTreeWidgets;
     QVector<ObjectPropertiesPair *>* objectPropertiesPairs;
     QDockWidget *hierarchy;
     QMainWindow *window;
@@ -54,7 +59,7 @@ private slots:
     void captureImage();
     void treeWidgetItemClicked(QTreeWidgetItem*,int);
     void updateWidget();
-    void changeName(QString name);
+    void changeName(ObjectEditor *editor, QString name);
 };
 
 #endif // VOLUMEWINDOW_H

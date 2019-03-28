@@ -42,9 +42,14 @@ ObjectEditor::ObjectEditor(QWidget *parent, Object *object, QVTKWidget* widget)
      connect(visible, SIGNAL(stateChanged(int)), this, SLOT(visibleChanged(int)));
 }
 
+Object *ObjectEditor::getObject() const
+{
+    return object;
+}
+
 void ObjectEditor::changeName()
 {
-    emit changeObjectName(objectName->text());
+    emit changeObjectName(this, objectName->text());
 }
 
 void ObjectEditor::visibleChanged(int status)

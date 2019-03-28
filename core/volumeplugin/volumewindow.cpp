@@ -28,11 +28,14 @@
 #include "Editors/transformeditorcamera.h"
 #include "QTreeWidget"
 #include "Editors/objecteditor.h"
-
+#include "vtkAxesActor.h"
+#include "vtkOrientationMarkerWidget.h"
+#include "QSizePolicy"
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
     setParent(parent);
     objectPropertiesPairs = new QVector<ObjectPropertiesPair *>();
+    objectTreeWidgets = new QVector<ObjectTreeWidgetItem *>();
     setWindowTitle("Volume Scene");
 }
 
@@ -66,10 +69,22 @@ bool VolumeWindow::initialize()
 
         hierarchy = new QDockWidget(tr("Hierarchy"), window);
         hierarchy->setMinimumWidth(275);
+        hierarchy->setMinimumHeight(200);
         hierarchy->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         vtkWidget = new QVTKWidget(window);
         vol->printObject(vtkWidget);
+
+//        vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+
+//        vtkSmartPointer<vtkOrientationMarkerWidget> widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+//        widget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+//        widget->SetOrientationMarker( axes );
+//        widget->SetInteractor(vtkWidget->GetRenderWindow()->GetInteractor());
+//        widget->SetCurrentRenderer(vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+//        widget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
+//        widget->SetEnabled( 1 );
+//        widget->InteractiveOn();
 
         QMenuBar* bar = new QMenuBar(vtkWidget);
         QMenu *translate = new QMenu("Translate");
@@ -203,7 +218,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->setObjectName("Properties Dock");
-    properties->setFixedWidth(330);
+    properties->setMinimumWidth(300);
+    properties->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     properties->hide();
 
     QWidget *propertiesWidget = new QWidget(properties);
@@ -228,7 +244,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     objectLayout->addWidget(objectEditor);
 
     propertiesLayout->addWidget(objectWidget);
-    connect(objectEditor, SIGNAL(changeObjectName(QString)), this, SLOT(changeName(QString)));
+    connect(objectEditor, SIGNAL(changeObjectName(ObjectEditor*, QString)), this, SLOT(changeName(ObjectEditor*, QString)));
 
     //transform widget
     QWidget *transformWidget = new QWidget(propertiesWidget);
@@ -307,7 +323,7 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     objectLayout->addWidget(objectEditor);
 
     propertiesLayout->addWidget(objectWidget);
-    connect(objectEditor, SIGNAL(changeObjectName(QString)), this, SLOT(changeName(QString)));
+    connect(objectEditor, SIGNAL(changeObjectName(ObjectEditor*, QString)), this, SLOT(changeName(ObjectEditor*, QString)));
 
     //transform editor widget
     QWidget *transformWidget = new QWidget(propertiesWidget);
@@ -384,8 +400,8 @@ void VolumeWindow::initializeHierarchyPanel()
     treeWidget->setObjectName("Tree Widget");
     treeWidget->setColumnCount(1);
     treeWidget->setHeaderLabel("Scene Tree");
-    CameraTreeWidgetItem *camera = new CameraTreeWidgetItem(cameraPropertiesPair, "Camera");
-    treeWidget->insertTopLevelItem(0,camera);
+    cameraTreeWidget = new CameraTreeWidgetItem(cameraPropertiesPair, "Camera");
+    treeWidget->insertTopLevelItem(0,cameraTreeWidget);
 
     connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeWidgetItemClicked(QTreeWidgetItem*,int)));
 
@@ -403,6 +419,7 @@ void VolumeWindow::addObjectToHierarchyPanel(ObjectPropertiesPair * objectProper
     {
         ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
         treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
+        objectTreeWidgets->append(object);
     }
     else
     {
@@ -411,6 +428,7 @@ void VolumeWindow::addObjectToHierarchyPanel(ObjectPropertiesPair * objectProper
         {
             ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
             treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
+            objectTreeWidgets->append(object);
         }
     }
 }
@@ -540,7 +558,13 @@ void VolumeWindow::updateWidget()
     vtkWidget->GetRenderWindow()->Render();
 }
 
-void VolumeWindow::changeName(QString name)
+void VolumeWindow::changeName(ObjectEditor *editor, QString name)
 {
-    int hola = 1;
+    for(int i = 0; i < objectTreeWidgets->length(); i++)
+    {
+        if(editor->getObject() == objectTreeWidgets->at(i)->getObjectPropertiesPair()->getObject())
+        {
+            objectTreeWidgets->at(i)->setText(0,  name.toStdString().c_str());
+        }
+    }
 }

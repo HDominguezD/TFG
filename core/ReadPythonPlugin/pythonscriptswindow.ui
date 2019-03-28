@@ -6,38 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
-    <height>180</height>
+    <width>580</width>
+    <height>202</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Execute Python Script</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QDialogButtonBox" name="CancelOkbuttonBox">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>140</y>
-      <width>166</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-    </property>
-   </widget>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>611</width>
-      <height>121</height>
+      <y>20</y>
+      <width>551</width>
+      <height>143</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="1" column="1">
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinimumSize</enum>
+     </property>
+     <item row="2" column="1">
       <widget class="QLineEdit" name="scriptLineEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -57,34 +53,14 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="outputLabel">
+     <item row="2" column="4">
+      <widget class="QPushButton" name="openFileButton">
        <property name="text">
-        <string>Output directory</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <string/>
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QLineEdit" name="outputLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QPushButton" name="openDirectoryButton">
-       <property name="text">
-        <string>Open directory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLineEdit" name="parametersLineEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -94,10 +70,20 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="2" column="2">
       <widget class="QPushButton" name="openScriptButton">
        <property name="text">
-        <string>Open script</string>
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="argumentsLabel">
+       <property name="text">
+        <string>Arguments</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -111,27 +97,36 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="argumentsLabel">
-       <property name="text">
-        <string>Arguments</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
+     <item row="2" column="3">
       <widget class="QLineEdit" name="argumentsLineEdit"/>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="openFileButton">
+     <item row="3" column="3">
+      <widget class="QPushButton" name="addArgumentButton">
        <property name="text">
-        <string>Open file</string>
+        <string>Add argument</string>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QDialogButtonBox" name="CancelOkbuttonBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>166</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    </property>
+    <property name="centerButtons">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
  </widget>

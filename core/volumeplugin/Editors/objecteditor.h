@@ -12,6 +12,8 @@ class ObjectEditor : public QWidget
 public:
     ObjectEditor(QWidget *parent, Object *object, QVTKWidget *widget);
 
+    Object *getObject() const;
+
 private:
     Object *object;
     QLineEdit *objectName;
@@ -25,7 +27,7 @@ private slots:
     void changeName();
 
 signals:
-    void changeObjectName(QString name);
+    void changeObjectName(ObjectEditor*, QString name);
 
 };
 

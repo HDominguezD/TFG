@@ -2,6 +2,10 @@
 #define PYTHONSCRIPTSWINDOW_H
 
 #include <QMainWindow>
+#include "QPair"
+#include "qlineedit.h"
+#include "QPushButton"
+
 using namespace std;
 
 namespace Ui {
@@ -21,25 +25,23 @@ private slots:
     void on_CancelOkbuttonBox_rejected();
 
     void on_CancelOkbuttonBox_accepted();
+
     void on_openScriptButton_clicked();
 
-    void on_openFileButton_clicked();
-
-    void on_openDirectoryButton_clicked();
+    void openFileButtonClicked();
 
     void on_parametersLineEdit_editingFinished();
 
     void on_scriptLineEdit_editingFinished();
 
-    void on_argumentsLineEdit_editingFinished();
+    void argumentsLineEditsEditingFinished();
 
-    void on_outputLineEdit_editingFinished();
+    void addArgumentButtonClicked();
 
 private:
     Ui::PythonScriptsWindow *ui;
-
+    QList<QPair<QLineEdit*, QPushButton*>*>* argumentsLines;
     string arguments;
-    string outputDir;
     string paramenters;
     string scriptPath;
 };
