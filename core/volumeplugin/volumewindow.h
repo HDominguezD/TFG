@@ -60,6 +60,9 @@ private slots:
     void treeWidgetItemClicked(QTreeWidgetItem*,int);
     void updateWidget();
     void changeName(ObjectEditor *editor, QString name);
+    void createMesh();
+    void createSegmentation();
+    void openMesh();
 };
 
 #endif // VOLUMEWINDOW_H

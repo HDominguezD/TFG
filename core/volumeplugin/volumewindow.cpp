@@ -75,10 +75,8 @@ bool VolumeWindow::initialize()
         vtkWidget = new QVTKWidget(window);
         vol->printObject(vtkWidget);
 
-//        vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
-
 //        vtkSmartPointer<vtkOrientationMarkerWidget> widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-//        widget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+//        widget->SetOutlineColor( 0.9320, 0.5700, 0.1320 );
 //        widget->SetOrientationMarker( axes );
 //        widget->SetInteractor(vtkWidget->GetRenderWindow()->GetInteractor());
 //        widget->SetCurrentRenderer(vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
@@ -100,11 +98,6 @@ bool VolumeWindow::initialize()
 
         window->setCentralWidget(vtkWidget);
 
-        ObjectPropertiesPair *objectPropertiesPair = createVolumePropertiesPanel(vol);
-        objectPropertiesPairs->append(objectPropertiesPair);
-
-        objectPropertiesPair->getPropertiesDock()->show();
-
         this->setWidget(tab);
 
         QDesktopWidget *desktop = QApplication::desktop();
@@ -119,6 +112,11 @@ bool VolumeWindow::initialize()
 
         vtkSmartPointer<vtkCamera> camera = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
         cameraPropertiesPair = createCameraPropertiesPanel(camera);
+
+        ObjectPropertiesPair *objectPropertiesPair = createVolumePropertiesPanel(vol);
+        objectPropertiesPairs->append(objectPropertiesPair);
+
+        objectPropertiesPair->getPropertiesDock()->show();
 
         core->addObject(vol);
 
@@ -160,10 +158,10 @@ void VolumeWindow::openObjFile()
 
             //scale rotate traslate
 
-            double pos[3] = {0, 0, 0};
-            double sca[3] = {1, -1, 1};
-            actualActor->SetPosition(pos);
-            actualActor->SetScale(sca);
+//            double pos[3] = {0, 0, 0};
+//            double sca[3] = {1, -1, 1};
+//            actualActor->SetPosition(pos);
+//            actualActor->SetScale(sca);
 
             string nameButton = string("CompareObj");
             QPushButton *compare = this->findChild<QPushButton *>(nameButton.c_str());
@@ -177,7 +175,6 @@ void VolumeWindow::openObjFile()
             }
         }
         addObjectToHierarchyPanel(objectPropertiesPair);
-        createObjectPropertiesPanel(object);
         changeFocusedToObject(objectPropertiesPair);
         vtkWidget->GetRenderWindow()->Render();
     }
@@ -218,8 +215,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->setObjectName("Properties Dock");
-    properties->setMinimumWidth(300);
-    properties->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    properties->setFixedWidth(320);
+    //properties->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     properties->hide();
 
     QWidget *propertiesWidget = new QWidget(properties);
@@ -238,7 +235,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     objectLabel->setFixedHeight(20);
 
     ObjectEditor *objectEditor = new ObjectEditor(objectWidget, vol, vtkWidget);
-    objectEditor->setMinimumWidth(300);
+    objectEditor->setMinimumWidth(320);
 
     objectLayout->addWidget(objectLabel);
     objectLayout->addWidget(objectEditor);
@@ -257,8 +254,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     transformLabel->setAlignment(Qt::AlignCenter);
     transformLabel->setFixedHeight(20);
 
-    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, vol, vtkWidget);
-    transformEditor->setMinimumWidth(300);
+    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, vol, vtkWidget, cameraPropertiesPair);
+    transformEditor->setMinimumWidth(320);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
@@ -286,10 +283,36 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
 
     propertiesLayout->addWidget(transferFunctionWidget);
 
+
+    //apply conversions widget
+    QWidget *applyConversionsWidget = new QWidget(propertiesWidget);
+    QVBoxLayout *applyConversionsLayout = new QVBoxLayout(applyConversionsWidget);
+    applyConversionsLayout->setAlignment(Qt::AlignTop);
+
+    QLabel *applyConversionsLabel = new QLabel(applyConversionsWidget);
+    applyConversionsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    applyConversionsLabel->setText("Apply conversions");
+    applyConversionsLabel->setAlignment(Qt::AlignCenter);
+    applyConversionsLabel->setFixedHeight(20);
+
+    QPushButton *createMesh = new QPushButton(tr("create Mesh"), applyConversionsWidget);
+    QPushButton *createSegmentation = new QPushButton(tr("Create Segmentation"), applyConversionsWidget);
+
+    applyConversionsLayout->addWidget(applyConversionsLabel);
+    applyConversionsLayout->addWidget(createMesh);
+    applyConversionsLayout->addWidget(createSegmentation);
+
+    connect(createMesh, SIGNAL(pressed()), this, SLOT(createMesh()));
+    connect(createSegmentation, SIGNAL(pressed()), this, SLOT(createSegmentation()));
+
+
+    propertiesLayout->addWidget(applyConversionsWidget);
+
     properties->setWidget(propertiesWidget);
 
     ObjectPropertiesPair *objectPropertiesPair = new ObjectPropertiesPair(vol, properties);
     window->addDockWidget(Qt::RightDockWidgetArea, objectPropertiesPair->getPropertiesDock());
+
     return objectPropertiesPair;
 }
 
@@ -317,7 +340,7 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     objectLabel->setFixedHeight(20);
 
     ObjectEditor *objectEditor = new ObjectEditor(objectWidget, obj, vtkWidget);
-    objectEditor->setMinimumWidth(300);
+    objectEditor->setMinimumWidth(320);
 
     objectLayout->addWidget(objectLabel);
     objectLayout->addWidget(objectEditor);
@@ -336,13 +359,33 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     transformLabel->setAlignment(Qt::AlignCenter);
     transformLabel->setFixedHeight(20);
 
-    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, obj, vtkWidget);
-    transformEditor->setMinimumWidth(300);
+    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, obj, vtkWidget, cameraPropertiesPair);
+    transformEditor->setMinimumWidth(320);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
 
     propertiesLayout->addWidget(transformWidget);
+
+    //open mesh widget
+    QWidget *openMeshWidget = new QWidget(propertiesWidget);
+    QVBoxLayout *openMeshLayout = new QVBoxLayout(openMeshWidget);
+    openMeshLayout->setAlignment(Qt::AlignTop);
+
+    QLabel *openMeshLabel = new QLabel(openMeshWidget);
+    openMeshLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    openMeshLabel->setText("Open Mesh");
+    openMeshLabel->setAlignment(Qt::AlignCenter);
+    openMeshLabel->setFixedHeight(20);
+
+    QPushButton *openMesh = new QPushButton(tr("Open Mesh"), openMeshWidget);
+
+    openMeshLayout->addWidget(openMeshLabel);
+    openMeshLayout->addWidget(openMesh);
+
+    connect(openMesh, SIGNAL(pressed()), this, SLOT(openMesh()));
+
+    propertiesLayout->addWidget(openMeshWidget);
 
     properties->setWidget(propertiesWidget);
 
@@ -355,7 +398,7 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
 {
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setObjectName("Properties Dock");
-    properties->setFixedWidth(330);
+    properties->setFixedWidth(320);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->hide();
 
@@ -375,7 +418,7 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
 
     TransformEditorCamera *transformEditor = new TransformEditorCamera(transformWidget, camera, vtkWidget);
     transformEditor->setObjectName("Transform Editor Camera");
-    transformEditor->setMinimumWidth(300);
+    transformEditor->setMinimumWidth(320);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
@@ -530,27 +573,26 @@ void VolumeWindow::changeFocusedToObject(ObjectPropertiesPair *objectPropertiesP
         }
     }
     objectPropertiesPair->getPropertiesDock()->show();
+
+    double *center;
+
     ObjObject *obj = dynamic_cast<ObjObject*>(objectPropertiesPair->getObject());
     if(obj != nullptr)
     {
-        double *center = obj->getActor()->GetCenter();
-        cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
-        TransformEditorCamera *editorCamera = cameraPropertiesPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
-        editorCamera->updateFocalPoint(center);
-        updateWidget();
+        center = obj->getActor()->GetCenter();
     }
     else
     {
         TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(objectPropertiesPair->getObject());
         if(vol != nullptr)
         {
-            double *center = vol->getVolume()->GetCenter();
-            cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
-            TransformEditorCamera *editorCamera = cameraPropertiesPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
-            editorCamera->updateFocalPoint(center);
-            updateWidget();
+            center = vol->getVolume()->GetCenter();
         }
     }
+    cameraPropertiesPair->getCamera()->SetFocalPoint(center[0], center[1], center[2]);
+    TransformEditorCamera *editorCamera = cameraPropertiesPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
+    editorCamera->updateFocalPoint(center);
+    updateWidget();
 }
 
 void VolumeWindow::updateWidget()
@@ -567,4 +609,19 @@ void VolumeWindow::changeName(ObjectEditor *editor, QString name)
             objectTreeWidgets->at(i)->setText(0,  name.toStdString().c_str());
         }
     }
+}
+
+void VolumeWindow::createMesh()
+{
+
+}
+
+void VolumeWindow::createSegmentation()
+{
+
+}
+
+void VolumeWindow::openMesh()
+{
+
 }

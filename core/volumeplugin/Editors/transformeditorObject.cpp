@@ -8,13 +8,15 @@
 #include "objectclasses/tifvolumeobject.h"
 #include "vtkTransform.h"
 #include "vtkRenderWindow.h"
+#include "Editors/transformeditorcamera.h"
 
 
-TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget) : QWidget(parent)
+TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget, CameraPropertiesPair *cameraPair) : QWidget(parent)
 {
     this->digits = 3;
     this->object = object;
     this->vtkWidget = vtkWidget;
+    this->cameraPair = cameraPair;
     this->setParent(parent);
     QFont *font = new QFont(this->font());
     font->setPointSize(9);
@@ -120,17 +122,12 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     }
     else
     {
-        TifVolumeObject *obj = dynamic_cast<TifVolumeObject*>(object);
-        if(obj != nullptr)
+        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
+        if(vol != nullptr)
         {
-            //double *pos = obj->getVolume()->GetPosition();
-            double *center = obj->getVolume()->GetCenter();
-            double *rot = obj->getVolume()->GetOrientation();
-            double *sca = obj->getVolume()->GetScale();
-
-//            positionXInput->setText(to_string(pos[0]).c_str());
-//            positionYInput->setText(to_string(pos[1]).c_str());
-//            positionZInput->setText(to_string(pos[2]).c_str());
+            double *center = vol->getVolume()->GetCenter();
+            double *rot = vol->getVolume()->GetOrientation();
+            double *sca = vol->getVolume()->GetScale();
 
             positionXInput->setText(to_string(center[0]).c_str());
             positionYInput->setText(to_string(center[1]).c_str());
@@ -165,79 +162,88 @@ void TransformEditorObject::updateObject()
 {
     double *center;
     double *position;
-//    double pos[3];
-//    pos[0] = positionXInput->text().toDouble();
-//    pos[1] = positionYInput->text().toDouble();
-//    pos[2] = positionZInput->text().toDouble();
 
     double tras[3];
         tras[0] = positionXInput->text().toDouble();
         tras[1] = positionYInput->text().toDouble();
         tras[2] = positionZInput->text().toDouble();
     double rot[3];
-    rot[0] = rotationXInput->text().toDouble();
-    rot[1] = rotationYInput->text().toDouble();
-    rot[2] = rotationZInput->text().toDouble();
+        rot[0] = rotationXInput->text().toDouble();
+        rot[1] = rotationYInput->text().toDouble();
+        rot[2] = rotationZInput->text().toDouble();
     double sca[3];
-    sca[0] = scaleXInput->text().toDouble();
-    sca[1] = scaleYInput->text().toDouble();
-    sca[2] = scaleZInput->text().toDouble();
+        sca[0] = scaleXInput->text().toDouble();
+        sca[1] = scaleYInput->text().toDouble();
+        sca[2] = scaleZInput->text().toDouble();
 
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj != nullptr)
     {
         center = obj->getActor()->GetCenter();
-        position = obj->getActor()->GetPosition();
-        //there's a bug in the y axis and the pos value has to be inverted
-        //pos[1] = - pos[1];
-
-        //obj->getActor()->SetPosition(pos);
-//        obj->getActor()->SetOrientation(rot);
-//        obj->getActor()->SetScale(sca);
 
         vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-        //move object to origin(0,0,0)
+        transform->PostMultiply();
+        //reset traslation
         transform->Translate(-center[0], -center[1], -center[2]);
-        //scale object
-        transform->Scale(sca[0], sca[1], sca[2]);
-        //rotate object
-        transform->RotateX(rot[0]);
-        transform->RotateY(rot[1]);
-        transform->RotateZ(rot[2]);
-        //translate object to the desire point
+        //update translation
         transform->Translate(tras[0], tras[1], tras[2]);
-
         if(obj->getActor()->GetUserMatrix())
-        transform->Concatenate(obj->getActor()->GetUserMatrix());
+            transform->Concatenate(obj->getActor()->GetUserMatrix());
         obj->getActor()->SetUserTransform(transform);
 
+        //reset scale
+        double *scale = obj->getActor()->GetScale();
+        obj->getActor()->SetScale(1 / scale[0], 1 / scale[1], 1 / scale[2]);
+        //update scale
+        obj->getActor()->SetScale(sca[0], sca[1], sca[2]);
+
+        //reset rotation
+        double *orientation = obj->getActor()->GetOrientation();
+        obj->getActor()->RotateX(-orientation[0]);
+        obj->getActor()->RotateY(-orientation[1]);
+        obj->getActor()->RotateZ(-orientation[2]);
+        //update rotation
+        obj->getActor()->RotateX(rot[0]);
+        obj->getActor()->RotateY(rot[1]);
+        obj->getActor()->RotateZ(rot[2]);
     }
     else
     {
-        TifVolumeObject *obj = dynamic_cast<TifVolumeObject*>(object);
-        if(obj != nullptr)
+        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
+        if(vol != nullptr)
         {
-            center = obj->getVolume()->GetCenter();
-//            obj->getVolume()->SetPosition(pos);
-//            obj->getVolume()->SetOrientation(rot);
+            center = vol->getVolume()->GetCenter();
 
             vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-            //move object to origin(0,0,0)
+            transform->PostMultiply();
+            //reset traslation
             transform->Translate(-center[0], -center[1], -center[2]);
-            //scale object
-            //transform->Scale(sca[0], sca[1], sca[2]);
-            //rotate object
-            transform->RotateX(rot[0]);
-            transform->RotateY(rot[1]);
-            transform->RotateZ(rot[2]);
-            //translate object to the desire point
+            //update translation
             transform->Translate(tras[0], tras[1], tras[2]);
+            if(vol->getVolume()->GetUserMatrix())
+                transform->Concatenate(vol->getVolume()->GetUserMatrix());
+            vol->getVolume()->SetUserTransform(transform);
 
-            if(obj->getVolume()->GetUserMatrix())
-                transform->Concatenate(obj->getVolume()->GetUserMatrix());
-            obj->getVolume()->SetUserTransform(transform);
-            obj->getVolume()->SetScale(sca);
+            //reset scale
+            double *scale = vol->getVolume()->GetScale();
+            vol->getVolume()->SetScale(1 / scale[0], 1 / scale[1], 1 / scale[2]);
+            //update scale
+            vol->getVolume()->SetScale(sca[0], sca[1], sca[2]);
+
+            //reset rotation
+            double *orientation = vol->getVolume()->GetOrientation();
+            vol->getVolume()->RotateX(-orientation[0]);
+            vol->getVolume()->RotateY(-orientation[1]);
+            vol->getVolume()->RotateZ(-orientation[2]);
+            //update rotation
+            vol->getVolume()->RotateX(rot[0]);
+            vol->getVolume()->RotateY(rot[1]);
+            vol->getVolume()->RotateZ(rot[2]);
         }
     }
+
+    TransformEditorCamera *editorCamera = cameraPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
+    editorCamera->updateFocalPoint(tras);
+    cameraPair->getCamera()->SetFocalPoint(tras[0], tras[1], tras[2]);
     vtkWidget->GetRenderWindow()->Render();
 }

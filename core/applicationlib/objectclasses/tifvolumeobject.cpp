@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include <boost/algorithm/string.hpp>
 #include "QApplication"
+#include "vtkAxesActor.h"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -192,6 +193,9 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
         vtkSmartPointer<vtkTransform>::New();
       transform->Translate(-this->volume->GetCenter()[0], -this->volume->GetCenter()[1], -this->volume->GetCenter()[2]);
       volume->SetUserTransform(transform);
+
+//    vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+//    renderer->AddActor(axes);
 
     renderer->AddVolume(this->volume);
 

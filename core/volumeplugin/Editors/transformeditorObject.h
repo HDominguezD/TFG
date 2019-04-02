@@ -6,12 +6,13 @@
 #include "vtkCamera.h"
 #include "QLineEdit"
 #include "QVTKWidget.h"
+#include "Pairs/camerapropertiespair.h"
 
 class TransformEditorObject: public QWidget
 {
     Q_OBJECT
 public:
-    TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget);
+    TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget, CameraPropertiesPair *cameraPair);
 
     int digits;
 
@@ -21,6 +22,7 @@ private slots:
 private:
     Object *object;
     QVTKWidget *vtkWidget;
+    CameraPropertiesPair *cameraPair;
     QLineEdit *positionXInput;
     QLineEdit *positionYInput;
     QLineEdit *positionZInput;
