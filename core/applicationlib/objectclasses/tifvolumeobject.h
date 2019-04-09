@@ -4,6 +4,7 @@
 #include <vtkVolume.h>
 #include <vtkTIFFReader.h>
 #include <QDir>
+#include "vtkAxesActor.h"
 
 class TifVolumeObject : public Object
 {
@@ -20,9 +21,15 @@ public:
     double getMaxValue() const;
     std::array<double, 3> calculateSpacing(string name);
 
+    vtkSmartPointer<vtkAxesActor> getAxes() const;
+
+    vtkSmartPointer<vtkImageData> getData() const;
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;
+    vtkSmartPointer<vtkImageData> data;
+    vtkSmartPointer<vtkAxesActor> axes;
     double maxValue;
 
 };

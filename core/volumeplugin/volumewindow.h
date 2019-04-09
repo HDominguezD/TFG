@@ -60,8 +60,8 @@ private slots:
     void treeWidgetItemClicked(QTreeWidgetItem*,int);
     void updateWidget();
     void changeName(ObjectEditor *editor, QString name);
-    void createMesh();
-    void createSegmentation();
+    void createMesh(TifVolumeObject *vol);
+    void createSegmentation(TifVolumeObject *vol);
     void openMesh();
 };
 

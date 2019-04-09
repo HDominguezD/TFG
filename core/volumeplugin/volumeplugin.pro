@@ -38,7 +38,8 @@ SOURCES += \
     Editors/transformeditorcamera.cpp \
     Editors/objecteditor.cpp \
     TreeWidgetItems/cameratreewidgetitem.cpp \
-    TreeWidgetItems/objecttreewidgetitem.cpp
+    TreeWidgetItems/objecttreewidgetitem.cpp \
+    Editors/applyconversionseditor.cpp
 
 HEADERS += \
         volumeplugin.h \
@@ -52,7 +53,8 @@ HEADERS += \
     Editors/transformeditorcamera.h \
     Editors/objecteditor.h \
     TreeWidgetItems/cameratreewidgetitem.h \
-    TreeWidgetItems/objecttreewidgetitem.h
+    TreeWidgetItems/objecttreewidgetitem.h \
+    Editors/applyconversionseditor.h
 
 OTHER_FILES += \
         volumeplugin.json

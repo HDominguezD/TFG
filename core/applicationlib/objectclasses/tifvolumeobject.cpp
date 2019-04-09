@@ -1,3 +1,8 @@
+#include "vtkAutoInit.h"
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
+VTK_MODULE_INIT(vtkRenderingFreeType);
+VTK_MODULE_INIT(vtkInteractionStyle);
+
 #include "tifvolumeobject.h"
 #include "vtkImageReader2.h"
 #include "vtkStringArray.h"
@@ -17,7 +22,6 @@
 #include "vtkImageData.h"
 #include <boost/algorithm/string.hpp>
 #include "QApplication"
-#include "vtkAxesActor.h"
 
 TifVolumeObject::TifVolumeObject()
 {
@@ -121,6 +125,7 @@ bool TifVolumeObject::readObject()
     //Go through the visulizatin pipeline
 
     texMapper->SetInputData(imageData);
+    data = imageData;
 
     QStringList transferFunction = directory.entryList(QStringList() << "*.trans",QDir::Files);
 
@@ -194,10 +199,32 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
       transform->Translate(-this->volume->GetCenter()[0], -this->volume->GetCenter()[1], -this->volume->GetCenter()[2]);
       volume->SetUserTransform(transform);
 
-//    vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
-//    renderer->AddActor(axes);
-
     renderer->AddVolume(this->volume);
+
+    axes = vtkSmartPointer<vtkAxesActor>::New();
+    axes->AxisLabelsOff();
+
+    vtkSmartPointer<vtkTransform> axesTransform = vtkSmartPointer<vtkTransform>::New();
+    axesTransform->Translate(-axes->GetCenter()[0], -axes->GetCenter()[1], -axes->GetCenter()[2]);
+    axes->SetUserTransform(axesTransform);
+
+    double bounds[3];
+    bounds[0] = volume->GetBounds()[0];
+    bounds[1] = volume->GetBounds()[1];
+    bounds[2] = volume->GetBounds()[2];
+
+    double minorBound = bounds[0];
+    for(int i = 1; i < 3; i++)
+    {
+      if (minorBound > bounds[i])
+          minorBound = bounds[i];
+    }
+    double sca = std::abs(minorBound)/ 8;
+    axes->SetTotalLength(sca, sca, sca);
+    axes->GetOrientation(volume->GetOrientation());
+
+    renderer->AddActor(axes);
+    renderer->ResetCamera();
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);
@@ -321,4 +348,14 @@ std::array<double, 3> TifVolumeObject::calculateSpacing(string name)
         spacing[2] = 1;
     }
     return spacing;
+}
+
+vtkSmartPointer<vtkAxesActor> TifVolumeObject::getAxes() const
+{
+    return axes;
+}
+
+vtkSmartPointer<vtkImageData> TifVolumeObject::getData() const
+{
+    return data;
 }

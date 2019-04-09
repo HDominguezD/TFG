@@ -183,29 +183,61 @@ void TransformEditorObject::updateObject()
 
         vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
         transform->PostMultiply();
+
+        vtkSmartPointer<vtkTransform> axesTransform = vtkSmartPointer<vtkTransform>::New();
+        axesTransform->PostMultiply();
+
         //reset traslation
         transform->Translate(-center[0], -center[1], -center[2]);
+
         //update translation
         transform->Translate(tras[0], tras[1], tras[2]);
         if(obj->getActor()->GetUserMatrix())
             transform->Concatenate(obj->getActor()->GetUserMatrix());
         obj->getActor()->SetUserTransform(transform);
 
+        axesTransform->Translate(tras[0], tras[1], tras[2]);
+        obj->getAxes()->SetUserTransform(axesTransform);
+
         //reset scale
         double *scale = obj->getActor()->GetScale();
         obj->getActor()->SetScale(1 / scale[0], 1 / scale[1], 1 / scale[2]);
+
         //update scale
         obj->getActor()->SetScale(sca[0], sca[1], sca[2]);
+
+        double bounds[3];
+        bounds[0] = obj->getActor()->GetBounds()[0];
+        bounds[1] = obj->getActor()->GetBounds()[1];
+        bounds[2] = obj->getActor()->GetBounds()[2];
+
+        double minorBound = bounds[0];
+        for(int i = 1; i < 3; i++)
+        {
+          if (minorBound > bounds[i])
+              minorBound = bounds[i];
+        }
+        double sca = std::abs(minorBound)/ 8;
+        obj->getAxes()->SetTotalLength(sca, sca, sca);
 
         //reset rotation
         double *orientation = obj->getActor()->GetOrientation();
         obj->getActor()->RotateX(-orientation[0]);
         obj->getActor()->RotateY(-orientation[1]);
         obj->getActor()->RotateZ(-orientation[2]);
+
+        obj->getAxes()->RotateX(-orientation[0]);
+        obj->getAxes()->RotateY(-orientation[1]);
+        obj->getAxes()->RotateZ(-orientation[2]);
+
         //update rotation
         obj->getActor()->RotateX(rot[0]);
         obj->getActor()->RotateY(rot[1]);
         obj->getActor()->RotateZ(rot[2]);
+
+        obj->getAxes()->RotateX(rot[0]);
+        obj->getAxes()->RotateY(rot[1]);
+        obj->getAxes()->RotateZ(rot[2]);
     }
     else
     {
@@ -216,29 +248,61 @@ void TransformEditorObject::updateObject()
 
             vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
             transform->PostMultiply();
+
+            vtkSmartPointer<vtkTransform> axesTransform = vtkSmartPointer<vtkTransform>::New();
+            axesTransform->PostMultiply();
+
             //reset traslation
             transform->Translate(-center[0], -center[1], -center[2]);
+
             //update translation
             transform->Translate(tras[0], tras[1], tras[2]);
             if(vol->getVolume()->GetUserMatrix())
                 transform->Concatenate(vol->getVolume()->GetUserMatrix());
             vol->getVolume()->SetUserTransform(transform);
 
+            axesTransform->Translate(tras[0], tras[1], tras[2]);
+            vol->getAxes()->SetUserTransform(axesTransform);
+
             //reset scale
             double *scale = vol->getVolume()->GetScale();
             vol->getVolume()->SetScale(1 / scale[0], 1 / scale[1], 1 / scale[2]);
+
             //update scale
             vol->getVolume()->SetScale(sca[0], sca[1], sca[2]);
+
+            double bounds[3];
+            bounds[0] = vol->getVolume()->GetBounds()[0];
+            bounds[1] = vol->getVolume()->GetBounds()[1];
+            bounds[2] = vol->getVolume()->GetBounds()[2];
+
+            double minorBound = bounds[0];
+            for(int i = 1; i < 3; i++)
+            {
+              if (minorBound > bounds[i])
+                  minorBound = bounds[i];
+            }
+            double sca = std::abs(minorBound)/ 8;
+            vol->getAxes()->SetTotalLength(sca, sca, sca);
 
             //reset rotation
             double *orientation = vol->getVolume()->GetOrientation();
             vol->getVolume()->RotateX(-orientation[0]);
             vol->getVolume()->RotateY(-orientation[1]);
             vol->getVolume()->RotateZ(-orientation[2]);
+
+            vol->getAxes()->RotateX(-orientation[0]);
+            vol->getAxes()->RotateY(-orientation[1]);
+            vol->getAxes()->RotateZ(-orientation[2]);
+
             //update rotation
             vol->getVolume()->RotateX(rot[0]);
             vol->getVolume()->RotateY(rot[1]);
             vol->getVolume()->RotateZ(rot[2]);
+
+            vol->getAxes()->RotateX(rot[0]);
+            vol->getAxes()->RotateY(rot[1]);
+            vol->getAxes()->RotateZ(rot[2]);
         }
     }
 

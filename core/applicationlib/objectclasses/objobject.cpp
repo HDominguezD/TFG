@@ -1,3 +1,7 @@
+//#include "vtkAutoInit.h"
+//VTK_MODULE_INIT(vtkRenderingOpenGL2);
+//VTK_MODULE_INIT(vtkRenderingFreeType);
+//VTK_MODULE_INIT(vtkInteractionStyle);
 #include "objobject.h"
 #include <boost/algorithm/string.hpp>
 #include <vtkPoints.h>
@@ -16,6 +20,7 @@
 #include "vtkCamera.h"
 #include "vtkOBJReader.h"
 #include "vtkLinearTransform.h"
+#include "vtkAxesActor.h"
 
 
 using namespace std;
@@ -61,6 +66,11 @@ bool ObjObject::readObjectFromFile(string fileName)
     return true;
 }
 
+vtkSmartPointer<vtkAxesActor> ObjObject::getAxes() const
+{
+    return axes;
+}
+
 vtkSmartPointer<vtkActor> ObjObject::getActor() const
 {
     return actor;
@@ -82,6 +92,31 @@ void ObjObject::printObject(QVTKWidget *widget)
     renderer->SetBackground(.2, .2, .2);
     renderer->AddActor(actor);
     renderer->SetBackground(.2, .2, .2);
+
+    axes = vtkSmartPointer<vtkAxesActor>::New();
+    axes->AxisLabelsOff();
+
+    vtkSmartPointer<vtkTransform> axesTransform = vtkSmartPointer<vtkTransform>::New();
+    axesTransform->Translate(-axes->GetCenter()[0], -axes->GetCenter()[1], -axes->GetCenter()[2]);
+    axes->SetUserTransform(axesTransform);
+
+    double bounds[3];
+    bounds[0] = actor->GetBounds()[0];
+    bounds[1] = actor->GetBounds()[1];
+    bounds[2] = actor->GetBounds()[2];
+
+    double minorBound = bounds[0];
+    for(int i = 1; i < 3; i++)
+    {
+      if (minorBound > bounds[i])
+          minorBound = bounds[i];
+    }
+    double sca = std::abs(minorBound)/ 8;
+    axes->SetTotalLength(sca, sca, sca);
+    axes->SetOrientation(actor->GetOrientation());
+
+    renderer->AddActor(axes);
+    renderer->ResetCamera();
 
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);

@@ -31,6 +31,12 @@
 #include "vtkAxesActor.h"
 #include "vtkOrientationMarkerWidget.h"
 #include "QSizePolicy"
+#include "vtkPolyDataMapper.h"
+#include "vtkMarchingCubes.h"
+#include "vtkOBJExporter.h"
+#include "Editors/applyconversionseditor.h"
+#include "vtkAbstractVolumeMapper.h"
+
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
     setParent(parent);
@@ -74,15 +80,6 @@ bool VolumeWindow::initialize()
 
         vtkWidget = new QVTKWidget(window);
         vol->printObject(vtkWidget);
-
-//        vtkSmartPointer<vtkOrientationMarkerWidget> widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-//        widget->SetOutlineColor( 0.9320, 0.5700, 0.1320 );
-//        widget->SetOrientationMarker( axes );
-//        widget->SetInteractor(vtkWidget->GetRenderWindow()->GetInteractor());
-//        widget->SetCurrentRenderer(vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
-//        widget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
-//        widget->SetEnabled( 1 );
-//        widget->InteractiveOn();
 
         QMenuBar* bar = new QMenuBar(vtkWidget);
         QMenu *translate = new QMenu("Translate");
@@ -142,38 +139,38 @@ void VolumeWindow::openObjFile()
         object->printObject(vtkWidget);
         ObjectPropertiesPair *objectPropertiesPair = createObjectPropertiesPanel(object);
 
-        vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
-        vtkVolumeCollection *volumes = renderer->GetVolumes();
-        volumes->InitTraversal();
-        vtkVolume *volume = volumes->GetNextItem();
+//        vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+//        vtkVolumeCollection *volumes = renderer->GetVolumes();
+//        volumes->InitTraversal();
+//        vtkVolume *volume = volumes->GetNextItem();
 
-        if(volume != nullptr)
-        {
-            vtkActorCollection *actors = renderer->GetActors();
-            actors->InitTraversal();
-            vtkActor *actualActor = actors->GetLastActor();
+//        if(volume != nullptr)
+//        {
+//            vtkActorCollection *actors = renderer->GetActors();
+//            actors->InitTraversal();
+//            vtkActor *actualActor = actors->GetLastActor();
 
-            if(actualActor != nullptr)
-            {
+//            if(actualActor != nullptr)
+//            {
 
-            //scale rotate traslate
+//            //scale rotate traslate
 
-//            double pos[3] = {0, 0, 0};
-//            double sca[3] = {1, -1, 1};
-//            actualActor->SetPosition(pos);
-//            actualActor->SetScale(sca);
+////            double pos[3] = {0, 0, 0};
+////            double sca[3] = {1, -1, 1};
+////            actualActor->SetPosition(pos);
+////            actualActor->SetScale(sca);
 
-            string nameButton = string("CompareObj");
-            QPushButton *compare = this->findChild<QPushButton *>(nameButton.c_str());
-            if(compare)
-            {
-                compare->hide();
-//                string nameSlider = string("ScaleObj ") + to_string(dockNumber);
-//                QSlider *slider = dock->findChild<QSlider *>(nameSlider.c_str());
-//                initializeSlider(slider);
-            }
-            }
-        }
+//            string nameButton = string("CompareObj");
+//            QPushButton *compare = this->findChild<QPushButton *>(nameButton.c_str());
+//            if(compare)
+//            {
+//                compare->hide();
+////                string nameSlider = string("ScaleObj ") + to_string(dockNumber);
+////                QSlider *slider = dock->findChild<QSlider *>(nameSlider.c_str());
+////                initializeSlider(slider);
+//            }
+//            }
+//        }
         addObjectToHierarchyPanel(objectPropertiesPair);
         changeFocusedToObject(objectPropertiesPair);
         vtkWidget->GetRenderWindow()->Render();
@@ -215,7 +212,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->setObjectName("Properties Dock");
-    properties->setFixedWidth(320);
+//    properties->setFixedWidth(330);
     //properties->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     properties->hide();
 
@@ -235,7 +232,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     objectLabel->setFixedHeight(20);
 
     ObjectEditor *objectEditor = new ObjectEditor(objectWidget, vol, vtkWidget);
-    objectEditor->setMinimumWidth(320);
+    objectEditor->setMinimumWidth(300);
+    objectEditor->setMaximumWidth(300);
 
     objectLayout->addWidget(objectLabel);
     objectLayout->addWidget(objectEditor);
@@ -255,7 +253,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     transformLabel->setFixedHeight(20);
 
     TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, vol, vtkWidget, cameraPropertiesPair);
-    transformEditor->setMinimumWidth(320);
+    transformEditor->setMinimumWidth(300);
+    transformEditor->setMaximumWidth(300);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
@@ -275,7 +274,8 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
 
     TransferFunctionEditor *transferEditor = new TransferFunctionEditor(transferFunctionWidget, vol);
     transferEditor->setFixedHeight(80);
-    transferEditor->setMinimumWidth(200);
+    transferEditor->setMinimumWidth(300);
+    transferEditor->setMaximumWidth(300);
     connect(transferEditor, SIGNAL(colorsChanged()), this, SLOT(updateWidget()));
 
     transferFunctionLayout->addWidget(transferFuncitonLabel);
@@ -295,16 +295,14 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     applyConversionsLabel->setAlignment(Qt::AlignCenter);
     applyConversionsLabel->setFixedHeight(20);
 
-    QPushButton *createMesh = new QPushButton(tr("create Mesh"), applyConversionsWidget);
-    QPushButton *createSegmentation = new QPushButton(tr("Create Segmentation"), applyConversionsWidget);
+    ApplyConversionsEditor *applyConversionsEditor = new ApplyConversionsEditor(applyConversionsWidget, vol);
+    applyConversionsEditor->setMinimumWidth(300);
+    applyConversionsEditor->setMaximumWidth(300);
+    connect(applyConversionsEditor, SIGNAL(createMeshClicked(TifVolumeObject*)), this, SLOT(createMesh(TifVolumeObject*)));
+    connect(applyConversionsEditor, SIGNAL(createSegmentationClicked(TifVolumeObject*)), this, SLOT(createSegmentation(TifVolumeObject*)));
 
     applyConversionsLayout->addWidget(applyConversionsLabel);
-    applyConversionsLayout->addWidget(createMesh);
-    applyConversionsLayout->addWidget(createSegmentation);
-
-    connect(createMesh, SIGNAL(pressed()), this, SLOT(createMesh()));
-    connect(createSegmentation, SIGNAL(pressed()), this, SLOT(createSegmentation()));
-
+    applyConversionsLayout->addWidget(applyConversionsEditor);
 
     propertiesLayout->addWidget(applyConversionsWidget);
 
@@ -340,7 +338,8 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     objectLabel->setFixedHeight(20);
 
     ObjectEditor *objectEditor = new ObjectEditor(objectWidget, obj, vtkWidget);
-    objectEditor->setMinimumWidth(320);
+    objectEditor->setMinimumWidth(300);
+    objectEditor->setMaximumWidth(300);
 
     objectLayout->addWidget(objectLabel);
     objectLayout->addWidget(objectEditor);
@@ -360,7 +359,8 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     transformLabel->setFixedHeight(20);
 
     TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, obj, vtkWidget, cameraPropertiesPair);
-    transformEditor->setMinimumWidth(320);
+    transformEditor->setMinimumWidth(300);
+    transformEditor->setMaximumWidth(300);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
@@ -398,7 +398,7 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
 {
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setObjectName("Properties Dock");
-    properties->setFixedWidth(320);
+    properties->setFixedWidth(330);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->hide();
 
@@ -418,7 +418,8 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
 
     TransformEditorCamera *transformEditor = new TransformEditorCamera(transformWidget, camera, vtkWidget);
     transformEditor->setObjectName("Transform Editor Camera");
-    transformEditor->setMinimumWidth(320);
+    transformEditor->setMinimumWidth(300);
+    transformEditor->setMaximumWidth(300);
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
@@ -485,27 +486,6 @@ void VolumeWindow::setRenderingWindow(RenderingWindow *value)
 {
     renderingWindow = value;
 }
-
-
-//void VolumeWindow::changeObjScale(int value)
-//{
-//    vtkRenderer *renderer = vtkWidget->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
-
-//    vtkActorCollection *actors = renderer->GetActors();
-//    actors->InitTraversal();
-//    vtkActor *actualActor = actors->GetLastActor();
-
-//    if(actualActor)
-//    {
-//        //scale rotate traslate
-//        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-//        //transform->Scale(pow(1.01 , (value - lastValue)), pow(1.01 , (value - lastValue)),pow(1.01 , (value - lastValue)));
-//        transform->Concatenate(actualActor->GetUserMatrix());
-//        actualActor->SetUserTransform(transform);
-//    }
-//     vtkWidget->GetRenderWindow()->Render();
-//     //lastValue = value;
-//}
 
 void VolumeWindow::captureImage()
 {
@@ -611,14 +591,56 @@ void VolumeWindow::changeName(ObjectEditor *editor, QString name)
     }
 }
 
-void VolumeWindow::createMesh()
+void VolumeWindow::createMesh(TifVolumeObject *vol)
 {
+    //marching cubes
+    vtkSmartPointer<vtkMarchingCubes> surface = vtkSmartPointer<vtkMarchingCubes>::New();
+    surface->SetInputData(vol->getData());
+    surface->ComputeNormalsOn();
+    float isoValue = 1000;
+    surface->SetValue(0, isoValue);
 
+    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(surface->GetOutputPort());
+    mapper->ScalarVisibilityOff();
+
+    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    renderer->AddActor(actor);
+
+    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+
+    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save File"), "/home/Desktop/PruebasMarchingCubesmarchingCubes.obj",tr("Images (*.obj)"));
+    std::string filename = fileName.toStdString();
+
+    QFile f( fileName );
+    f.open( QIODevice::WriteOnly );
+
+    //Write OBJ File
+    vtkOBJExporter* objExporter = vtkOBJExporter::New();
+    objExporter->SetFilePrefix(filename.c_str());
+    objExporter->SetRenderWindow(renderWindow);
+    objExporter->Write();
+
+    renderWindow->Delete();
+
+//    addObjectToHierarchyPanel(objectPropertiesPair);
+//    changeFocusedToObject(objectPropertiesPair);
+//    vtkWidget->GetRenderWindow()->Render();
 }
 
-void VolumeWindow::createSegmentation()
+void VolumeWindow::createSegmentation(TifVolumeObject * vol)
 {
-
+    QDir pluginsDir(qApp->applicationDirPath());
+    pluginsDir.cd("Scripts");
+    string script = pluginsDir.absolutePath().toStdString() + "/evaluation_NN.py";
+    string code = "python3 " + script;
+    string fileName = std::tmpnam(nullptr);
+    code = code + " > " + fileName;
+    system(code.c_str());
 }
 
 void VolumeWindow::openMesh()

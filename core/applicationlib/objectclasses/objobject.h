@@ -4,6 +4,7 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkActor.h>
+#include "vtkAxesActor.h"
 
 
 class ObjObject : public Object
@@ -17,9 +18,12 @@ public:
 
     vtkSmartPointer<vtkActor> getActor() const;
 
+    vtkSmartPointer<vtkAxesActor> getAxes() const;
+
 private:
     bool readObjectFromFile(std::string fileName);
     vtkSmartPointer<vtkActor> actor;
+    vtkSmartPointer<vtkAxesActor> axes;
 };
 
 #endif // OBJOBJECT_H

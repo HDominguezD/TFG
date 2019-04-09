@@ -18,12 +18,14 @@ private:
     Object *object;
     QLineEdit *objectName;
     QCheckBox *visible;
+    QCheckBox *orientationAxes;
     QVTKWidget *widget;
 
 
 private slots:
     void updateObject();
     void visibleChanged(int status);
+    void orientationAxesChanged(int status);
     void changeName();
 
 signals:

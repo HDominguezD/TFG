@@ -23,10 +23,10 @@ CONFIG += plugin
 DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += ../applicationlib
-INCLUDEPATH += /usr/include/python3.6
+#INCLUDEPATH += /usr/include/python3.6
 
-LIBS += -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/ -lpython3.6
-DEPENDPATH += /usr/include/python3.6
+#LIBS += -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/ -lpython3.6
+#DEPENDPATH += /usr/include/python3.6
 
 unix:!mac:  LIBS *= -L$$LIBRARIESPATH -lapplicationlib
 unix:!mac:  QMAKE_LFLAGS *= -Wl,--rpath=.
