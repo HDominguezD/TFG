@@ -1,9 +1,9 @@
 #include "cameratreewidgetitem.h"
 
-CameraTreeWidgetItem::CameraTreeWidgetItem(CameraPropertiesPair *cameraPropertiesPair, QString name)
+CameraTreeWidgetItem::CameraTreeWidgetItem(CameraPropertiesPair *cameraPropertiesPair)
 {
     this->cameraPropertiesPair = cameraPropertiesPair;
-    this->setText(0, name);
+    this->setText(0, "Camera");
 }
 
 CameraPropertiesPair *CameraTreeWidgetItem::getCameraPropertiesPair() const

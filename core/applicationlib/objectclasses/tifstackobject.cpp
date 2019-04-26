@@ -21,7 +21,12 @@ bool TifStackObject::readObject()
     QStringList images = directory.entryList(QStringList() << "*.tif" << "*.tiff",QDir::Files);
     if(images.size() == 0){
         return false;
+    } else if(images.size() == 1){
+        name = images.at(0).toStdString();
+    } else {
+        name = directory.dirName().toStdString();
     }
+
     for(QString image : images){
         TifObject *tif = new TifObject();
         readed = tif->readObjectFromFile(directory.absolutePath().toStdString() + "/" + image.toStdString());
@@ -73,7 +78,24 @@ void TifStackObject::setActiveImage(int value)
     activeImage = value;
 }
 
+string TifStackObject::getName() const
+{
+    return name;
+}
+
 TifStackObject::~TifStackObject()
 {
+    for(int i = 0; i < tifStack->size(); i++){
+        tifStack->at(i)->getActor2D()->VisibilityOff();
+    }
+}
 
+QVTKWidget *TifStackObject::getVtkWidget() const
+{
+    return vtkWidget;
+}
+
+void TifStackObject::setName(const string &value)
+{
+    name = value;
 }

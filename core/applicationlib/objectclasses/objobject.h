@@ -16,14 +16,22 @@ public:
     const char* objectType();
     ~ObjObject();
 
+    string getName() const;
+
     vtkSmartPointer<vtkActor> getActor() const;
 
     vtkSmartPointer<vtkAxesActor> getAxes() const;
+
+    QVTKWidget *getVtkWidget() const;
+
+    void setName(const string &value);
 
 private:
     bool readObjectFromFile(std::string fileName);
     vtkSmartPointer<vtkActor> actor;
     vtkSmartPointer<vtkAxesActor> axes;
+    string name;
+    QVTKWidget *vtkWidget;
 };
 
 #endif // OBJOBJECT_H

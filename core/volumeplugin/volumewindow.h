@@ -39,6 +39,7 @@ private:
     void addObjectToHierarchyPanel(ObjectPropertiesPair * objectPropertiesPair);
     void changeFocusedToCamera(CameraPropertiesPair *cameraPropertiesPair);
     void changeFocusedToObject(ObjectPropertiesPair *objectPropertiesPair);
+    void removeHierarchyObject(ObjectTreeWidgetItem *item, QTreeWidget* tree);
 
     QVTKWidget *vtkWidget;
     CameraPropertiesPair *cameraPropertiesPair;
@@ -58,6 +59,8 @@ private slots:
     void openTifVolume();
     void captureImage();
     void treeWidgetItemClicked(QTreeWidgetItem*,int);
+    void removeContextMenu(const QPoint &pos);
+    void removeHierarchyObjects();
     void updateWidget();
     void changeName(ObjectEditor *editor, QString name);
     void createMesh(TifVolumeObject *vol);

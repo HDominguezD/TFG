@@ -40,6 +40,10 @@ bool TifVolumeObject::readObject()
 
     if(images.size() == 0){
         return false;
+    } else if(images.size() == 1){
+        name = images.at(0).toStdString();
+    } else {
+        name = directory.dirName().toStdString();
     }
 
     vtkStringArray *imagesName = vtkStringArray::New();
@@ -236,11 +240,6 @@ const char *TifVolumeObject::objectType()
     return "TifVolume";
 }
 
-TifVolumeObject::~TifVolumeObject()
-{
-
-}
-
 vtkSmartPointer<vtkVolume> TifVolumeObject::getVolume() const
 {
     return volume;
@@ -358,4 +357,25 @@ vtkSmartPointer<vtkAxesActor> TifVolumeObject::getAxes() const
 vtkSmartPointer<vtkImageData> TifVolumeObject::getData() const
 {
     return data;
+}
+
+string TifVolumeObject::getName() const
+{
+    return name;
+}
+
+QVTKWidget *TifVolumeObject::getVtkWidget() const
+{
+    return vtkWidget;
+}
+
+void TifVolumeObject::setName(const string &value)
+{
+    name = value;
+}
+
+TifVolumeObject::~TifVolumeObject()
+{
+    volume->VisibilityOff();
+    axes->VisibilityOff();
 }

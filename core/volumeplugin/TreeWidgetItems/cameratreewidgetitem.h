@@ -7,7 +7,7 @@
 class CameraTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    CameraTreeWidgetItem(CameraPropertiesPair *cameraPropertiesPair, QString name);
+    CameraTreeWidgetItem(CameraPropertiesPair *cameraPropertiesPair);
     CameraPropertiesPair *getCameraPropertiesPair() const;
 
 private:

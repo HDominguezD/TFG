@@ -17,12 +17,19 @@ public:
 
     int getActiveImage() const;
     void setActiveImage(int value);
+    string getName() const;
     ~TifStackObject();
+
+    QVTKWidget *getVtkWidget() const;
+
+    void setName(const string &value);
 
 private:
     bool readObjectFromFile(std::string fileName);
     QVector<TifObject*> *tifStack;
     int activeImage;
+    string name;
+    QVTKWidget *vtkWidget;
 };
 
 #endif // TIFSTACKOBJECT_H

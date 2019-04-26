@@ -25,12 +25,20 @@ public:
 
     vtkSmartPointer<vtkImageData> getData() const;
 
+    string getName() const;
+
+    QVTKWidget *getVtkWidget() const;
+
+    void setName(const string &value);
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;
     vtkSmartPointer<vtkImageData> data;
     vtkSmartPointer<vtkAxesActor> axes;
     double maxValue;
+    string name;
+    QVTKWidget *vtkWidget;
 
 };
 

@@ -15,7 +15,7 @@ ObjectEditor::ObjectEditor(QWidget *parent, Object *object, QVTKWidget* widget)
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj)
     {
-        this->objectName = new QLineEdit("Obj object", this);
+        this->objectName = new QLineEdit(object->getName().c_str(), this);
         this->visible = new QCheckBox("Is Visible", this);
         this->visible->setChecked(obj->getActor()->GetVisibility());
         this->orientationAxes = new QCheckBox("Show orientation axes", this);
@@ -26,7 +26,7 @@ ObjectEditor::ObjectEditor(QWidget *parent, Object *object, QVTKWidget* widget)
         TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
         if(vol)
         {
-            this->objectName = new QLineEdit("Volume object", this);
+            this->objectName = new QLineEdit(object->getName().c_str(), this);
             this->visible = new QCheckBox("Is Visible", this);
             this->visible->setChecked(vol->getVolume()->GetVisibility());
             this->orientationAxes = new QCheckBox("Show orientation axes", this);

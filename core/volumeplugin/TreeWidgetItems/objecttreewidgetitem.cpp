@@ -1,9 +1,9 @@
 #include "objecttreewidgetitem.h"
 
-ObjectTreeWidgetItem::ObjectTreeWidgetItem(ObjectPropertiesPair *objectPropertiesPair, QString name)
+ObjectTreeWidgetItem::ObjectTreeWidgetItem(ObjectPropertiesPair *objectPropertiesPair)
 {
     this->objectPropertiesPair = objectPropertiesPair;
-    this->setText(0, name);
+    this->setText(0, objectPropertiesPair->getObject()->getName().c_str());
 }
 
 ObjectPropertiesPair *ObjectTreeWidgetItem::getObjectPropertiesPair() const

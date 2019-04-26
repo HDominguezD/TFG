@@ -7,7 +7,7 @@
 class ObjectTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    ObjectTreeWidgetItem(ObjectPropertiesPair *objectPropertiesPair, QString name);
+    ObjectTreeWidgetItem(ObjectPropertiesPair *objectPropertiesPair);
     ObjectPropertiesPair *getObjectPropertiesPair() const;
 
 private:

@@ -63,7 +63,26 @@ bool ObjObject::readObjectFromFile(string fileName)
 
     actor->SetMapper(mapper);
 
+    vector<string> splitName;
+    boost::split(splitName, fileName, [](char c){return c == '/';});
+    name = splitName.at(splitName.size() - 1);
+
     return true;
+}
+
+void ObjObject::setName(const string &value)
+{
+    name = value;
+}
+
+QVTKWidget *ObjObject::getVtkWidget() const
+{
+    return vtkWidget;
+}
+
+string ObjObject::getName() const
+{
+    return name;
 }
 
 vtkSmartPointer<vtkAxesActor> ObjObject::getAxes() const
@@ -121,6 +140,8 @@ void ObjObject::printObject(QVTKWidget *widget)
     widget->GetRenderWindow()->GetRenderers()->RemoveAllItems();
     widget->GetRenderWindow()->AddRenderer(renderer);
     widget->GetRenderWindow()->Render();
+
+    vtkWidget = widget;
 }
 
 const char* ObjObject::objectType()
@@ -130,6 +151,7 @@ const char* ObjObject::objectType()
 
 ObjObject::~ObjObject()
 {
-
+    actor->VisibilityOff();
+    axes->VisibilityOff();
 }
 

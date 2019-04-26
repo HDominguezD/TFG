@@ -444,10 +444,12 @@ void VolumeWindow::initializeHierarchyPanel()
     treeWidget->setObjectName("Tree Widget");
     treeWidget->setColumnCount(1);
     treeWidget->setHeaderLabel("Scene Tree");
-    cameraTreeWidget = new CameraTreeWidgetItem(cameraPropertiesPair, "Camera");
+    cameraTreeWidget = new CameraTreeWidgetItem(cameraPropertiesPair);
     treeWidget->insertTopLevelItem(0,cameraTreeWidget);
 
     connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeWidgetItemClicked(QTreeWidgetItem*,int)));
+    treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(treeWidget, SIGNAL(customContextMenuRequested(QPoint)), SLOT(removeContextMenu(QPoint)));
 
     hierarchy->setWidget(hierarchyWidget);
     window->addDockWidget(Qt::LeftDockWidgetArea, hierarchy);
@@ -455,26 +457,12 @@ void VolumeWindow::initializeHierarchyPanel()
 
 void VolumeWindow::addObjectToHierarchyPanel(ObjectPropertiesPair * objectPropertiesPair)
 {
-    ObjObject *obj = dynamic_cast<ObjObject*>(objectPropertiesPair->getObject());
     QWidget *hierarchyWidget = hierarchy->findChild<QWidget *>("Hierarchy Widget");
     QTreeWidget *treeWidget = hierarchyWidget->findChild<QTreeWidget *>("Tree Widget");
 
-    if(obj != nullptr)
-    {
-        ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
-        treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
-        objectTreeWidgets->append(object);
-    }
-    else
-    {
-        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(objectPropertiesPair->getObject());
-        if(vol != nullptr)
-        {
-            ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair, "Object");
-            treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
-            objectTreeWidgets->append(object);
-        }
-    }
+    ObjectTreeWidgetItem *object = new ObjectTreeWidgetItem(objectPropertiesPair);
+    treeWidget->insertTopLevelItem(treeWidget->topLevelItemCount(),object);
+    objectTreeWidgets->append(object);
 }
 
 RenderingWindow *VolumeWindow::getRenderingWindow() const
@@ -528,6 +516,33 @@ void VolumeWindow::treeWidgetItemClicked(QTreeWidgetItem * item, int col)
     }
 }
 
+void VolumeWindow::removeContextMenu(const QPoint &pos)
+{
+    QTreeWidget* treeWidget = qobject_cast<QTreeWidget*>(sender());
+    QMenu *menu = new QMenu(treeWidget);
+    QAction *remove = new QAction("Remove from scene");
+    menu->addAction(remove);
+    connect(remove, SIGNAL(triggered()), this, SLOT(removeHierarchyObjects()));
+    menu->exec(treeWidget->mapToGlobal(pos));
+}
+
+void VolumeWindow::removeHierarchyObjects()
+{
+    QTreeWidget *tree = hierarchy->findChild<QTreeWidget *>("Tree Widget");
+
+    QList<QTreeWidgetItem *> selectedItems = tree->selectedItems();
+    for(int i = 0; i < selectedItems.size(); i++)
+    {
+        QTreeWidgetItem *item = selectedItems.at(i);
+        ObjectTreeWidgetItem *objectItem = dynamic_cast<ObjectTreeWidgetItem*>(item);
+        if(objectItem){
+            removeHierarchyObject(objectItem, tree);
+        }
+    }
+}
+
+
+
 void VolumeWindow::changeFocusedToCamera(CameraPropertiesPair *cameraPropertiesPair)
 {
     QList<QDockWidget *> propertiesPanels = window->findChildren<QDockWidget *>("Properties Dock");
@@ -575,6 +590,16 @@ void VolumeWindow::changeFocusedToObject(ObjectPropertiesPair *objectPropertiesP
     updateWidget();
 }
 
+void VolumeWindow::removeHierarchyObject(ObjectTreeWidgetItem *item, QTreeWidget* tree)
+{
+    objectPropertiesPairs->removeOne(item->getObjectPropertiesPair());
+    QList<QDockWidget *> propertiesPanels = window->findChildren<QDockWidget *>("Properties Dock");
+    propertiesPanels.removeOne(item->getObjectPropertiesPair()->getPropertiesDock());
+    changeFocusedToCamera(cameraPropertiesPair);
+    item->getObjectPropertiesPair()->getObject()->~Object();
+    delete item;
+}
+
 void VolumeWindow::updateWidget()
 {
     vtkWidget->GetRenderWindow()->Render();
@@ -587,6 +612,7 @@ void VolumeWindow::changeName(ObjectEditor *editor, QString name)
         if(editor->getObject() == objectTreeWidgets->at(i)->getObjectPropertiesPair()->getObject())
         {
             objectTreeWidgets->at(i)->setText(0,  name.toStdString().c_str());
+            editor->getObject()->setName(name.toStdString());
         }
     }
 }
@@ -597,8 +623,11 @@ void VolumeWindow::createMesh(TifVolumeObject *vol)
     vtkSmartPointer<vtkMarchingCubes> surface = vtkSmartPointer<vtkMarchingCubes>::New();
     surface->SetInputData(vol->getData());
     surface->ComputeNormalsOn();
+
+
     float isoValue = 1000;
     surface->SetValue(0, isoValue);
+    surface->SetValue(1, 1800);
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(surface->GetOutputPort());
@@ -626,10 +655,6 @@ void VolumeWindow::createMesh(TifVolumeObject *vol)
     objExporter->Write();
 
     renderWindow->Delete();
-
-//    addObjectToHierarchyPanel(objectPropertiesPair);
-//    changeFocusedToObject(objectPropertiesPair);
-//    vtkWidget->GetRenderWindow()->Render();
 }
 
 void VolumeWindow::createSegmentation(TifVolumeObject * vol)

@@ -62,12 +62,16 @@ bool TifObject::readObjectFromFile(string fileName)
 
     actor2D->SetMapper(imageMapper);
 
+    vector<string> splitName;
+    boost::split(splitName, fileName, [](char c){return c == '/';});
+    name = splitName.at(splitName.size() - 1);
+
     return true;
 }
 
 TifObject::~TifObject()
 {
-
+    actor2D->VisibilityOff();
 }
 
 int TifObject::getActiveImage() const
@@ -127,4 +131,24 @@ void TifObject::resizeImage(QVTKWidget *widget)
 int *TifObject::getDimensions()
 {
     return outputData->GetDimensions();
+}
+
+string TifObject::getName() const
+{
+    return name;
+}
+
+QVTKWidget *TifObject::getVtkWidget() const
+{
+    return vtkWidget;
+}
+
+vtkSmartPointer<vtkActor2D> TifObject::getActor2D() const
+{
+    return actor2D;
+}
+
+void TifObject::setName(const string &value)
+{
+    name = value;
 }
