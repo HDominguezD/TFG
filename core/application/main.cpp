@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     //string code = "ssh h.dominguez@212.128.1.49  'nvcc --version'";
 
-    system(code.c_str());
+    //system(code.c_str());
     w->show();
     return a.exec();
 }

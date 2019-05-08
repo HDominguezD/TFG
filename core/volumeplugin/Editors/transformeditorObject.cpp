@@ -21,7 +21,15 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     QFont *font = new QFont(this->font());
     font->setPointSize(9);
     this->setFont(*font);
-    QGridLayout *layout = new QGridLayout(this);
+
+    label = new ClickableLabel(this);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setText("Transform");
+    label->setAlignment(Qt::AlignCenter);
+    label->setFixedHeight(20);
+
+    editor = new QWidget(this);
+    QGridLayout *gridLayout = new QGridLayout(editor);
 
     QDoubleValidator *val = new QDoubleValidator(0);
     val->setDecimals(digits);
@@ -79,30 +87,30 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     scaleZInput->setObjectName("ScaleZInput");
     scaleZInput->setValidator( val);
 
-    layout->addWidget(position, 0, 0);
-    layout->addWidget(positionX, 0, 1);
-    layout->addWidget(positionXInput, 0, 2);
-    layout->addWidget(positionY, 0, 3);
-    layout->addWidget(positionYInput, 0, 4);
-    layout->addWidget(positionZ, 0, 5);
-    layout->addWidget(positionZInput, 0, 6);
+    gridLayout->addWidget(position, 0, 0);
+    gridLayout->addWidget(positionX, 0, 1);
+    gridLayout->addWidget(positionXInput, 0, 2);
+    gridLayout->addWidget(positionY, 0, 3);
+    gridLayout->addWidget(positionYInput, 0, 4);
+    gridLayout->addWidget(positionZ, 0, 5);
+    gridLayout->addWidget(positionZInput, 0, 6);
 
-    layout->addWidget(rotation, 1, 0);
-    layout->addWidget(rotationX, 1, 1);
-    layout->addWidget(rotationXInput, 1, 2);
-    layout->addWidget(rotationY, 1, 3);
-    layout->addWidget(rotationYInput, 1, 4);
-    layout->addWidget(rotationZ, 1, 5);
-    layout->addWidget(rotationZInput, 1, 6);
+    gridLayout->addWidget(rotation, 1, 0);
+    gridLayout->addWidget(rotationX, 1, 1);
+    gridLayout->addWidget(rotationXInput, 1, 2);
+    gridLayout->addWidget(rotationY, 1, 3);
+    gridLayout->addWidget(rotationYInput, 1, 4);
+    gridLayout->addWidget(rotationZ, 1, 5);
+    gridLayout->addWidget(rotationZInput, 1, 6);
 
-    layout->addWidget(scale, 2, 0);
-    layout->addWidget(scaleX, 2, 1);
-    layout->addWidget(scaleXInput, 2, 2);
-    layout->addWidget(scaleY, 2, 3);
-    layout->addWidget(scaleYInput, 2, 4);
-    layout->addWidget(scaleZ, 2, 5);
-    layout->addWidget(scaleZInput, 2, 6);
-       layout->addWidget(resetButton, 3, 6);
+    gridLayout->addWidget(scale, 2, 0);
+    gridLayout->addWidget(scaleX, 2, 1);
+    gridLayout->addWidget(scaleXInput, 2, 2);
+    gridLayout->addWidget(scaleY, 2, 3);
+    gridLayout->addWidget(scaleYInput, 2, 4);
+    gridLayout->addWidget(scaleZ, 2, 5);
+    gridLayout->addWidget(scaleZInput, 2, 6);
+    gridLayout->addWidget(resetButton, 3, 6);
 
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj != nullptr)
@@ -123,6 +131,11 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
         scaleXInput->setText(to_string(sca[0]).c_str());
         scaleYInput->setText(to_string(sca[1]).c_str());
         scaleZInput->setText(to_string(sca[2]).c_str());
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->setAlignment(Qt::AlignTop);
+        layout->addWidget(label);
+        layout->addWidget(editor);
 
         this->setLayout(layout);
     }
@@ -146,27 +159,34 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
             scaleXInput->setText(to_string(sca[0]).c_str());
             scaleYInput->setText(to_string(sca[1]).c_str());
             scaleZInput->setText(to_string(sca[2]).c_str());
+
+            QVBoxLayout *layout = new QVBoxLayout(this);
+            layout->setAlignment(Qt::AlignTop);
+            layout->addWidget(label);
+            layout->addWidget(editor);
+
             this->setLayout(layout);
         }
     }
 
+    connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));
     connect(resetButton, SIGNAL(released()), this, SLOT(resetTransform()));
 
-    connect(positionXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(positionYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(positionZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(positionXInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(positionYInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(positionZInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
 
-    connect(rotationXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(rotationYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(rotationZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(rotationXInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(rotationYInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(rotationZInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
 
-    connect(scaleXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(scaleYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
-    connect(scaleZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(scaleXInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(scaleYInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
+    connect(scaleZInput, SIGNAL(textEdited(QString)), this, SLOT(updateObject(QString)));
 
 }
 
-void TransformEditorObject::updateObject()
+void TransformEditorObject::updateObject(QString text)
 {
     double *center;
     double *position;
@@ -334,5 +354,20 @@ void TransformEditorObject::resetTransform()
     scaleYInput->setText("1");
     scaleZInput->setText("1");
 
-    updateObject();
+    updateObject("");
+}
+
+void TransformEditorObject::labelClicked()
+{
+    if(editor->isVisible())
+    {
+        editor->setVisible(false);
+        label->setStyleSheet("QLabel { background-color : #C4C4C0  ; }");
+    }
+    else
+    {
+        editor->setVisible(true);
+        label->setStyleSheet("");
+
+    }
 }

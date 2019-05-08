@@ -5,6 +5,7 @@
 #include "qwidget.h"
 #include "QLineEdit"
 #include "QVTKWidget.h"
+#include "Labels/clickablelabel.h"
 
 class TransformEditorCamera : public QWidget
 {
@@ -14,9 +15,12 @@ public:
     void updateFocalPoint(double *fP);
 
     int digits;
+    ClickableLabel *label;
+    QWidget *editor;
 
 private slots:
-    void updateCamera();
+    void updateCamera(QString text);
+    void labelClicked();
 
 private:
     vtkCamera *camera;

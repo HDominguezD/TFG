@@ -40,7 +40,8 @@ SOURCES += \
     TreeWidgetItems/cameratreewidgetitem.cpp \
     TreeWidgetItems/objecttreewidgetitem.cpp \
     Editors/applyconversionseditor.cpp \
-    graphicwindow.cpp
+    graphicwindow.cpp \
+    Editors/Labels/clickablelabel.cpp
 
 HEADERS += \
         volumeplugin.h \
@@ -56,7 +57,8 @@ HEADERS += \
     TreeWidgetItems/cameratreewidgetitem.h \
     TreeWidgetItems/objecttreewidgetitem.h \
     Editors/applyconversionseditor.h \
-    graphicwindow.h
+    graphicwindow.h \
+    Editors/Labels/clickablelabel.h
 
 OTHER_FILES += \
         volumeplugin.json

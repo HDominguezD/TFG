@@ -5,6 +5,7 @@
 #include "QLineEdit"
 #include "QCheckBox"
 #include "QVTKWidget.h"
+#include "Labels/clickablelabel.h"
 
 class ObjectEditor : public QWidget
 {
@@ -20,6 +21,8 @@ private:
     QCheckBox *visible;
     QCheckBox *orientationAxes;
     QVTKWidget *widget;
+    ClickableLabel *label;
+    QWidget *editor;
 
 
 private slots:
@@ -27,6 +30,7 @@ private slots:
     void visibleChanged(int status);
     void orientationAxesChanged(int status);
     void changeName();
+    void labelClicked();
 
 signals:
     void changeObjectName(ObjectEditor*, QString name);

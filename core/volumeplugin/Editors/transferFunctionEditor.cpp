@@ -314,11 +314,20 @@ TransferFunctionEditor::TransferFunctionEditor(QWidget *parent, TifVolumeObject 
 {
     this->vol = vol;
     saveDefault();
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+
+    label = new ClickableLabel(this);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setText("Transference function");
+    label->setAlignment(Qt::AlignCenter);
+    label->setFixedHeight(20);
+
+    editor = new QWidget(this);
+
+    QVBoxLayout *vbox = new QVBoxLayout(editor);
     vbox->setSpacing(1);
     vbox->setMargin(1);
 
-    QHBoxLayout *hbox = new QHBoxLayout(this);
+    QHBoxLayout *hbox = new QHBoxLayout(editor);
     QPushButton *defaultButton = new QPushButton(tr("default"));
     QPushButton *saveButton = new QPushButton(tr("Save function"));
     hbox->addWidget(defaultButton);
@@ -327,6 +336,15 @@ TransferFunctionEditor::TransferFunctionEditor(QWidget *parent, TifVolumeObject 
     m_editor = new GradientEditor(this, vol, defaultProperty);
     vbox->addWidget(m_editor);
     vbox->addLayout(hbox);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setAlignment(Qt::AlignTop);
+    layout->addWidget(label);
+    layout->addWidget(editor);
+
+    this->setLayout(layout);
+
+    connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));
     connect(defaultButton, SIGNAL(clicked( )), this, SLOT(setDefault( )));
     connect(saveButton, SIGNAL(clicked( )), this, SLOT(saveFunction()));
     connect(m_editor, SIGNAL(colorsChanged()), this, SIGNAL(colorsChanged( )));
@@ -376,4 +394,19 @@ void TransferFunctionEditor::saveDefault()
     defaultProperty->SetScalarOpacity(vol->getVolume()->GetProperty()->GetScalarOpacity());
     defaultProperty->SetGradientOpacity(vol->getVolume()->GetProperty()->GetGradientOpacity());
     defaultProperty->SetColor(vol->getVolume()->GetProperty()->GetRGBTransferFunction());
+}
+
+void TransferFunctionEditor::labelClicked()
+{
+    if(editor->isVisible())
+    {
+        editor->setVisible(false);
+        label->setStyleSheet("QLabel { background-color : #C4C4C0  ; }");
+    }
+    else
+    {
+        editor->setVisible(true);
+        label->setStyleSheet("");
+
+    }
 }

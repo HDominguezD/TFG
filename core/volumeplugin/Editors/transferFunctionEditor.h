@@ -1,6 +1,7 @@
 #include "hoverpoints.h"
 #include "objectclasses/tifvolumeobject.h"
 #include "vtkVolumeProperty.h"
+#include "Labels/clickablelabel.h"
 
 class ColorPicker : public QWidget
 {
@@ -93,12 +94,15 @@ public:
   GradientEditor *m_editor;
   TifVolumeObject *vol;
   vtkSmartPointer<vtkVolumeProperty> defaultProperty;
+  ClickableLabel *label;
+  QWidget *editor;
 
 signals:
   void colorsChanged();
 public slots:
   void setDefault( );
   bool saveFunction();
+  void labelClicked();
 private:
   void saveDefault();
 };

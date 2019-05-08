@@ -3,7 +3,9 @@
 #include "objectclasses/tifvolumeobject.h"
 #include "QLabel"
 #include "QGridLayout"
+#include "QVBoxLayout"
 #include "vtkRenderWindow.h"
+#include "QFrame"
 
 ObjectEditor::ObjectEditor(QWidget *parent, Object *object, QVTKWidget* widget)
 {
@@ -34,15 +36,28 @@ ObjectEditor::ObjectEditor(QWidget *parent, Object *object, QVTKWidget* widget)
         }
     }
 
-    QGridLayout *layout = new QGridLayout(this);
+    label = new ClickableLabel(this);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setText("Object");
+    label->setAlignment(Qt::AlignCenter);
+    label->setFixedHeight(20);
+
+    editor = new QWidget(this);
+    QGridLayout *gridLayout = new QGridLayout(editor);
     QLabel *name = new QLabel(tr("Object Name"));
-    layout->addWidget(name, 0, 0);
-    layout->addWidget(objectName, 0, 1);
-    layout->addWidget(visible, 1, 0);
-    layout->addWidget(orientationAxes, 2, 0);
+    gridLayout->addWidget(name, 0, 0);
+    gridLayout->addWidget(objectName, 0, 1);
+    gridLayout->addWidget(visible, 1, 0);
+    gridLayout->addWidget(orientationAxes, 2, 0);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setAlignment(Qt::AlignTop);
+    layout->addWidget(label);
+    layout->addWidget(editor);
 
     this->setLayout(layout);
 
+     connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));
      connect(objectName, SIGNAL(editingFinished()), this, SLOT(changeName()));
      connect(visible, SIGNAL(stateChanged(int)), this, SLOT(visibleChanged(int)));
      connect(orientationAxes, SIGNAL(stateChanged(int)), this, SLOT(orientationAxesChanged(int)));
@@ -135,4 +150,19 @@ void ObjectEditor::orientationAxesChanged(int status)
         }
     }
     widget->GetRenderWindow()->Render();
+}
+
+void ObjectEditor::labelClicked()
+{
+    if(editor->isVisible())
+    {
+        editor->setVisible(false);
+        label->setStyleSheet("QLabel { background-color : #C4C4C0  ; }");
+    }
+    else
+    {
+        editor->setVisible(true);
+        label->setStyleSheet("");
+
+    }
 }

@@ -213,8 +213,6 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     QDockWidget *properties = new QDockWidget(tr("Properties"), window);
     properties->setAllowedAreas(Qt::AllDockWidgetAreas);
     properties->setObjectName("Properties Dock");
-//    properties->setFixedWidth(330);
-    //properties->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     properties->hide();
 
     QWidget *propertiesWidget = new QWidget(properties);
@@ -222,91 +220,42 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     propertiesLayout->setAlignment(Qt::AlignTop);
 
     //object  widget
-    QWidget *objectWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *objectLayout = new QVBoxLayout(objectWidget);
-    objectLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *objectLabel = new QLabel(objectWidget);
-    objectLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    objectLabel->setText("Object");
-    objectLabel->setAlignment(Qt::AlignCenter);
-    objectLabel->setFixedHeight(20);
-
-    ObjectEditor *objectEditor = new ObjectEditor(objectWidget, vol, vtkWidget);
+    ObjectEditor *objectEditor = new ObjectEditor(this, vol, vtkWidget);
     objectEditor->setMinimumWidth(300);
     objectEditor->setMaximumWidth(300);
 
-    objectLayout->addWidget(objectLabel);
-    objectLayout->addWidget(objectEditor);
-
-    propertiesLayout->addWidget(objectWidget);
+    propertiesLayout->addWidget(objectEditor);
     connect(objectEditor, SIGNAL(changeObjectName(ObjectEditor*, QString)), this, SLOT(changeName(ObjectEditor*, QString)));
 
     //transform widget
-    QWidget *transformWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *transformLayout = new QVBoxLayout(transformWidget);
-    transformLayout->setAlignment(Qt::AlignTop);
 
-    QLabel *transformLabel = new QLabel(transformWidget);
-    transformLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    transformLabel->setText("Transform");
-    transformLabel->setAlignment(Qt::AlignCenter);
-    transformLabel->setFixedHeight(20);
-
-    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, vol, vtkWidget, cameraPropertiesPair);
+    TransformEditorObject *transformEditor = new TransformEditorObject(this, vol, vtkWidget, cameraPropertiesPair);
     transformEditor->setMinimumWidth(300);
     transformEditor->setMaximumWidth(300);
 
-    transformLayout->addWidget(transformLabel);
-    transformLayout->addWidget(transformEditor);
     vtkWidget->setTransformEditor(transformEditor);
 
-    propertiesLayout->addWidget(transformWidget);
+    propertiesLayout->addWidget(transformEditor);
 
     //transfer function widget
-    QWidget *transferFunctionWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *transferFunctionLayout = new QVBoxLayout(transferFunctionWidget);
-    transferFunctionLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *transferFuncitonLabel = new QLabel(transferFunctionWidget);
-    transferFuncitonLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    transferFuncitonLabel->setText("Transference function");
-    transferFuncitonLabel->setAlignment(Qt::AlignCenter);
-    transferFuncitonLabel->setFixedHeight(20);
-
-    TransferFunctionEditor *transferEditor = new TransferFunctionEditor(transferFunctionWidget, vol);
-    transferEditor->setFixedHeight(80);
+    TransferFunctionEditor *transferEditor = new TransferFunctionEditor(this, vol);
+    transferEditor->setMinimumHeight(120);
+    transferEditor->setMaximumHeight(120);
     transferEditor->setMinimumWidth(300);
     transferEditor->setMaximumWidth(300);
     connect(transferEditor, SIGNAL(colorsChanged()), this, SLOT(updateWidget()));
 
-    transferFunctionLayout->addWidget(transferFuncitonLabel);
-    transferFunctionLayout->addWidget(transferEditor);
-
-    propertiesLayout->addWidget(transferFunctionWidget);
+    propertiesLayout->addWidget(transferEditor);
 
 
     //apply conversions widget
-    QWidget *applyConversionsWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *applyConversionsLayout = new QVBoxLayout(applyConversionsWidget);
-    applyConversionsLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *applyConversionsLabel = new QLabel(applyConversionsWidget);
-    applyConversionsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    applyConversionsLabel->setText("Apply conversions");
-    applyConversionsLabel->setAlignment(Qt::AlignCenter);
-    applyConversionsLabel->setFixedHeight(20);
-
-    ApplyConversionsEditor *applyConversionsEditor = new ApplyConversionsEditor(applyConversionsWidget, vol);
+    ApplyConversionsEditor *applyConversionsEditor = new ApplyConversionsEditor(this, vol);
     applyConversionsEditor->setMinimumWidth(300);
     applyConversionsEditor->setMaximumWidth(300);
     connect(applyConversionsEditor, SIGNAL(createMeshClicked(TifVolumeObject*)), this, SLOT(createMesh(TifVolumeObject*)));
     connect(applyConversionsEditor, SIGNAL(createSegmentationClicked(TifVolumeObject*)), this, SLOT(createSegmentation(TifVolumeObject*)));
 
-    applyConversionsLayout->addWidget(applyConversionsLabel);
-    applyConversionsLayout->addWidget(applyConversionsEditor);
-
-    propertiesLayout->addWidget(applyConversionsWidget);
+    propertiesLayout->addWidget(applyConversionsEditor);
 
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidget(propertiesWidget);
@@ -333,47 +282,21 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     propertiesLayout->setAlignment(Qt::AlignTop);
 
     //object  widget
-    QWidget *objectWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *objectLayout = new QVBoxLayout(objectWidget);
-    objectLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *objectLabel = new QLabel(objectWidget);
-    objectLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    objectLabel->setText("Object");
-    objectLabel->setAlignment(Qt::AlignCenter);
-    objectLabel->setFixedHeight(20);
-
-    ObjectEditor *objectEditor = new ObjectEditor(objectWidget, obj, vtkWidget);
+    ObjectEditor *objectEditor = new ObjectEditor(propertiesWidget, obj, vtkWidget);
     objectEditor->setMinimumWidth(300);
     objectEditor->setMaximumWidth(300);
 
-    objectLayout->addWidget(objectLabel);
-    objectLayout->addWidget(objectEditor);
-
-    propertiesLayout->addWidget(objectWidget);
+    propertiesLayout->addWidget(objectEditor);
     connect(objectEditor, SIGNAL(changeObjectName(ObjectEditor*, QString)), this, SLOT(changeName(ObjectEditor*, QString)));
 
     //transform editor widget
-    QWidget *transformWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *transformLayout = new QVBoxLayout(transformWidget);
-    transformLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *transformLabel = new QLabel(transformWidget);
-    transformLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    transformLabel->setText("Transform");
-    transformLabel->setAlignment(Qt::AlignCenter);
-    transformLabel->setFixedHeight(20);
-
-    TransformEditorObject *transformEditor = new TransformEditorObject(transformWidget, obj, vtkWidget, cameraPropertiesPair);
+    TransformEditorObject *transformEditor = new TransformEditorObject(this, obj, vtkWidget, cameraPropertiesPair);
     transformEditor->setMinimumWidth(300);
     transformEditor->setMaximumWidth(300);
 
     vtkWidget->setTransformEditor(transformEditor);
 
-    transformLayout->addWidget(transformLabel);
-    transformLayout->addWidget(transformEditor);
-
-    propertiesLayout->addWidget(transformWidget);
+    propertiesLayout->addWidget(transformEditor);
 
     //open mesh widget
     QWidget *openMeshWidget = new QWidget(propertiesWidget);
@@ -418,25 +341,13 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
     QVBoxLayout *propertiesLayout = new QVBoxLayout(propertiesWidget);
     propertiesLayout->setAlignment(Qt::AlignTop);
 
-    QWidget *transformWidget = new QWidget(propertiesWidget);
-    QVBoxLayout *transformLayout = new QVBoxLayout(transformWidget);
-    transformLayout->setAlignment(Qt::AlignTop);
-
-    QLabel *transformLabel = new QLabel(transformWidget);
-    transformLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    transformLabel->setText("Transform");
-    transformLabel->setAlignment(Qt::AlignCenter);
-    transformLabel->setFixedHeight(20);
-
-    TransformEditorCamera *transformEditor = new TransformEditorCamera(transformWidget, camera, vtkWidget);
+    //transform widget
+    TransformEditorCamera *transformEditor = new TransformEditorCamera(this, camera, vtkWidget);
     transformEditor->setObjectName("Transform Editor Camera");
     transformEditor->setMinimumWidth(300);
     transformEditor->setMaximumWidth(300);
 
-    transformLayout->addWidget(transformLabel);
-    transformLayout->addWidget(transformEditor);
-
-    propertiesLayout->addWidget(transformWidget);
+    propertiesLayout->addWidget(transformEditor);
 
     //camera center widget
 

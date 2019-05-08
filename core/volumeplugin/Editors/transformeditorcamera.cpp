@@ -19,7 +19,16 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
     QFont *font = new QFont(this->font());
     font->setPointSize(9);
     this->setFont(*font);
-    QGridLayout *layout = new QGridLayout(this);
+
+    label = new ClickableLabel(this);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setText("Transform");
+    label->setAlignment(Qt::AlignCenter);
+    label->setFixedHeight(20);
+
+    editor = new QWidget(this);
+
+    QGridLayout *gridLayout = new QGridLayout(editor);
 
     QLabel *position = new QLabel(tr("Position"));
     QLabel *positionX = new QLabel(tr("X"));
@@ -59,21 +68,21 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
     fPointZInput->setMaxLength(6);
     fPointZInput->setValidator( val);
 
-    layout->addWidget(position, 0, 0);
-    layout->addWidget(positionX, 0, 1);
-    layout->addWidget(positionXInput, 0, 2);
-    layout->addWidget(positionY, 0, 3);
-    layout->addWidget(positionYInput, 0, 4);
-    layout->addWidget(positionZ, 0, 5);
-    layout->addWidget(positionZInput, 0, 6);
+    gridLayout->addWidget(position, 0, 0);
+    gridLayout->addWidget(positionX, 0, 1);
+    gridLayout->addWidget(positionXInput, 0, 2);
+    gridLayout->addWidget(positionY, 0, 3);
+    gridLayout->addWidget(positionYInput, 0, 4);
+    gridLayout->addWidget(positionZ, 0, 5);
+    gridLayout->addWidget(positionZInput, 0, 6);
 
-    layout->addWidget(fPoint, 2, 0);
-    layout->addWidget(fPointX, 2, 1);
-    layout->addWidget(fPointXInput, 2, 2);
-    layout->addWidget(fPointY, 2, 3);
-    layout->addWidget(fPointYInput, 2, 4);
-    layout->addWidget(fPointZ, 2, 5);
-    layout->addWidget(fPointZInput, 2, 6);
+    gridLayout->addWidget(fPoint, 2, 0);
+    gridLayout->addWidget(fPointX, 2, 1);
+    gridLayout->addWidget(fPointXInput, 2, 2);
+    gridLayout->addWidget(fPointY, 2, 3);
+    gridLayout->addWidget(fPointYInput, 2, 4);
+    gridLayout->addWidget(fPointZ, 2, 5);
+    gridLayout->addWidget(fPointZInput, 2, 6);
 
     double *pos = camera->GetPosition();
     double *fP = camera->GetFocalPoint();
@@ -86,15 +95,21 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
     fPointYInput->setText(to_string(fP[1]).c_str());
     fPointZInput->setText(to_string(fP[2]).c_str());
 
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setAlignment(Qt::AlignTop);
+    layout->addWidget(label);
+    layout->addWidget(editor);
+
     this->setLayout(layout);
 
-    connect(positionXInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
-    connect(positionYInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
-    connect(positionZInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
+    connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));
+    connect(positionXInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
+    connect(positionYInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
+    connect(positionZInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
 
-    connect(fPointXInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
-    connect(fPointYInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
-    connect(fPointZInput, SIGNAL(editingFinished()), this, SLOT(updateCamera()));
+    connect(fPointXInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
+    connect(fPointYInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
+    connect(fPointZInput, SIGNAL(textEdited(QString)), this, SLOT(updateCamera(QString)));
 }
 
 void TransformEditorCamera::updateFocalPoint(double *fP)
@@ -104,7 +119,7 @@ void TransformEditorCamera::updateFocalPoint(double *fP)
     fPointZInput->setText(to_string(fP[2]).c_str());
 }
 
-void TransformEditorCamera::updateCamera()
+void TransformEditorCamera::updateCamera(QString text)
 {
     double pos[3];
     pos[0] = positionXInput->text().toDouble();
@@ -119,4 +134,19 @@ void TransformEditorCamera::updateCamera()
     camera->SetPosition(pos);
     camera->SetFocalPoint(fp);
     vtkWidget->GetRenderWindow()->Render();
+}
+
+void TransformEditorCamera::labelClicked()
+{
+    if(editor->isVisible())
+    {
+        editor->setVisible(false);
+        label->setStyleSheet("QLabel { background-color : #C4C4C0  ; }");
+    }
+    else
+    {
+        editor->setVisible(true);
+        label->setStyleSheet("");
+
+    }
 }

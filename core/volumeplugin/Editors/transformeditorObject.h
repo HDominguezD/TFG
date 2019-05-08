@@ -8,6 +8,7 @@
 #include "QVTKWidget.h"
 #include "Pairs/camerapropertiespair.h"
 #include "QPushButton"
+#include "Labels/clickablelabel.h"
 
 class TransformEditorObject: public QWidget
 {
@@ -30,9 +31,13 @@ public:
 
     QPushButton *resetButton;
 
+    ClickableLabel *label;
+    QWidget *editor;
+
 public slots:
-    void updateObject();
+    void updateObject(QString text);
     void resetTransform();
+    void labelClicked();
 
 private:
     Object *object;

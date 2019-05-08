@@ -48,7 +48,7 @@ void GraphicWindow::keyPressEvent(QKeyEvent *event)
         transformEditor->positionYInput->setText(to_string(tras[1]).c_str());
         transformEditor->positionZInput->setText(to_string(tras[2]).c_str());
 
-        transformEditor->updateObject();
+        transformEditor->updateObject("");
     }
 }
 
