@@ -17,6 +17,7 @@
 #include "TreeWidgetItems/objecttreewidgetitem.h"
 #include "TreeWidgetItems/cameratreewidgetitem.h"
 #include "Editors/objecteditor.h"
+#include "graphicwindow.h"
 
 class VolumeWindow : public QDockWidget
 {
@@ -41,7 +42,7 @@ private:
     void changeFocusedToObject(ObjectPropertiesPair *objectPropertiesPair);
     void removeHierarchyObject(ObjectTreeWidgetItem *item, QTreeWidget* tree);
 
-    QVTKWidget *vtkWidget;
+    GraphicWindow *vtkWidget;
     CameraPropertiesPair *cameraPropertiesPair;
     CameraTreeWidgetItem *cameraTreeWidget;
     Core *core;

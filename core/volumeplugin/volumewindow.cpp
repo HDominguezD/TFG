@@ -14,7 +14,7 @@
 #include "vtkTransform.h"
 #include "boost/algorithm/string.hpp"
 #include "QKeyEvent"
-#include "myqvtkwidget.h"
+#include "graphicwindow.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
 #include "qfiledialog.h"
@@ -36,6 +36,7 @@
 #include "vtkOBJExporter.h"
 #include "Editors/applyconversionseditor.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "QScrollArea"
 
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
@@ -78,7 +79,7 @@ bool VolumeWindow::initialize()
         hierarchy->setMinimumHeight(200);
         hierarchy->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-        vtkWidget = new QVTKWidget(window);
+        vtkWidget = new GraphicWindow(window);
         vol->printObject(vtkWidget);
 
         QMenuBar* bar = new QMenuBar(vtkWidget);
@@ -258,6 +259,7 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
 
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
+    vtkWidget->setTransformEditor(transformEditor);
 
     propertiesLayout->addWidget(transformWidget);
 
@@ -306,7 +308,11 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
 
     propertiesLayout->addWidget(applyConversionsWidget);
 
-    properties->setWidget(propertiesWidget);
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidget(propertiesWidget);
+    scrollArea->setWidgetResizable(true);
+
+    properties->setWidget(scrollArea);
 
     ObjectPropertiesPair *objectPropertiesPair = new ObjectPropertiesPair(vol, properties);
     window->addDockWidget(Qt::RightDockWidgetArea, objectPropertiesPair->getPropertiesDock());
@@ -362,6 +368,8 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
     transformEditor->setMinimumWidth(300);
     transformEditor->setMaximumWidth(300);
 
+    vtkWidget->setTransformEditor(transformEditor);
+
     transformLayout->addWidget(transformLabel);
     transformLayout->addWidget(transformEditor);
 
@@ -387,7 +395,11 @@ ObjectPropertiesPair *VolumeWindow::createObjectPropertiesPanel(ObjObject *obj)
 
     propertiesLayout->addWidget(openMeshWidget);
 
-    properties->setWidget(propertiesWidget);
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidget(propertiesWidget);
+    scrollArea->setWidgetResizable(true);
+
+    properties->setWidget(scrollArea);
 
     ObjectPropertiesPair *objectPropertiesPair = new ObjectPropertiesPair(obj, properties);
     window->addDockWidget(Qt::RightDockWidgetArea, objectPropertiesPair->getPropertiesDock());
@@ -428,7 +440,11 @@ CameraPropertiesPair *VolumeWindow::createCameraPropertiesPanel(vtkCamera *camer
 
     //camera center widget
 
-    properties->setWidget(propertiesWidget);
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidget(propertiesWidget);
+    scrollArea->setWidgetResizable(true);
+
+    properties->setWidget(scrollArea);
 
     CameraPropertiesPair *cameraPropertiesPair = new CameraPropertiesPair(camera, properties);
     window->addDockWidget(Qt::RightDockWidgetArea, cameraPropertiesPair->getPropertiesDock());
@@ -568,6 +584,8 @@ void VolumeWindow::changeFocusedToObject(ObjectPropertiesPair *objectPropertiesP
         }
     }
     objectPropertiesPair->getPropertiesDock()->show();
+    TransformEditorObject *editor = objectPropertiesPair->getPropertiesDock()->findChild<TransformEditorObject*>();
+    vtkWidget->setTransformEditor(editor);
 
     double *center;
 
@@ -625,9 +643,9 @@ void VolumeWindow::createMesh(TifVolumeObject *vol)
     surface->ComputeNormalsOn();
 
 
-    float isoValue = 1000;
+    float isoValue = 514;
     surface->SetValue(0, isoValue);
-    surface->SetValue(1, 1800);
+    surface->SetValue(1, 257);
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(surface->GetOutputPort());
@@ -659,15 +677,23 @@ void VolumeWindow::createMesh(TifVolumeObject *vol)
 
 void VolumeWindow::createSegmentation(TifVolumeObject * vol)
 {
+    //execute evaluation script
+    string script = "~/Desktop/PythonScripts/evaluation_NN.py";
     QDir pluginsDir(qApp->applicationDirPath());
     pluginsDir.cd("Scripts");
-    string script = pluginsDir.absolutePath().toStdString() + "/evaluation_NN.py";
-    string code = "python3 " + script;
-    string fileName = std::tmpnam(nullptr);
-    code = code + " > " + fileName;
-    system(code.c_str());
-}
+    //string code = "ssh h.dominguez@212.128.1.49  'bash -s' <" + pluginsDir.absolutePath().toStdString() + "/serverSegmentation.sh";
+    string code = "ssh h.dominguez@212.128.1.49  cd Desktop | ls";
 
+    system(code.c_str());
+
+    //close server session
+//    //get output files
+//    QDir directory = QFileDialog::getExistingDirectory(Q_NULLPTR, QObject::tr("select directory to save the segmentation"));
+//    string localOutputFolder = directory.absolutePath().toStdString();
+//    code = "pscp -r h.dominguez@212.128.1.49:/home/h.dominguez/Desktop/PythonScripts/output " + localOutputFolder;
+//    system(code.c_str());
+
+}
 void VolumeWindow::openMesh()
 {
 

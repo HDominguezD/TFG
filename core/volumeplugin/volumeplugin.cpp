@@ -75,6 +75,7 @@ void VolumePlugin::openTifStack()
             dock->setFocus();
             dock->raise();
         }
+        renderingWindow->showMaximized();
     }
     else
     {

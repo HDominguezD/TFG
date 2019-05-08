@@ -7,6 +7,7 @@
 #include "QLineEdit"
 #include "QVTKWidget.h"
 #include "Pairs/camerapropertiespair.h"
+#include "QPushButton"
 
 class TransformEditorObject: public QWidget
 {
@@ -15,14 +16,6 @@ public:
     TransformEditorObject(QWidget *parent, Object *object, QVTKWidget *vtkWidget, CameraPropertiesPair *cameraPair);
 
     int digits;
-
-private slots:
-    void updateObject();
-
-private:
-    Object *object;
-    QVTKWidget *vtkWidget;
-    CameraPropertiesPair *cameraPair;
     QLineEdit *positionXInput;
     QLineEdit *positionYInput;
     QLineEdit *positionZInput;
@@ -34,6 +27,17 @@ private:
     QLineEdit *scaleXInput;
     QLineEdit *scaleYInput;
     QLineEdit *scaleZInput;
+
+    QPushButton *resetButton;
+
+public slots:
+    void updateObject();
+    void resetTransform();
+
+private:
+    Object *object;
+    QVTKWidget *vtkWidget;
+    CameraPropertiesPair *cameraPair;
 };
 
 #endif // TRANSFORMEDITOR_H

@@ -28,6 +28,11 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
 
     QLabel *position = new QLabel(tr("Position"));
     QLabel *positionX = new QLabel(tr("X"));
+
+    resetButton = new QPushButton(this);
+    resetButton->setText("Reset");
+
+
     positionXInput = new QLineEdit(this);
     positionXInput->setObjectName("PositionXInput");
     positionXInput->setValidator( val);
@@ -97,6 +102,7 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     layout->addWidget(scaleYInput, 2, 4);
     layout->addWidget(scaleZ, 2, 5);
     layout->addWidget(scaleZInput, 2, 6);
+       layout->addWidget(resetButton, 3, 6);
 
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj != nullptr)
@@ -144,17 +150,19 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
         }
     }
 
-    connect(positionXInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(positionYInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(positionZInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
+    connect(resetButton, SIGNAL(released()), this, SLOT(resetTransform()));
 
-    connect(rotationXInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(rotationYInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(rotationZInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
+    connect(positionXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(positionYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(positionZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
 
-    connect(scaleXInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(scaleYInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
-    connect(scaleZInput, SIGNAL(editingFinished()), this, SLOT(updateObject()));
+    connect(rotationXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(rotationYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(rotationZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+
+    connect(scaleXInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(scaleYInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
+    connect(scaleZInput, SIGNAL(textEdited()), this, SLOT(updateObject()));
 
 }
 
@@ -306,8 +314,25 @@ void TransformEditorObject::updateObject()
         }
     }
 
-    TransformEditorCamera *editorCamera = cameraPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
-    editorCamera->updateFocalPoint(tras);
-    cameraPair->getCamera()->SetFocalPoint(tras[0], tras[1], tras[2]);
+//    TransformEditorCamera *editorCamera = cameraPair->getPropertiesDock()->findChild<TransformEditorCamera *>("Transform Editor Camera");
+//    editorCamera->updateFocalPoint(tras);
+//    cameraPair->getCamera()->SetFocalPoint(tras[0], tras[1], tras[2]);
     vtkWidget->GetRenderWindow()->Render();
+}
+
+void TransformEditorObject::resetTransform()
+{
+    positionXInput->setText("0");
+    positionYInput->setText("0");
+    positionZInput->setText("0");
+
+    rotationXInput->setText("0");
+    rotationYInput->setText("0");
+    rotationZInput->setText("0");
+
+    scaleXInput->setText("1");
+    scaleYInput->setText("1");
+    scaleZInput->setText("1");
+
+    updateObject();
 }

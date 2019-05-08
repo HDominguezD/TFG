@@ -99,11 +99,12 @@ void PythonScriptsWindow::addArgumentButtonClicked()
     ui->addArgumentButton->objectName();
     QPushButton *addArgument = this->findChild<QPushButton*>("addArgumentButton");
     ui->gridLayout->removeWidget(addArgument);
-    ui->gridLayout->addWidget(argumentLineEdit, argumentsLines->length() + 2, 3);
-    ui->gridLayout->addWidget(dirButton, argumentsLines->length() + 2, 4);
+    ui->gridLayout->addWidget(argumentLineEdit, argumentsLines->length() + 2, 0);
+    ui->gridLayout->addWidget(dirButton, argumentsLines->length() + 2, 1);
     QPair<QLineEdit*, QPushButton*>* pair = new QPair<QLineEdit*, QPushButton*>(argumentLineEdit, dirButton);
     argumentsLines->append(pair);
-    ui->gridLayout->addWidget(addArgument, argumentsLines->length() + 3, 3);
+    ui->gridLayout->addWidget(addArgument, argumentsLines->length() + 3, 0);
+    ui->scrollArea->setWidgetResizable(true);
 
     connect(argumentLineEdit, SIGNAL(editingFinished()), this, SLOT(argumentsLineEditsEditingFinished()));
     connect(dirButton, SIGNAL(pressed()), this, SLOT(openFileButtonClicked()));
