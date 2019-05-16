@@ -64,7 +64,6 @@ private slots:
     void removeHierarchyObjects();
     void updateWidget();
     void changeName(ObjectEditor *editor, QString name);
-    void createMesh(TifVolumeObject *vol);
     void createSegmentation(TifVolumeObject *vol);
     void openMesh();
 };

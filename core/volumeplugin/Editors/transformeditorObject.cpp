@@ -31,8 +31,7 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     editor = new QWidget(this);
     QGridLayout *gridLayout = new QGridLayout(editor);
 
-    QDoubleValidator *val = new QDoubleValidator(0);
-    val->setDecimals(digits);
+    QRegExpValidator *val = new QRegExpValidator(QRegExp("[--+]?[0-9]+.[0-9][0-9]"));
 
     QLabel *position = new QLabel(tr("Position"));
     QLabel *positionX = new QLabel(tr("X"));
@@ -43,7 +42,7 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
 
     positionXInput = new QLineEdit(this);
     positionXInput->setObjectName("PositionXInput");
-    positionXInput->setValidator( val);
+    positionXInput->setValidator(val);
 
     QLabel *positionY = new QLabel(tr("Y"));
     positionYInput = new QLineEdit(this);
@@ -112,25 +111,63 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
     gridLayout->addWidget(scaleZInput, 2, 6);
     gridLayout->addWidget(resetButton, 3, 6);
 
+    double *center;
+    double *rot;
+    double *sca;
+
     ObjObject *obj = dynamic_cast<ObjObject*>(object);
     if(obj != nullptr)
     {
         //double *pos = obj->getActor()->GetPosition();
-        double *center = obj->getActor()->GetCenter();
-        double *rot = obj->getActor()->GetOrientation();
-        double *sca = obj->getActor()->GetScale();
+        center = obj->getActor()->GetCenter();
+        rot = obj->getActor()->GetOrientation();
+        sca = obj->getActor()->GetScale();
+    }
+    else
+    {
+        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
+        if(vol != nullptr)
+        {
+            center = vol->getVolume()->GetCenter();
+            rot = vol->getVolume()->GetOrientation();
+            sca = vol->getVolume()->GetScale();
+        }
+    }
 
-        positionXInput->setText(to_string(center[0]).c_str());
-        positionYInput->setText(to_string(center[1]).c_str());
-        positionZInput->setText(to_string(center[2]).c_str());
+    if(center && rot && sca)
+    {
+        stringstream stream;
 
-        rotationXInput->setText(to_string(rot[0]).c_str());
-        rotationYInput->setText(to_string(rot[1]).c_str());
-        rotationZInput->setText(to_string(rot[2]).c_str());
+        stream << fixed << setprecision(2) << center[0];
+        positionXInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << center[1];
+        positionYInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << center[2];
+        positionZInput->setText(stream.str().c_str());
+        stream.str(std::string());
 
-        scaleXInput->setText(to_string(sca[0]).c_str());
-        scaleYInput->setText(to_string(sca[1]).c_str());
-        scaleZInput->setText(to_string(sca[2]).c_str());
+
+        stream << fixed << setprecision(2) << rot[0];
+        rotationXInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << rot[1];
+        rotationYInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << rot[2];
+        rotationZInput->setText(stream.str().c_str());
+        stream.str(std::string());
+
+        stream << fixed << setprecision(2) << sca[0];
+        scaleXInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << sca[1];
+        scaleYInput->setText(stream.str().c_str());
+        stream.str(std::string());
+        stream << fixed << setprecision(2) << sca[2];
+        scaleZInput->setText(stream.str().c_str());
+        stream.str(std::string());
 
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setAlignment(Qt::AlignTop);
@@ -138,35 +175,6 @@ TransformEditorObject::TransformEditorObject(QWidget *parent, Object *object, QV
         layout->addWidget(editor);
 
         this->setLayout(layout);
-    }
-    else
-    {
-        TifVolumeObject *vol = dynamic_cast<TifVolumeObject*>(object);
-        if(vol != nullptr)
-        {
-            double *center = vol->getVolume()->GetCenter();
-            double *rot = vol->getVolume()->GetOrientation();
-            double *sca = vol->getVolume()->GetScale();
-
-            positionXInput->setText(to_string(center[0]).c_str());
-            positionYInput->setText(to_string(center[1]).c_str());
-            positionZInput->setText(to_string(center[2]).c_str());
-
-            rotationXInput->setText(to_string(rot[0]).c_str());
-            rotationYInput->setText(to_string(rot[1]).c_str());
-            rotationZInput->setText(to_string(rot[2]).c_str());
-
-            scaleXInput->setText(to_string(sca[0]).c_str());
-            scaleYInput->setText(to_string(sca[1]).c_str());
-            scaleZInput->setText(to_string(sca[2]).c_str());
-
-            QVBoxLayout *layout = new QVBoxLayout(this);
-            layout->setAlignment(Qt::AlignTop);
-            layout->addWidget(label);
-            layout->addWidget(editor);
-
-            this->setLayout(layout);
-        }
     }
 
     connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));

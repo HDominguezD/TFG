@@ -41,7 +41,8 @@ SOURCES += \
     TreeWidgetItems/objecttreewidgetitem.cpp \
     Editors/applyconversionseditor.cpp \
     graphicwindow.cpp \
-    Editors/Labels/clickablelabel.cpp
+    Editors/Labels/clickablelabel.cpp \
+    Editors/createmesh.cpp
 
 HEADERS += \
         volumeplugin.h \
@@ -58,7 +59,8 @@ HEADERS += \
     TreeWidgetItems/objecttreewidgetitem.h \
     Editors/applyconversionseditor.h \
     graphicwindow.h \
-    Editors/Labels/clickablelabel.h
+    Editors/Labels/clickablelabel.h \
+    Editors/createmesh.h
 
 OTHER_FILES += \
         volumeplugin.json

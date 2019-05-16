@@ -18,7 +18,6 @@ public:
     vtkSmartPointer<vtkVolume> getVolume() const;
     void readTransferFunction(string fileName);
 
-    double getMaxValue() const;
     std::array<double, 3> calculateSpacing(string name);
 
     vtkSmartPointer<vtkAxesActor> getAxes() const;
@@ -31,12 +30,16 @@ public:
 
     void setName(const string &value);
 
+    double getMaxValue() const;
+    double getMinValue() const;
+
 private:
     void readObjectFromDir(QDir directory);
     vtkSmartPointer<vtkVolume> volume;
     vtkSmartPointer<vtkImageData> data;
     vtkSmartPointer<vtkAxesActor> axes;
     double maxValue;
+    double minValue;
     string name;
     QVTKWidget *vtkWidget;
 

@@ -16,10 +16,8 @@ ApplyConversionsEditor::ApplyConversionsEditor(QWidget *parent, TifVolumeObject 
     QVBoxLayout *vLayout = new QVBoxLayout(editor);
     vLayout->setAlignment(Qt::AlignTop);
 
-    createMesh = new QPushButton(tr("create Mesh"), this);
     createSegmentation = new QPushButton(tr("Create Segmentation"), this);
 
-    vLayout->addWidget(createMesh);
     vLayout->addWidget(createSegmentation);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -30,18 +28,12 @@ ApplyConversionsEditor::ApplyConversionsEditor(QWidget *parent, TifVolumeObject 
     this->setLayout(layout);
 
     connect(label, SIGNAL(clicked()), this, SLOT(labelClicked()));
-    connect(createMesh, SIGNAL(pressed()), this, SLOT(sendCreateMeshClicked()));
     connect(createSegmentation, SIGNAL(pressed()), this, SLOT(sendCreateSegmentationClicked()));
 }
 
 TifVolumeObject *ApplyConversionsEditor::getObject() const
 {
     return object;
-}
-
-void ApplyConversionsEditor::sendCreateMeshClicked()
-{
-    emit createMeshClicked(object);
 }
 
 void ApplyConversionsEditor::sendCreateSegmentationClicked()

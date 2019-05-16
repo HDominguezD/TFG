@@ -1,3 +1,8 @@
+#include "vtkAutoInit.h"
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
+VTK_MODULE_INIT(vtkRenderingFreeType);
+VTK_MODULE_INIT(vtkInteractionStyle);
+
 #include "renderingwindow.h"
 #include "ui_renderingwindow.h"
 #include "objectclasses/abstractclasses/object.h"

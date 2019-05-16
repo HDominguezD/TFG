@@ -31,12 +31,10 @@
 #include "vtkAxesActor.h"
 #include "vtkOrientationMarkerWidget.h"
 #include "QSizePolicy"
-#include "vtkPolyDataMapper.h"
-#include "vtkMarchingCubes.h"
-#include "vtkOBJExporter.h"
 #include "Editors/applyconversionseditor.h"
 #include "vtkAbstractVolumeMapper.h"
 #include "QScrollArea"
+#include "Editors/createmesh.h"
 
 VolumeWindow::VolumeWindow(QWidget *parent) : QDockWidget(parent)
 {
@@ -246,6 +244,12 @@ ObjectPropertiesPair* VolumeWindow::createVolumePropertiesPanel(TifVolumeObject 
     connect(transferEditor, SIGNAL(colorsChanged()), this, SLOT(updateWidget()));
 
     propertiesLayout->addWidget(transferEditor);
+    //create mesh widget
+    CreateMesh *createMeshEditor = new CreateMesh(this, vol);
+    createMeshEditor->setMinimumWidth(300);
+    createMeshEditor->setMaximumWidth(300);
+
+    propertiesLayout->addWidget(createMeshEditor);
 
 
     //apply conversions widget
@@ -544,46 +548,6 @@ void VolumeWindow::changeName(ObjectEditor *editor, QString name)
             editor->getObject()->setName(name.toStdString());
         }
     }
-}
-
-void VolumeWindow::createMesh(TifVolumeObject *vol)
-{
-    //marching cubes
-    vtkSmartPointer<vtkMarchingCubes> surface = vtkSmartPointer<vtkMarchingCubes>::New();
-    surface->SetInputData(vol->getData());
-    surface->ComputeNormalsOn();
-
-
-    float isoValue = 514;
-    surface->SetValue(0, isoValue);
-    surface->SetValue(1, 257);
-
-    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(surface->GetOutputPort());
-    mapper->ScalarVisibilityOff();
-
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-
-    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor(actor);
-
-    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-
-    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save File"), "/home/Desktop/PruebasMarchingCubesmarchingCubes.obj",tr("Images (*.obj)"));
-    std::string filename = fileName.toStdString();
-
-    QFile f( fileName );
-    f.open( QIODevice::WriteOnly );
-
-    //Write OBJ File
-    vtkOBJExporter* objExporter = vtkOBJExporter::New();
-    objExporter->SetFilePrefix(filename.c_str());
-    objExporter->SetRenderWindow(renderWindow);
-    objExporter->Write();
-
-    renderWindow->Delete();
 }
 
 void VolumeWindow::createSegmentation(TifVolumeObject * vol)

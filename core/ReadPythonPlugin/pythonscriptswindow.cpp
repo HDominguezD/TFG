@@ -20,11 +20,12 @@ PythonScriptsWindow::PythonScriptsWindow(QWidget *parent) :
     argumentsLines->append(pair);
     ui->openFileButton->setIcon(QIcon::fromTheme("document-open"));
     ui->openScriptButton->setIcon(QIcon::fromTheme("folder-open"));
+    ui->removeArgumentButton->setIcon(QIcon::fromTheme("window-close"));
 
     connect(ui->argumentsLineEdit, SIGNAL(editingFinished()), this, SLOT(argumentsLineEditsEditingFinished()));
     connect(ui->openFileButton, SIGNAL(pressed()), this, SLOT(openFileButtonClicked()));
     connect(ui->addArgumentButton, SIGNAL(pressed()), this, SLOT(addArgumentButtonClicked()));
-
+    connect(ui->removeArgumentButton, SIGNAL(pressed()), this, SLOT(removeArgumentButtonClicked()));
 }
 
 PythonScriptsWindow::~PythonScriptsWindow()
@@ -94,18 +95,46 @@ void PythonScriptsWindow::addArgumentButtonClicked()
 {
     QLineEdit *argumentLineEdit = new QLineEdit();
     QPushButton *dirButton = new QPushButton();
-
     dirButton->setIcon(QIcon::fromTheme("document-open"));
-    ui->addArgumentButton->objectName();
+    QPushButton *removeButton = new QPushButton();
+    removeButton->setIcon(QIcon::fromTheme("window-close"));
+
     QPushButton *addArgument = this->findChild<QPushButton*>("addArgumentButton");
     ui->gridLayout->removeWidget(addArgument);
-    ui->gridLayout->addWidget(argumentLineEdit, argumentsLines->length() + 2, 0);
-    ui->gridLayout->addWidget(dirButton, argumentsLines->length() + 2, 1);
+    ui->gridLayout->addWidget(removeButton, argumentsLines->length() + 1, 0);
+    ui->gridLayout->addWidget(argumentLineEdit, argumentsLines->length() + 1, 1);
+    ui->gridLayout->addWidget(dirButton, argumentsLines->length() + 1, 2);
     QPair<QLineEdit*, QPushButton*>* pair = new QPair<QLineEdit*, QPushButton*>(argumentLineEdit, dirButton);
     argumentsLines->append(pair);
-    ui->gridLayout->addWidget(addArgument, argumentsLines->length() + 3, 0);
+    ui->gridLayout->addWidget(addArgument, argumentsLines->length() + 1, 0);
     ui->scrollArea->setWidgetResizable(true);
 
     connect(argumentLineEdit, SIGNAL(editingFinished()), this, SLOT(argumentsLineEditsEditingFinished()));
     connect(dirButton, SIGNAL(pressed()), this, SLOT(openFileButtonClicked()));
+    connect(removeButton, SIGNAL(pressed()), this, SLOT(removeArgumentButtonClicked()));
+}
+
+void PythonScriptsWindow::removeArgumentButtonClicked()
+{
+    QPushButton* removeArgument = qobject_cast<QPushButton*>(sender());
+    int row;
+    int index = ui->gridLayout->indexOf(removeArgument);
+    row = index / ui->gridLayout->columnCount();
+    QLineEdit *line = argumentsLines->at(row)->first;
+    QPushButton *open = argumentsLines->at(row)->second;
+
+    QPushButton *addArgument = this->findChild<QPushButton*>("addArgumentButton");
+    ui->gridLayout->removeWidget(addArgument);
+    ui->gridLayout->removeWidget(line);
+    ui->gridLayout->removeWidget(open);
+    ui->gridLayout->removeWidget(removeArgument);
+    argumentsLines->removeAt(row);
+
+    ui->gridLayout->addWidget(addArgument, argumentsLines->length() + 1, 0);
+
+    line->deleteLater();
+    open->deleteLater();
+    removeArgument->deleteLater();
+    ui->scrollArea->setWidgetResizable(true);
+
 }

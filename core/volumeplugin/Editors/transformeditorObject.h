@@ -9,6 +9,8 @@
 #include "Pairs/camerapropertiespair.h"
 #include "QPushButton"
 #include "Labels/clickablelabel.h"
+#include <iomanip>
+#include <sstream>
 
 class TransformEditorObject: public QWidget
 {

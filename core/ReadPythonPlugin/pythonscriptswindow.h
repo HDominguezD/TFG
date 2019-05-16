@@ -38,6 +38,8 @@ private slots:
 
     void addArgumentButtonClicked();
 
+    void removeArgumentButtonClicked();
+
 private:
     Ui::PythonScriptsWindow *ui;
     QList<QPair<QLineEdit*, QPushButton*>*>* argumentsLines;

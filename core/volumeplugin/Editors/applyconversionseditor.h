@@ -15,18 +15,15 @@ public:
 
 private:
     TifVolumeObject *object;
-    QPushButton *createMesh;
     QPushButton *createSegmentation;
     ClickableLabel *label;
     QWidget *editor;
 
 private slots:
-    void sendCreateMeshClicked();
     void sendCreateSegmentationClicked();
     void labelClicked();
 
 signals:
-    void createMeshClicked(TifVolumeObject* vol);
     void createSegmentationClicked(TifVolumeObject* vol);
 
 };

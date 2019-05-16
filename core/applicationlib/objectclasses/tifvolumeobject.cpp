@@ -1,8 +1,3 @@
-#include "vtkAutoInit.h"
-VTK_MODULE_INIT(vtkRenderingOpenGL2);
-VTK_MODULE_INIT(vtkRenderingFreeType);
-VTK_MODULE_INIT(vtkInteractionStyle);
-
 #include "tifvolumeobject.h"
 #include "vtkImageReader2.h"
 #include "vtkStringArray.h"
@@ -70,8 +65,10 @@ bool TifVolumeObject::readObject()
         imageData->SetExtent(imageData->GetExtent());
         imageData->AllocateScalars(header->GetDataScalarType(),1);
 
-        maxValue = 0;
-        //calculate the max value
+        ushort *firstPixel = static_cast<ushort*>(header->GetOutput()->GetScalarPointer(0, 0, 0));
+        minValue = firstPixel[0];
+        maxValue = firstPixel[0];
+        //calculate the max and min value
         for(int row = 0; row < dims[0]; ++row)
         {
             for(int col = 0; col < dims[1]; ++col)
@@ -82,6 +79,8 @@ bool TifVolumeObject::readObject()
                     ushort* pixel2 = static_cast<ushort*>(imageData->GetScalarPointer(row, col, z));
                     if(pixel[0] > maxValue)
                         maxValue = pixel[0];
+                    if(pixel[0] < minValue)
+                        minValue = pixel[0];
                     pixel2[0] = pixel[0];
                 }
 
@@ -99,8 +98,10 @@ bool TifVolumeObject::readObject()
         //image dimensions
         int *dims = header->GetOutput()->GetDimensions();
 
-        maxValue = 0;
-        //calculate the max value
+        ushort *firstPixel = static_cast<ushort*>(header->GetOutput()->GetScalarPointer(0, 0, 0));
+        minValue = firstPixel[0];
+        maxValue = firstPixel[0];
+        //calculate the max and min value
         for(int row = 0; row < dims[0]; ++row)
         {
             for(int col = 0; col < dims[1]; ++col)
@@ -110,6 +111,8 @@ bool TifVolumeObject::readObject()
                     ushort* pixel = static_cast<ushort*>(header->GetOutput()->GetScalarPointer(row, col, z));
                     if(pixel[0] > maxValue)
                         maxValue = pixel[0];
+                    if(pixel[0] < minValue)
+                        minValue = pixel[0];
                    }
 
             }
@@ -196,7 +199,7 @@ void TifVolumeObject::printObject(QVTKWidget *widget)
         renderer = vtkSmartPointer<vtkRenderer>::New();
     }
 
-    renderer->SetBackground(.2, .2, .2);
+    //renderer->SetBackground(.2, .2, .2);
 
     vtkSmartPointer<vtkTransform> transform =
         vtkSmartPointer<vtkTransform>::New();
@@ -372,6 +375,11 @@ QVTKWidget *TifVolumeObject::getVtkWidget() const
 void TifVolumeObject::setName(const string &value)
 {
     name = value;
+}
+
+double TifVolumeObject::getMinValue() const
+{
+    return minValue;
 }
 
 TifVolumeObject::~TifVolumeObject()

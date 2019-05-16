@@ -3,6 +3,8 @@
 #include "QLabel"
 #include "QIntValidator"
 #include "vtkRenderWindow.h"
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -13,8 +15,7 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
     this->camera = camera;
     this->vtkWidget = vtkWidget;
 
-    QDoubleValidator *val = new QDoubleValidator(0);
-    val->setDecimals(digits);
+    QRegExpValidator *val = new QRegExpValidator(QRegExp("[--+]?[0-9]+.[0-9][0-9]"));
 
     QFont *font = new QFont(this->font());
     font->setPointSize(9);
@@ -34,38 +35,32 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
     QLabel *positionX = new QLabel(tr("X"));
     positionXInput = new QLineEdit(this);
     positionXInput->setObjectName("PositionXInput");
-    positionXInput->setMaxLength(6);
     positionXInput->setValidator( val);
 
     QLabel *positionY = new QLabel(tr("Y"));
     positionYInput = new QLineEdit(this);
     positionYInput->setObjectName("PositionYInput");
-    positionYInput->setMaxLength(6);
     positionYInput->setValidator( val);
 
     QLabel *positionZ = new QLabel(tr("Z"));
     positionZInput = new QLineEdit(this);
     positionZInput->setObjectName("PositionZInput");
-    positionZInput->setMaxLength(6);
     positionZInput->setValidator( val);
 
     QLabel *fPoint = new QLabel(tr("Focal Point"));
     QLabel *fPointX = new QLabel(tr("X"));
     fPointXInput = new QLineEdit(this);
     fPointXInput->setObjectName("FPointXInput");
-    fPointXInput->setMaxLength(6);
     fPointXInput->setValidator( val);
 
     QLabel *fPointY = new QLabel(tr("Y"));
     fPointYInput = new QLineEdit(this);
     fPointYInput->setObjectName("FPointYInput");
-    fPointYInput->setMaxLength(6);
     fPointYInput->setValidator( val);
 
     QLabel *fPointZ = new QLabel(tr("Z"));
     fPointZInput = new QLineEdit(this);
     fPointZInput->setObjectName("FPointZInput");
-    fPointZInput->setMaxLength(6);
     fPointZInput->setValidator( val);
 
     gridLayout->addWidget(position, 0, 0);
@@ -86,14 +81,27 @@ TransformEditorCamera::TransformEditorCamera(QWidget *parent, vtkCamera *camera,
 
     double *pos = camera->GetPosition();
     double *fP = camera->GetFocalPoint();
+    stringstream stream;
 
-    positionXInput->setText(to_string(pos[0]).c_str());
-    positionYInput->setText(to_string(pos[1]).c_str());
-    positionZInput->setText(to_string(pos[2]).c_str());
+    stream << fixed << setprecision(2) << pos[0];
+    positionXInput->setText(stream.str().c_str());
+    stream.str(std::string());
+    stream << fixed << setprecision(2) << pos[1];
+    positionYInput->setText(stream.str().c_str());
+    stream.str(std::string());
+    stream << fixed << setprecision(2) << pos[2];
+    positionZInput->setText(stream.str().c_str());
+    stream.str(std::string());
 
-    fPointXInput->setText(to_string(fP[0]).c_str());
-    fPointYInput->setText(to_string(fP[1]).c_str());
-    fPointZInput->setText(to_string(fP[2]).c_str());
+    stream << fixed << setprecision(2) << fP[0];
+    fPointXInput->setText(stream.str().c_str());
+    stream.str(std::string());
+    stream << fixed << setprecision(2) << fP[1];
+    fPointYInput->setText(stream.str().c_str());
+    stream.str(std::string());
+    stream << fixed << setprecision(2) << fP[2];
+    fPointZInput->setText(stream.str().c_str());
+    stream.str(std::string());
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
